@@ -19,7 +19,6 @@ import {
   AlertCircle,
   HelpCircle,
   Info,
-  Bell,
   MessageSquare,
   Sparkles,
   GraduationCap,
@@ -191,74 +190,98 @@ export function Navbar() {
               ) : (
                 /* Authenticated User Links */
                 <>
-                  <Link
-                    href="/"
-                    className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-slate-800 transition"
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{lang === 'am' ? 'ትምህርቶች' : 'Courses'}</span>
-                  </Link>
-
-                  {userRole !== 'ADMIN' && (
-                    <Link
-                      href="/download-manager"
-                      className="flex items-center space-x-1.5 text-xs bg-slate-800/80 hover:bg-slate-700 border border-amber-500/30 text-amber-300 px-2.5 py-1.5 rounded-lg transition"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>{lang === 'am' ? 'የወረዱ' : 'Downloads'}</span>
-                    </Link>
-                  )}
-
-                  <Link
-                    href="/about"
-                    className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
-                  >
-                    <Info className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{lang === 'am' ? 'ስለ መድረኩ' : 'About'}</span>
-                  </Link>
-
-                  <Link
-                    href="/faq"
-                    className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
-                  >
-                    <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{lang === 'am' ? 'ጥያቄዎች' : 'FAQ'}</span>
-                  </Link>
-
-                  <Link
-                    href="/support"
-                    className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{lang === 'am' ? 'እርዳታ' : 'Support'}</span>
-                  </Link>
-
-                  {(userRole === 'TEACHER' || userRole === 'ADMIN') && (
-                    <Link
-                      href="/teacher"
-                      className="flex items-center space-x-1.5 text-xs bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-semibold px-2.5 py-1.5 rounded-lg transition"
-                    >
-                      <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{lang === 'am' ? 'የመምህራን መድረክ' : 'Teacher Portal'}</span>
-                    </Link>
-                  )}
-
-                  {userRole === 'ADMIN' && (
+                  {isAdminRoute ? (
+                    /* Admin Page: Do NOT duplicate options found on sidebar, no Teacher Portal */
                     <>
                       <Link
-                        href="/admin/notifications"
-                        className="flex items-center space-x-1.5 text-xs bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-200 font-semibold px-2.5 py-1.5 rounded-lg transition"
+                        href="/"
+                        className="flex items-center space-x-1.5 text-xs bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 font-semibold px-2.5 py-1.5 rounded-lg transition"
                       >
-                        <Bell className="w-3.5 h-3.5 text-purple-300" />
-                        <span>{lang === 'am' ? 'ማስታወቂያ' : 'Broadcasts'}</span>
+                        <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{lang === 'am' ? 'የተማሪዎች እይታ' : 'Student View'}</span>
                       </Link>
+
                       <Link
-                        href="/admin"
-                        className="flex items-center space-x-1.5 text-xs bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-semibold px-2.5 py-1.5 rounded-lg transition"
+                        href="/about"
+                        className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
                       >
-                        <Shield className="w-3.5 h-3.5 text-amber-400" />
-                        <span>{lang === 'am' ? 'አስተዳዳሪ' : 'Admin'}</span>
+                        <Info className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{lang === 'am' ? 'ስለ መድረኩ' : 'About'}</span>
                       </Link>
+
+                      <Link
+                        href="/faq"
+                        className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{lang === 'am' ? 'ጥያቄዎች' : 'FAQ'}</span>
+                      </Link>
+                    </>
+                  ) : (
+                    /* Non-Admin Page / Student View */
+                    <>
+                      <Link
+                        href="/"
+                        className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-slate-800 transition"
+                      >
+                        <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{lang === 'am' ? 'ትምህርቶች' : 'Courses'}</span>
+                      </Link>
+
+                      {userRole !== 'ADMIN' && (
+                        <Link
+                          href="/download-manager"
+                          className="flex items-center space-x-1.5 text-xs bg-slate-800/80 hover:bg-slate-700 border border-amber-500/30 text-amber-300 px-2.5 py-1.5 rounded-lg transition"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>{lang === 'am' ? 'የወረዱ' : 'Downloads'}</span>
+                        </Link>
+                      )}
+
+                      <Link
+                        href="/about"
+                        className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
+                      >
+                        <Info className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{lang === 'am' ? 'ስለ መድረኩ' : 'About'}</span>
+                      </Link>
+
+                      <Link
+                        href="/faq"
+                        className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{lang === 'am' ? 'ጥያቄዎች' : 'FAQ'}</span>
+                      </Link>
+
+                      <Link
+                        href="/support"
+                        className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{lang === 'am' ? 'እርዳታ' : 'Support'}</span>
+                      </Link>
+
+                      {/* Teacher Portal ONLY for TEACHER role */}
+                      {userRole === 'TEACHER' && (
+                        <Link
+                          href="/teacher"
+                          className="flex items-center space-x-1.5 text-xs bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-semibold px-2.5 py-1.5 rounded-lg transition"
+                        >
+                          <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
+                          <span>{lang === 'am' ? 'የመምህራን መድረክ' : 'Teacher Portal'}</span>
+                        </Link>
+                      )}
+
+                      {userRole === 'ADMIN' && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center space-x-1.5 text-xs bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-semibold px-2.5 py-1.5 rounded-lg transition"
+                        >
+                          <Shield className="w-3.5 h-3.5 text-amber-400" />
+                          <span>{lang === 'am' ? 'አስተዳዳሪ' : 'Admin'}</span>
+                        </Link>
+                      )}
                     </>
                   )}
                 </>
@@ -542,7 +565,7 @@ export function Navbar() {
                 </Link>
               </>
             ) : userRole === 'ADMIN' ? (
-              /* Admin Links in Mobile Drawer */
+              /* Admin Links in Mobile Drawer - no duplicate teacher portal or announcements */
               <>
                 <Link
                   href="/admin"
@@ -554,21 +577,12 @@ export function Navbar() {
                 </Link>
 
                 <Link
-                  href="/teacher"
+                  href="/"
                   onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs"
+                  className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
                 >
-                  <GraduationCap className="w-4 h-4 text-amber-400" />
-                  <span>{lang === 'am' ? 'የመምህራን መድረክ' : 'Teacher Portal'}</span>
-                </Link>
-
-                <Link
-                  href="/admin/notifications"
-                  onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-200 font-bold text-xs"
-                >
-                  <Bell className="w-4 h-4 text-purple-300" />
-                  <span>{lang === 'am' ? 'ማስታወቂያ ላክ' : 'Send Announcements'}</span>
+                  <BookOpen className="w-4 h-4 text-amber-400" />
+                  <span>{lang === 'am' ? 'የተማሪዎች እይታ (ትምህርቶች)' : 'Student View (Courses)'}</span>
                 </Link>
               </>
             ) : userRole === 'TEACHER' ? (
