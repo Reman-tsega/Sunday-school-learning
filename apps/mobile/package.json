@@ -1,0 +1,31 @@
+{
+  "name": "@eotc/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@eotc/shared": "workspace:*",
+    "expo": "~52.0.28",
+    "expo-file-system": "~18.0.7",
+    "expo-sqlite": "~15.0.6",
+    "expo-status-bar": "~2.0.1",
+    "react": "18.3.1",
+    "react-native": "0.76.6"
+  },
+  "devDependencies": {
+    "@types/react": "~18.3.12",
+    "@types/sql.js": "^1.4.9",
+    "sql.js": "^1.15.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

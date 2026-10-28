@@ -1,0 +1,320 @@
+import bcrypt from 'bcryptjs';
+import { prisma } from '../config/prisma.js';
+import { AppError } from '../middlewares/errorHandler.js';
+import {
+  generateAccessToken,
+  generateRefreshTokenString,
+  hashToken,
+  calculateRefreshTokenExpiry,
+} from '../utils/token.js';
+import type { AuthResponseData, UserProfile } from '@eotc/shared';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toUserProfile(user: any): UserProfile {
+  return {
+    id: user.id,
+    email: user.email,
+    fullName: user.fullName,
+    role: user.role,
+    isActive: user.isActive,
+    age: user.age ?? null,
+    address: user.address ?? null,
+    baptismalName: user.baptismalName ?? null,
+    phoneNumber: user.phoneNumber ?? null,
+    churchParish: user.churchParish ?? null,
+    enrolledGradeIds: user.enrolledGrades?.map((eg: any) => eg.gradeId) || [],
+    createdAt: user.createdAt.toISOString(),
+    updatedAt: user.updatedAt.toISOString(),
+  };
+}
+
+export class AuthService {
+  async register(
+    data: {
+      email: string;
+      password: string;
+      fullName: string;
+      role?: 'ADMIN' | 'TEACHER' | 'STUDENT' | undefined;
+      age?: number | null | undefined;
+      address?: string | null | undefined;
+      baptismalName?: string | null | undefined;
+      phoneNumber?: string | null | undefined;
+      churchParish?: string | null | undefined;
+      gradeIds?: string[] | undefined;
+    },
+    userAgent?: string,
+    ipAddress?: string
+  ): Promise<AuthResponseData> {
+    const existing = await prisma.user.findUnique({
+      where: { email: data.email.toLowerCase().trim() },
+    });
+    if (existing) {
+      throw new AppError(409, 'EMAIL_EXISTS', 'An account with this email already exists');
+    }
+
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(data.password, salt);
+    const role = data.role || 'STUDENT';
+
+    const user = await prisma.user.create({
+      data: {
+        email: data.email.toLowerCase().trim(),
+        passwordHash,
+        fullName: data.fullName.trim(),
+        role,
+        age: data.age ?? null,
+        address: data.address?.trim() ?? null,
+        baptismalName: data.baptismalName?.trim() ?? null,
+        phoneNumber: data.phoneNumber?.trim() ?? null,
+        churchParish: data.churchParish?.trim() ?? null,
+        ...(data.gradeIds && data.gradeIds.length > 0
+          ? {
+              enrolledGrades: {
+                create: data.gradeIds.map((gradeId) => ({ gradeId })),
+              },
+            }
+          : {}),
+      },
+      include: {
+        enrolledGrades: { select: { gradeId: true } },
+      },
+    });
+
+    const accessToken = generateAccessToken({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      fullName: user.fullName,
+    });
+
+    const rawRefreshToken = generateRefreshTokenString();
+    const tokenHash = hashToken(rawRefreshToken);
+    const expiresAt = calculateRefreshTokenExpiry();
+
+    await prisma.refreshSession.create({
+      data: {
+        tokenHash,
+        userId: user.id,
+        userAgent: userAgent ?? null,
+        ipAddress: ipAddress ?? null,
+        expiresAt,
+      },
+    });
+
+    return {
+      user: toUserProfile(user),
+      tokens: {
+        accessToken,
+        refreshToken: rawRefreshToken,
+        expiresInSeconds: user.role === 'STUDENT' ? 24 * 3600 : 15 * 60,
+      },
+    };
+  }
+
+  async login(
+    email: string,
+    password: string,
+    userAgent?: string,
+    ipAddress?: string
+  ): Promise<AuthResponseData> {
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase().trim() },
+      include: {
+        enrolledGrades: { select: { gradeId: true } },
+      },
+    });
+
+    if (!user) {
+      throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
+    }
+
+    if (!user.isActive) {
+      throw new AppError(403, 'ACCOUNT_INACTIVE', 'Account is deactivated. Please contact an administrator.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
+    }
+
+    // Issue tokens
+    const accessToken = generateAccessToken({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      fullName: user.fullName,
+    });
+
+    const rawRefreshToken = generateRefreshTokenString();
+    const tokenHash = hashToken(rawRefreshToken);
+    const expiresAt = calculateRefreshTokenExpiry();
+
+    await prisma.refreshSession.create({
+      data: {
+        tokenHash,
+        userId: user.id,
+        userAgent: userAgent ?? null,
+        ipAddress: ipAddress ?? null,
+        expiresAt,
+      },
+    });
+
+    return {
+      user: toUserProfile(user),
+      tokens: {
+        accessToken,
+        refreshToken: rawRefreshToken,
+        expiresInSeconds: user.role === 'STUDENT' ? 24 * 3600 : 15 * 60,
+      },
+    };
+  }
+
+  async refreshToken(
+    refreshTokenStr: string,
+    userAgent?: string,
+    ipAddress?: string
+  ): Promise<AuthResponseData> {
+    const tokenHash = hashToken(refreshTokenStr);
+
+    const session = await prisma.refreshSession.findUnique({
+      where: { tokenHash },
+      include: {
+        user: {
+          include: {
+            enrolledGrades: { select: { gradeId: true } },
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      throw new AppError(401, 'INVALID_REFRESH_TOKEN', 'Refresh token not recognized');
+    }
+
+    if (session.isRevoked) {
+      // Possible token reuse attempt: Revoke all sessions for this user for security
+      await prisma.refreshSession.updateMany({
+        where: { userId: session.userId },
+        data: { isRevoked: true },
+      });
+      throw new AppError(401, 'TOKEN_REUSE_DETECTED', 'Session expired or invalid. Please sign in again.');
+    }
+
+    if (session.expiresAt < new Date()) {
+      throw new AppError(401, 'REFRESH_TOKEN_EXPIRED', 'Refresh token has expired. Please sign in again.');
+    }
+
+    if (!session.user.isActive) {
+      throw new AppError(403, 'ACCOUNT_INACTIVE', 'Account is deactivated');
+    }
+
+    // Token rotation: Revoke current session
+    await prisma.refreshSession.update({
+      where: { id: session.id },
+      data: { isRevoked: true },
+    });
+
+    // Create a new session with new refresh token
+    const newRawRefreshToken = generateRefreshTokenString();
+    const newTokenHash = hashToken(newRawRefreshToken);
+    const newExpiresAt = calculateRefreshTokenExpiry();
+
+    await prisma.refreshSession.create({
+      data: {
+        tokenHash: newTokenHash,
+        userId: session.user.id,
+        userAgent: userAgent ?? session.userAgent ?? null,
+        ipAddress: ipAddress ?? session.ipAddress ?? null,
+        expiresAt: newExpiresAt,
+      },
+    });
+
+    // Issue new access token
+    const newAccessToken = generateAccessToken({
+      sub: session.user.id,
+      email: session.user.email,
+      role: session.user.role,
+      fullName: session.user.fullName,
+    });
+
+    return {
+      user: toUserProfile(session.user),
+      tokens: {
+        accessToken: newAccessToken,
+        refreshToken: newRawRefreshToken,
+        expiresInSeconds: session.user.role === 'STUDENT' ? 24 * 3600 : 15 * 60,
+      },
+    };
+  }
+
+  async logout(refreshTokenStr: string): Promise<void> {
+    if (!refreshTokenStr) return;
+    const tokenHash = hashToken(refreshTokenStr);
+    await prisma.refreshSession.updateMany({
+      where: { tokenHash },
+      data: { isRevoked: true },
+    });
+  }
+
+  async getCurrentUser(userId: string): Promise<UserProfile> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        enrolledGrades: { select: { gradeId: true } },
+      },
+    });
+
+    if (!user || !user.isActive) {
+      throw new AppError(401, 'UNAUTHORIZED', 'User not found or inactive');
+    }
+
+    return toUserProfile(user);
+  }
+
+  async updateProfile(
+    userId: string,
+    data: {
+      fullName?: string | undefined;
+      age?: number | null | undefined;
+      address?: string | null | undefined;
+      baptismalName?: string | null | undefined;
+      phoneNumber?: string | null | undefined;
+      churchParish?: string | null | undefined;
+    }
+  ): Promise<UserProfile> {
+    const existing = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!existing || !existing.isActive) {
+      throw new AppError(404, 'USER_NOT_FOUND', 'User account not found');
+    }
+
+    const updateData: {
+      fullName?: string;
+      age?: number | null;
+      address?: string | null;
+      baptismalName?: string | null;
+      phoneNumber?: string | null;
+      churchParish?: string | null;
+    } = {};
+
+    if (data.fullName !== undefined) updateData.fullName = data.fullName.trim();
+    if (data.age !== undefined) updateData.age = data.age;
+    if (data.address !== undefined) updateData.address = data.address?.trim() || null;
+    if (data.baptismalName !== undefined) updateData.baptismalName = data.baptismalName?.trim() || null;
+    if (data.phoneNumber !== undefined) updateData.phoneNumber = data.phoneNumber?.trim() || null;
+    if (data.churchParish !== undefined) updateData.churchParish = data.churchParish?.trim() || null;
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      include: {
+        enrolledGrades: { select: { gradeId: true } },
+      },
+    });
+
+    return toUserProfile(updated);
+  }
+}
+
+export const authService = new AuthService();

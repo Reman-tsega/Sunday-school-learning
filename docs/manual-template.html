@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EOTC Senbet Tmhrtbet Learning Platform — User & Deployment Manual</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 15mm 18mm 15mm;
+      @bottom-right {
+        content: counter(page);
+      }
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Nyala", "Abyssinica SIL", sans-serif;
+      color: #1e293b;
+      line-height: 1.55;
+      font-size: 10pt;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Print helpers */
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+    .avoid-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* Headings */
+    h1, h2, h3, h4, h5 {
+      color: #0f2744;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-top: 1.4em;
+      margin-bottom: 0.5em;
+    }
+    h1 {
+      font-size: 20pt;
+      border-bottom: 2.5px solid #d97706;
+      padding-bottom: 6px;
+      margin-top: 0;
+    }
+    h2 {
+      font-size: 14pt;
+      color: #1e3a8a;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 4px;
+      margin-top: 1.2em;
+    }
+    h3 {
+      font-size: 11.5pt;
+      color: #0369a1;
+      margin-top: 1em;
+    }
+    h4 {
+      font-size: 10.5pt;
+      color: #334155;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 0.8em;
+      text-align: justify;
+    }
+
+    /* Cover Page */
+    .cover-container {
+      height: 100%;
+      min-height: 250mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 3px double #d97706;
+      padding: 30mm 20mm;
+      background: radial-gradient(circle at top right, #f8fafc, #ffffff);
+    }
+    .cover-header {
+      text-align: center;
+    }
+    .church-emblem {
+      font-size: 32pt;
+      color: #b45309;
+      margin-bottom: 8px;
+    }
+    .cover-org {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #78350f;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .cover-org-amharic {
+      font-size: 15pt;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-bottom: 25px;
+    }
+    .cover-title {
+      font-size: 26pt;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    .cover-subtitle {
+      font-size: 13pt;
+      color: #475569;
+      font-weight: 500;
+      max-width: 85%;
+      margin: 0 auto 30px auto;
+      line-height: 1.4;
+    }
+    .badge-bar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .badge {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 8.5pt;
+      font-weight: 600;
+    }
+    .badge-gold {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
+    .badge-blue {
+      background: #e0f2fe;
+      border-color: #38bdf8;
+      color: #0369a1;
+    }
+    .badge-green {
+      background: #dcfce7;
+      border-color: #4ade80;
+      color: #166534;
+    }
+
+    .cover-meta {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: auto;
+    }
+    .cover-meta table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+    }
+    .cover-meta td {
+      padding: 4px 6px;
+      border: none;
+    }
+    .cover-meta td.label {
+      font-weight: 700;
+      color: #475569;
+      width: 25%;
+    }
+    .cover-meta td.val {
+      color: #0f172a;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+      font-size: 9pt;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f2744;
+      font-weight: 700;
+      font-size: 8.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+
+    /* Code Blocks */
+    pre, code {
+      font-family: Consolas, "Courier New", monospace;
+    }
+    code {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 8.5pt;
+      border: 1px solid #e2e8f0;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 8pt;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-wrap: break-word;
+      border: 1px solid #1e293b;
+      margin: 0.8em 0;
+    }
+    pre code {
+      background-color: transparent;
+      color: inherit;
+      padding: 0;
+      border: none;
+      font-size: inherit;
+    }
+
+    /* Callouts */
+    .callout {
+      border-left: 4px solid #3b82f6;
+      background-color: #eff6ff;
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin: 1em 0;
+      font-size: 9pt;
+    }
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .callout-important {
+      border-left-color: #f59e0b;
+      background-color: #fffbeb;
+    }
+    .callout-important .callout-title {
+      color: #b45309;
+    }
+    .callout-success {
+      border-left-color: #10b981;
+      background-color: #ecfdf5;
+    }
+    .callout-success .callout-title {
+      color: #065f46;
+    }
+    .callout-warning {
+      border-left-color: #ef4444;
+      background-color: #fef2f2;
+    }
+    .callout-warning .callout-title {
+      color: #991b1b;
+    }
+
+    /* Diagrams */
+    .diagram-box {
+      background-color: #f8fafc;
+      border: 1px dashed #94a3b8;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: Consolas, monospace;
+      font-size: 7.5pt;
+      line-height: 1.35;
+      color: #0f172a;
+      margin: 1em 0;
+      white-space: pre;
+    }
+
+    /* Table of contents */
+    .toc-list {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 15px;
+    }
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dotted #cbd5e1;
+      font-size: 9.5pt;
+    }
+    .toc-item-sub {
+      padding-left: 20px;
+      font-size: 8.5pt;
+      color: #475569;
+    }
+    .toc-title {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .step-badge {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      background-color: #1e3a8a;
+      color: #ffffff;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 8pt;
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .footer-bar {
+      margin-top: 30px;
+      padding-top: 8px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7.5pt;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================= -->
+  <!-- COVER PAGE                                                                -->
+  <!-- ========================================================================= -->
+  <div class="cover-container">
+    <div class="cover-header">
+      <div class="church-emblem">✝</div>
+      <div class="cover-org">Ethiopian Orthodox Tewahedo Church</div>
+      <div class="cover-org-amharic">የኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን ሰንበት ትምህርት ቤቶች አንድነት</div>
+      
+      <div class="cover-title">Learning Platform</div>
+      <div class="cover-title" style="font-size: 18pt; color: #b45309; margin-top: -6px;">User & Deployment Manual</div>
+      
+      <div class="cover-subtitle">
+        A comprehensive guide to authoring curriculum, managing users, offline-first student learning, and enterprise production DevOps deployment across parish environments.
+      </div>
+
+      <div class="badge-bar">
+        <span class="badge badge-gold">Production MVP 1.0</span>
+        <span class="badge badge-blue">Offline-First PWA & Mobile</span>
+        <span class="badge badge-green">Docker & Cloud Ready</span>
+      </div>
+    </div>
+
+    <div class="cover-meta">
+      <table>
+        <tr>
+          <td class="label">Document ID:</td>
+          <td class="val">EOTC-OPS-MAN-2026-V1</td>
+          <td class="label">Classification:</td>
+          <td class="val">Parish & DevOps Operations</td>
+        </tr>
+        <tr>
+          <td class="label">Release Version:</td>
+          <td class="val">1.0.0 (Production Verified)</td>
+          <td class="label">Release Date:</td>
+          <td class="val">October 2026</td>
+        </tr>
+        <tr>
+          <td class="label">Client Stacks:</td>
+          <td class="val">Next.js 15 PWA · React Native Expo</td>
+          <td class="label">Server Stacks:</td>
+          <td class="val">Express.js · Prisma · PostgreSQL 16</td>
+        </tr>
+        <tr>
+          <td class="label">Offline Engine:</td>
+          <td class="val">IndexedDB (Web) · SQLite (Mobile)</td>
+          <td class="label">Asset Delivery:</td>
+          <td class="val">Cloudinary CDN + Local Cached Blobs</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TABLE OF CONTENTS                                                         -->
+  <!-- ========================================================================= -->
+  <div class="page-break"></div>
+
+  <h1>Table of Contents</h1>
+
+  <ul class="toc-list">
+    <li class="toc-item"><span class="toc-title">1. System Architecture & Core Concepts</span><span>Page 3</span></li>
+    <li class="toc-item-sub">1.1 System Mission & Architecture Overview</li>
+    <li class="toc-item-sub">1.2 Monorepo Project Structure</li>
+    <li class="toc-item-sub">1.3 The Transactional Learning Package Model</li>
+    <li class="toc-item-sub">1.4 Security & Role-Based Access Control (RBAC)</li>
+    
+    <li class="toc-item" style="margin-top: 10px;"><span class="toc-title">2. Administrator Manual ("How to Use — Admin")</span><span>Page 5</span></li>
+    <li class="toc-item-sub">2.1 Accessing the Admin Management Portal</li>
+    <li class="toc-item-sub">2.2 User & Parish Role Administration</li>
+    <li class="toc-item-sub">2.3 Curriculum Hierarchy Management (Grades, Subjects, Chapters)</li>
+    <li class="toc-item-sub">2.4 Textbook Document & Clamped Page Range Mapping</li>
+    <li class="toc-item-sub">2.5 Authoring Practice Quizzes, Questions & Bilingual Choices</li>
+    <li class="toc-item-sub">2.6 Attaching Approved Reference Documents & Links</li>
+    <li class="toc-item-sub">2.7 Atomic Package Publishing & Integrity Checksums</li>
+
+    <li class="toc-item" style="margin-top: 10px;"><span class="toc-title">3. Student Manual ("How to Use — Student")</span><span>Page 9</span></li>
+    <li class="toc-item-sub">3.1 Web PWA & Mobile App Access and Installation</li>
+    <li class="toc-item-sub">3.2 Offline Authentication Credential Caching</li>
+    <li class="toc-item-sub">3.3 Curriculum Discovery & Download Manager</li>
+    <li class="toc-item-sub">3.4 Offline Study Experience (Clamped PDF Reader & References)</li>
+    <li class="toc-item-sub">3.5 Taking Practice Quizzes in Airplane Mode</li>
+    <li class="toc-item-sub">3.6 Automatic Background Progress & Attempt Synchronization</li>
+    <li class="toc-item-sub">3.7 Storage Management & Cleanup Controls</li>
+
+    <li class="toc-item" style="margin-top: 10px;"><span class="toc-title">4. DevOps & Production Deployment Guide ("How to Deploy")</span><span>Page 13</span></li>
+    <li class="toc-item-sub">4.1 Infrastructure Requirements & Hardware Sizing</li>
+    <li class="toc-item-sub">4.2 Environment Variables & Cryptographic Secrets</li>
+    <li class="toc-item-sub">4.3 Database Setup, Migrations & Automated Seeding</li>
+    <li class="toc-item-sub">4.4 Containerized Deployment (Docker Compose + Nginx Gateway)</li>
+    <li class="toc-item-sub">4.5 Host-Level Service Deployment (Systemd + PM2 + Node.js)</li>
+    <li class="toc-item-sub">4.6 Mobile Application Build & Parish Offline Sideloading (EAS / APK)</li>
+    <li class="toc-item-sub">4.7 Automated Database Backup & Disaster Recovery Scripts</li>
+    <li class="toc-item-sub">4.8 Live Production Smoke Testing & Health Monitoring</li>
+
+    <li class="toc-item" style="margin-top: 10px;"><span class="toc-title">5. Appendices & Reference Sheets</span><span>Page 19</span></li>
+    <li class="toc-item-sub">5.1 CLI Operations Cheat Sheet</li>
+    <li class="toc-item-sub">5.2 API Error Code Reference Matrix</li>
+    <li class="toc-item-sub">5.3 Parish Offline Deployment Scenarios (Rural Parishes & Labs)</li>
+  </ul>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 1: ARCHITECTURE & CORE CONCEPTS                                   -->
+  <!-- ========================================================================= -->
+  <div class="page-break"></div>
+
+  <h1>1. System Architecture & Core Concepts</h1>
+
+  <h2>1.1 System Mission & Architecture Overview</h2>
+  <p>
+    The <strong>EOTC Senbet Tmhrtbet Learning Platform</strong> is engineered specifically for the educational context of the Ethiopian Orthodox Tewahedo Church. In many urban and rural parishes across Ethiopia and the diaspora, continuous high-speed internet connectivity cannot be guaranteed. The platform operates on a strict <strong>offline-first paradigm</strong>: once an approved learning package is downloaded, a student can study textbooks, take practice quizzes with instant local scoring, and consult approved reference materials entirely offline without network access.
+  </p>
+
+  <div class="diagram-box">
+                               ┌────────────────────────────────────────────────────────┐
+                               │                 Parish / Internet Users                │
+                               └───────────────────────────┬────────────────────────────┘
+                                                           │
+                                      ┌────────────────────┴────────────────────┐
+                                      ▼                                         ▼
+                        ┌───────────────────────────┐             ┌───────────────────────────┐
+                        │      Student Web PWA      │             │     Student Mobile App    │
+                        │   (Next.js 15 / idb / SW) │             │    (Expo / SQLite / RN)   │
+                        └─────────────┬─────────────┘             └─────────────┬─────────────┘
+                                      │                                         │
+                                      └────────────────────┬────────────────────┘
+                                                           ▼
+                                      ┌─────────────────────────────────────────┐
+                                      │      Nginx Reverse Proxy & Gateway      │
+                                      │        Port 80 / 443 (SSL & Gzip)       │
+                                      └────────────────────┬────────────────────┘
+                                                           │
+                                      ┌────────────────────┴────────────────────┐
+                                      ▼                                         ▼
+                        ┌───────────────────────────┐             ┌───────────────────────────┐
+                        │   Admin & Web Frontend    │             │      Express.js API       │
+                        │    Port 3001 (Node 20)    │             │    Port 3000 (Node 20)    │
+                        └───────────────────────────┘             └─────────────┬─────────────┘
+                                                                                │
+                                                   ┌────────────────────────────┴───────────────────────────┐
+                                                   ▼                                                        ▼
+                                     ┌───────────────────────────┐                            ┌───────────────────────────┐
+                                     │       PostgreSQL 16       │                            │       Cloudinary CDN      │
+                                     │   Relational DB / Pooling │                            │  Textbooks & PDF Storage  │
+                                     └───────────────────────────┘                            └───────────────────────────┘
+  </div>
+
+  <h2>1.2 Monorepo Project Structure</h2>
+  <p>
+    The codebase is organized as a high-performance <code>pnpm</code> workspace ensuring strict contract sharing, automated typecheck verification, and code reuse across web, mobile, and server environments:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Package / App</th>
+        <th style="width: 25%;">Technology</th>
+        <th>Description & Responsibilities</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>packages/shared</code></td>
+        <td>TypeScript, Zod</td>
+        <td>Canonical Zod validation schemas, API contracts, RBAC enums, and manifest types shared across API, Web, and Mobile.</td>
+      </tr>
+      <tr>
+        <td><code>apps/api</code></td>
+        <td>Express, Prisma, PostgreSQL</td>
+        <td>RESTful API engine providing authentication, user management, curriculum publishing, download packaging, and idempotent sync.</td>
+      </tr>
+      <tr>
+        <td><code>apps/web</code></td>
+        <td>Next.js 15, Tailwind, <code>idb</code></td>
+        <td>Responsive Student Web PWA and Administrator Management Portal with client-side IndexedDB offline storage and Service Worker caching.</td>
+      </tr>
+      <tr>
+        <td><code>apps/mobile</code></td>
+        <td>Expo SDK 52, <code>expo-sqlite</code></td>
+        <td>Native cross-platform mobile application for Android and iOS utilizing SQLite repositories and local file persistence.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>1.3 The Transactional Learning Package Model</h2>
+  <p>
+    The core architectural innovation is the <strong>Learning Package</strong>: an atomic, versioned, and self-contained unit representing a single curriculum chapter. A package is only declared <code>AVAILABLE_OFFLINE</code> when the 5-step transactional verification pipeline succeeds:
+  </p>
+  <div class="callout callout-important">
+    <div class="callout-title">The 5-Step Download Completion Invariant</div>
+    <ol style="margin: 4px 0 0 16px; padding: 0;">
+      <li><strong>Manifest Retrieval</strong>: Fetches the canonical JSON manifest containing chapter metadata, checksums, and version.</li>
+      <li><strong>Textbook PDF Download & Verification</strong>: Downloads the textbook document and verifies non-zero file size and SHA-256 checksum.</li>
+      <li><strong>Downloadable Reference Verification</strong>: Downloads all attached reference files marked <code>isDownloadable: true</code>.</li>
+      <li><strong>Quiz Storage</strong>: Commits quiz questions, bilingual choices, and local answer keys into the local client database.</li>
+      <li><strong>Atomic Manifest Commit</strong>: Atomically persists the package manifest with status <code>AVAILABLE_OFFLINE</code>. If any resource fails, status remains <code>FAILED</code> or <code>PARTIALLY_DOWNLOADED</code>.</li>
+    </ol>
+  </div>
+
+  <h2>1.4 Security & Role-Based Access Control (RBAC)</h2>
+  <p>
+    The platform enforces strict role separation across three primary user tiers:
+  </p>
+  <ul>
+    <li><strong>ADMIN</strong>: Sole curriculum author and publisher; manages parish accounts; accesses <code>/api/admin/*</code> and <code>/admin</code>.</li>
+    <li><strong>TEACHER</strong>: Authorized church educators; can view student progress and curricula; blocked from administrative mutations.</li>
+    <li><strong>STUDENT</strong>: Learner accounts; browses approved curricula, downloads learning packages, and syncs quiz attempts.</li>
+  </ul>
+  <p>
+    Authentication relies on dual-token architecture: short-lived <strong>15-minute JWT access tokens</strong> and <strong>30-day revocable refresh tokens</strong> with cryptographic rotation. If an account is deactivated by an administrator, the authentication middleware immediately rejects existing tokens with <code>403 ACCOUNT_INACTIVE</code>.
+  </p>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 2: ADMINISTRATOR MANUAL                                           -->
+  <!-- ========================================================================= -->
+  <div class="page-break"></div>
+
+  <h1>2. Administrator Manual ("How to Use — Admin")</h1>
+
+  <h2>2.1 Accessing the Admin Management Portal</h2>
+  <p>
+    Administrators manage church education through the centralized web studio built into <code>apps/web</code>:
+  </p>
+  <ol>
+    <li>Navigate your browser to <code>http://localhost:3001/login</code> (or <code>https://learn.senbet.eotc-andnet.org/login</code>).</li>
+    <li>Enter your administrator email and password (initial seeded credentials: <code>admin@eotc.org</code> / <code>AdminPass123!</code>).</li>
+    <li>Upon authentication, users with the <code>ADMIN</code> role are automatically redirected to the administrative studio at <code>/admin</code>.</li>
+  </ol>
+  <p>
+    The administrative navigation bar provides instant access to <strong>Dashboard</strong>, <strong>User Management</strong>, <strong>Curriculum Studio</strong>, and <strong>Parish Analytics</strong>.
+  </p>
+
+  <h2>2.2 User & Parish Role Administration</h2>
+  <p>
+    Located at <code>/admin/users</code>, the user management module allows administrators to onboard church educators, enroll students, and control account statuses:
+  </p>
+  
+  <div class="avoid-break">
+    <h3>Creating a New User Account</h3>
+    <ol>
+      <li>Click the gold <strong>"Add User"</strong> button in the upper right corner.</li>
+      <li>Fill in user details:
+        <ul>
+          <li><strong>Full Name</strong> (e.g., <em>Dawit Hailu</em> / <em>ዳዊት ኃይሉ</em>).</li>
+          <li><strong>Email Address</strong> (unique identifier used for login).</li>
+          <li><strong>Password</strong> (minimum 8 characters, containing uppercase, lowercase, and numbers).</li>
+          <li><strong>Role Selection</strong>: Select <code>STUDENT</code>, <code>TEACHER</code>, or <code>ADMIN</code>.</li>
+        </ul>
+      </li>
+      <li>Click <strong>"Save Account"</strong>. The account is created with status <code>Active</code>.</li>
+    </ol>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Managing Existing Accounts</h3>
+    <ul>
+      <li><strong>Deactivation / Suspension</strong>: Click <em>Deactivate</em> to temporarily revoke access. The user is blocked from logging in, and any active tokens will be rejected immediately on their next request.</li>
+      <li><strong>Password Reset</strong>: Click <em>Reset Password</em> to assign a temporary password to students who forgot their credentials.</li>
+      <li><strong>Search & Filter</strong>: Use the search bar to locate parishioners by name or email.</li>
+    </ul>
+  </div>
+
+  <h2>2.3 Curriculum Hierarchy Management</h2>
+  <p>
+    The curriculum studio at <code>/admin/curriculum</code> models the traditional Sunday School structure: <strong>Grade &rarr; Subject &rarr; Chapter</strong>.
+  </p>
+
+  <div class="avoid-break">
+    <h3>Step 1: Grade Level Configuration</h3>
+    <ul>
+      <li>Grades 1 through 12 correspond to standard educational levels.</li>
+      <li>Each grade contains an English name (e.g. <em>Grade 1</em>), an Amharic liturgical name (e.g. <em>ክፍል ፩</em>), and an <code>orderIndex</code>.</li>
+      <li>The system strictly rejects grade levels outside the range of 1 to 12.</li>
+    </ul>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Step 2: Subject Definition</h3>
+    <ul>
+      <li>Subjects belong to a specific grade level (e.g. <em>Church History</em>, <em>Dogmatics / ሃይማኖተ አበው</em>, <em>Liturgical Music / ዜማ</em>).</li>
+      <li>Each subject must be assigned a unique subject code within its grade (e.g. <code>HIST-G1</code>, <code>DOGM-G1</code>).</li>
+    </ul>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Step 3: Chapter Definition</h3>
+    <ul>
+      <li>Chapters are the fundamental study and download unit.</li>
+      <li>Provide a chapter number (e.g. <code>1</code>), an English title, an Amharic title, and a study description.</li>
+      <li>Created chapters remain in <strong>Draft (Unpublished)</strong> status until full materials are configured.</li>
+    </ul>
+  </div>
+
+  <h2>2.4 Textbook Document & Clamped Page Range Mapping</h2>
+  <p>
+    Every chapter requires an official textbook PDF document. To preserve student focus and prevent cognitive overload, the platform clamps the reading view to only the assigned chapter pages:
+  </p>
+  
+  <div class="avoid-break">
+    <h3>Textbook Configuration Procedure</h3>
+    <ol>
+      <li>From <code>/admin/curriculum</code>, select the chapter and navigate to the <strong>Textbook PDF</strong> tab.</li>
+      <li>Provide the Cloudinary or CDN raw PDF URL (e.g. <code>https://res.cloudinary.com/eotc/raw/upload/v1/grade1-history.pdf</code>).</li>
+      <li>Specify the total file size in bytes and provide the SHA-256 checksum for download verification.</li>
+      <li><strong>Configure Page Clamping</strong>:
+        <ul>
+          <li><code>startPage</code>: The first page of the chapter in the complete book (e.g., <code>15</code>).</li>
+          <li><code>endPage</code>: The concluding page of the chapter (e.g., <code>35</code>).</li>
+          <li><code>totalPages</code>: The total page count of the entire PDF file (e.g., <code>180</code>).</li>
+        </ul>
+      </li>
+      <li>Click <strong>"Save Textbook Mapping"</strong>.</li>
+    </ol>
+  </div>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">Page Clamping Validation Invariants</div>
+    The API and Zod schemas enforce strict mathematical clamping:
+    <code>startPage &gt; 0</code>, <code>startPage &le; endPage</code>, and <code>endPage &le; totalPages</code>.
+    Submitting an end page exceeding the book's total pages or a start page greater than the end page is rejected with <code>400 VALIDATION_ERROR</code>.
+  </div>
+
+  <h2>2.5 Authoring Practice Quizzes & Questions</h2>
+  <p>
+    Practice quizzes reinforce learning after textbook study. Quizzes are authored directly inside the chapter studio:
+  </p>
+  <ol>
+    <li>Navigate to the <strong>Quizzes</strong> tab and click <strong>"Create Quiz"</strong>.</li>
+    <li>Enter the quiz title (e.g. <em>ምዕራፍ ፩ መመዘኛ ጥያቄዎች</em>), time limit in minutes (e.g. <code>15</code>), and minimum passing score percentage (default: <code>70%</code>).</li>
+    <li>Add multiple-choice questions:
+      <ul>
+        <li><strong>Question Prompt</strong>: Enter both English and Amharic text (e.g., <em>በዓለ ኀምሳ ሐዋርያት መንፈስ ቅዱስን የተቀበሉት የት ነበር?</em>).</li>
+        <li><strong>Point Value</strong>: Assign positive point weights (e.g. <code>10</code> points per question).</li>
+        <li><strong>Choices</strong>: Add at least 2 choices. Designate exactly one choice as <strong>Correct</strong> (<code>isCorrect: true</code>).</li>
+        <li><strong>Pedagogical Explanation</strong>: Provide a detailed Amharic explanation that will be revealed to the student upon answering (e.g., <em>ሐዋርያት በኢየሩሳሌም በጽርሐ ጽዮን ሳሉ መንፈስ ቅዱስ ወረደባቸው።</em>).</li>
+      </ul>
+    </li>
+    <li>Click <strong>"Save Question"</strong>.</li>
+  </ol>
+
+  <h2>2.6 Attaching Approved Reference Documents & Links</h2>
+  <p>
+    Under the <strong>References</strong> tab, administrators can supply supplementary readings:
+  </p>
+  <ul>
+    <li><strong>Downloadable Reference PDFs</strong>: Check <em>"Is Downloadable"</em> and provide a Cloudinary PDF link with file size and checksum. This document will be downloaded and saved to the student's device for full offline reading.</li>
+    <li><strong>External Web Resources</strong>: Leave <em>"Is Downloadable"</em> unchecked for external articles or video links. The student apps will clearly label these as <em>"Requires Internet"</em>.</li>
+  </ul>
+
+  <h2>2.7 Atomic Package Publishing & Integrity Checksums</h2>
+  <p>
+    Publishing locks the chapter and compiles the canonical <strong>Learning Package Manifest</strong>.
+  </p>
+  <div class="callout callout-important">
+    <div class="callout-title">Publishing Preconditions</div>
+    The system verifies all 4 criteria before allowing publication:
+    <ol style="margin: 4px 0 0 16px; padding: 0;">
+      <li>A textbook PDF with valid clamped page ranges is configured.</li>
+      <li>At least one practice quiz is attached.</li>
+      <li>The quiz contains at least one question.</li>
+      <li>Every question has at least one valid correct choice.</li>
+    </ol>
+  </div>
+  <p>
+    When the administrator clicks <strong>"Publish Chapter"</strong>, the API computes a SHA-256 checksum over the entire package contents, sets <code>isPublished: true</code>, and increments the chapter version. The package is now immediately available for student offline downloads.
+  </p>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 3: STUDENT MANUAL                                                 -->
+  <!-- ========================================================================= -->
+  <div class="page-break"></div>
+
+  <h1>3. Student Manual ("How to Use — Student")</h1>
+
+  <h2>3.1 Web PWA & Mobile App Access and Installation</h2>
+  <p>
+    Students can access their curriculum through either a web browser on laptops/desktops or the dedicated mobile application on Android and iOS devices.
+  </p>
+
+  <div class="avoid-break">
+    <h3>Installing the Web PWA (Progressive Web App)</h3>
+    <ol>
+      <li>Open Google Chrome, Microsoft Edge, or Safari and navigate to <code>https://learn.senbet.eotc-andnet.org</code>.</li>
+      <li>Click the <strong>"Install App"</strong> prompt in the address bar (or select <em>"Add to Home Screen"</em> on iOS Safari).</li>
+      <li>The EOTC Learning Platform icon appears on your home screen or desktop, running in a standalone window with zero browser chrome.</li>
+    </ol>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Installing the Mobile App</h3>
+    <ul>
+      <li><strong>Parish Distribution APK</strong>: Download the standalone Android APK directly from your parish coordinator and tap to install. No Google Play Store account is required.</li>
+      <li><strong>App Store Releases</strong>: Search for <em>"EOTC Senbet Learning"</em> in Google Play or Apple App Store and install.</li>
+    </ul>
+  </div>
+
+  <h2>3.2 Offline Authentication Credential Caching</h2>
+  <p>
+    The student enters their parish email and password while connected to Wi-Fi or cellular network:
+  </p>
+  <ul>
+    <li>Upon successful login, the application securely caches user profile information, role credentials, and session tokens locally (in <strong>IndexedDB</strong> on Web, and <strong>SQLite</strong> on Mobile).</li>
+    <li><strong>Airplane Mode Readiness</strong>: The student can close the application completely, disconnect from the internet, and reopen the app hours or days later. The app immediately recognizes the local session, allowing full access to all previously downloaded packages without a network prompt.</li>
+  </ul>
+
+  <h2>3.3 Curriculum Discovery & Download Manager</h2>
+  <p>
+    The home screen displays the student's assigned Grade level with all associated subjects and chapters:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Badge Indicator</th>
+        <th style="width: 25%;">Color</th>
+        <th>Meaning & Operational Guidance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>AVAILABLE_OFFLINE</code></td>
+        <td>Green</td>
+        <td>Package is 100% downloaded, verified, and ready for study in airplane mode.</td>
+      </tr>
+      <tr>
+        <td><code>NOT_DOWNLOADED</code></td>
+        <td>Gray</td>
+        <td>Chapter is published online but has not been saved to this device yet. Requires network to download.</td>
+      </tr>
+      <tr>
+        <td><code>DOWNLOADING</code></td>
+        <td>Blue / Animated</td>
+        <td>Assets are actively transferring and checksums are being calculated. Do not close app.</td>
+      </tr>
+      <tr>
+        <td><code>FAILED</code></td>
+        <td>Red</td>
+        <td>Download interrupted or checksum mismatch. Click <em>"Retry Download"</em> to resume.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="avoid-break">
+    <h3>Downloading a Package for Offline Study</h3>
+    <ol>
+      <li>Click on the desired chapter.</li>
+      <li>Click the gold button labeled <strong>"Download for Offline Study"</strong>.</li>
+      <li>The Download Manager retrieves the manifest, downloads the clamped textbook PDF, downloads offline references, writes quizzes to local storage, and verifies all SHA-256 checksums.</li>
+      <li>Once complete, the badge flips to green <strong>"Available Offline"</strong>. You can now disconnect from the internet!</li>
+    </ol>
+  </div>
+
+  <h2>3.4 Offline Study Experience (Clamped PDF Reader & References)</h2>
+  <p>
+    When studying without internet connectivity, the student experience is completely seamless:
+  </p>
+
+  <div class="avoid-break">
+    <h3>Reading Clamped Textbooks</h3>
+    <ul>
+      <li>Open the chapter and click the <strong>"Textbook"</strong> tab.</li>
+      <li>The PDF reader renders directly from the local device storage (IndexedDB Blob on Web; internal SQLite file storage on Mobile).</li>
+      <li><strong>Strict Clamping</strong>: Navigation is restricted exclusively to the chapter's assigned range (e.g. Page 15 to 35). The reader indicates: <em>"Page 1 of 20 (Book Page 15 of 180)"</em>.</li>
+      <li><strong>Automatic Reading Progress</strong>: As the student advances pages, their current reading position is saved locally. Reaching the final assigned page automatically marks the chapter as completed.</li>
+    </ul>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Opening References</h3>
+    <ul>
+      <li>Downloadable reference documents open instantly in the offline reader.</li>
+      <li>External website links display an informative dialog: <em>"This external resource requires internet access. Please reconnect when available."</em></li>
+    </ul>
+  </div>
+
+  <h2>3.5 Taking Practice Quizzes in Airplane Mode</h2>
+  <p>
+    Students can test their comprehension anywhere — on a church bus, at home, or in rural areas:
+  </p>
+  <ol>
+    <li>Navigate to the <strong>"Practice Quiz"</strong> tab.</li>
+    <li>All questions and Amharic choices load instantaneously from local storage.</li>
+    <li>Select answers for each question.</li>
+    <li>Click <strong>"Submit Practice Quiz"</strong>.</li>
+    <li><strong>Immediate Offline Feedback</strong>:
+      <ul>
+        <li>The local evaluation engine calculates the score immediately against the packaged answer keys.</li>
+        <li>The screen displays total score percentage, pass/fail status, and full Amharic explanations for every question.</li>
+      </ul>
+    </li>
+    <li><strong>Durable Outbox Queue</strong>:
+      <ul>
+        <li>The attempt is assigned a globally unique client attempt UUID (e.g. <code>ca000000-0000-4000-8000-000000000001</code>).</li>
+        <li>The attempt record is saved to the local outbox queue with status <code>PENDING_SYNC</code>.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h2>3.6 Automatic Background Progress & Attempt Synchronization</h2>
+  <p>
+    The student never needs to manually trigger a sync button. The synchronization engine operates autonomously:
+  </p>
+  <ul>
+    <li><strong>Connectivity Listener</strong>: When Wi-Fi or cellular network returns, the application detects the network transition.</li>
+    <li><strong>Batch Outbox Flush</strong>: The client sends all pending quiz attempts and reading progress updates in an atomic payload to <code>POST /api/student/sync/batch</code>.</li>
+    <li><strong>Server Scoring Truth</strong>: The server recalculates question scores using the official database choices, preventing any score tampering.</li>
+    <li><strong>Idempotent Deduplication</strong>: If network drops mid-sync and the client retries, the server recognizes previously received attempt UUIDs and responds with status <code>DUPLICATE</code> without double-counting records.</li>
+    <li><strong>Last-Write-Wins (LWW) Progress Resolution</strong>: If progress is submitted from multiple devices out of order, the server compares <code>lastStudiedAt</code> timestamps, ensuring older device updates never regress a student's highest completed page.</li>
+  </ul>
+
+  <h2>3.7 Storage Management & Cleanup Controls</h2>
+  <p>
+    Students on devices with limited storage can manage their disk space at <code>/download-manager</code>:
+  </p>
+  <ul>
+    <li>The dashboard displays exact local storage consumed (e.g. <em>42.8 MB used across 3 chapters</em>).</li>
+    <li>Students can click <strong>"Delete Local Files"</strong> on any completed chapter to free device storage.</li>
+    <li>Deleting local files does not erase completed quiz attempts or server-synchronized progress.</li>
+  </ul>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 4: DEVOPS & PRODUCTION DEPLOYMENT                                 -->
+  <!-- ========================================================================= -->
+  <div class="page-break"></div>
+
+  <h1>4. DevOps & Production Deployment Guide ("How to Deploy")</h1>
+
+  <h2>4.1 Infrastructure Requirements & Hardware Sizing</h2>
+  <p>
+    The platform is lightweight, compiled to optimized production artifacts, and containerized for deployment on any standard cloud provider (AWS, DigitalOcean, Hetzner, Linode) or on-premise parish server:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Resource</th>
+        <th style="width: 25%;">Minimum Specification</th>
+        <th style="width: 25%;">Recommended Production</th>
+        <th>Parish / Local Lab Server</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Operating System</strong></td>
+        <td>Ubuntu 22.04 LTS / Debian 12</td>
+        <td>Ubuntu 24.04 LTS</td>
+        <td>Windows 11 / Ubuntu Server</td>
+      </tr>
+      <tr>
+        <td><strong>CPU / Processor</strong></td>
+        <td>2 vCPU (x86_64 or ARM64)</td>
+        <td>4 vCPU</td>
+        <td>2 Cores</td>
+      </tr>
+      <tr>
+        <td><strong>System RAM</strong></td>
+        <td>4 GB RAM</td>
+        <td>8 GB RAM</td>
+        <td>4 GB RAM</td>
+      </tr>
+      <tr>
+        <td><strong>Disk Storage</strong></td>
+        <td>30 GB SSD</td>
+        <td>80 GB NVMe with daily backups</td>
+        <td>50 GB SSD</td>
+      </tr>
+      <tr>
+        <td><strong>Network Ports</strong></td>
+        <td colspan="3">80 (HTTP), 443 (HTTPS), 3000 (API internal), 3001 (Web internal), 5432 (Postgres internal)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>4.2 Environment Variables & Cryptographic Secrets</h2>
+  <p>
+    Create a production <code>.env</code> file in the repository root directory before deployment:
+  </p>
+
+  <pre><code># ==============================================================================
+# EOTC LEARNING PLATFORM — PRODUCTION ENVIRONMENT CONFIGURATION
+# ==============================================================================
+
+# Core Runtime Environment
+NODE_ENV=production
+PORT=3000
+API_URL=https://api.senbet.eotc-andnet.org
+WEB_URL=https://learn.senbet.eotc-andnet.org
+
+# Database Connection (PostgreSQL 16)
+DATABASE_URL="postgresql://postgres:YourSecurePassword2026!@postgres:5432/eotc_learning?schema=public&connection_limit=25&pool_timeout=15"
+
+# Cryptographic Authentication Secrets (Generate with: openssl rand -hex 64)
+JWT_ACCESS_SECRET="9a4b8c...64charHexSecret"
+JWT_REFRESH_SECRET="f1e2d3...64charHexSecret"
+JWT_ACCESS_EXPIRES_IN="15m"
+JWT_REFRESH_EXPIRES_IN="30d"
+
+# Cloudinary Storage Configuration (Textbooks & Downloadable References)
+CLOUDINARY_CLOUD_NAME="eotc-andnet"
+CLOUDINARY_API_KEY="your-api-key"
+CLOUDINARY_API_SECRET="your-api-secret"
+CLOUDINARY_FOLDER="eotc-learning"
+
+# Client CORS Origins (Comma-separated)
+CORS_ORIGIN="https://learn.senbet.eotc-andnet.org,https://admin.senbet.eotc-andnet.org"</code></pre>
+
+  <div class="callout callout-important">
+    <div class="callout-title">Generating Production Cryptographic Keys</div>
+    Run this command in terminal to generate secure, unguessable 64-byte secrets:
+    <pre><code>node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"</code></pre>
+  </div>
+
+  <h2>4.3 Database Setup, Migrations & Automated Seeding</h2>
+  <p>
+    Before starting services, deploy canonical database migrations and populate foundational Sunday School grades:
+  </p>
+  <pre><code># 1. Start the PostgreSQL 16 container
+docker compose up -d postgres
+
+# 2. Apply Prisma database schema migrations
+pnpm --filter "@eotc/api" prisma migrate deploy
+
+# 3. Seed initial roles, default administrator, and Grades 1-4 curriculum
+pnpm --filter "@eotc/api" prisma db seed</code></pre>
+
+  <h2>4.4 Containerized Deployment (Docker Compose + Nginx Gateway)</h2>
+  <p>
+    The recommended deployment method encapsulates all services in isolated, multi-stage Docker containers with an automated Nginx reverse proxy gateway:
+  </p>
+
+  <div class="avoid-break">
+    <h3>Step 1: Inspect Multi-Container Architecture (docker-compose.prod.yml)</h3>
+    <ul>
+      <li><code>eotc_prod_postgres</code>: PostgreSQL 16 Alpine container with persistent data volume and automated <code>pg_isready</code> health checking.</li>
+      <li><code>eotc_prod_api</code>: Express.js API container built with multi-stage Alpine image, non-root user execution, and <code>dumb-init</code> signal forwarding.</li>
+      <li><code>eotc_prod_web</code>: Next.js 15 PWA container running optimized standalone production server on port 3001.</li>
+      <li><code>eotc_prod_nginx</code>: Production gateway managing reverse proxy routing, SSL termination, and caching rules.</li>
+    </ul>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Step 2: Nginx Gateway Caching & Security Rules (nginx/nginx.conf)</h3>
+    <p>The gateway implements crucial PWA and performance rules:</p>
+    <ul>
+      <li><strong>Service Worker Cache Busting</strong>: <code>/sw.js</code> is served with strict <code>Cache-Control: "no-cache, no-store, must-revalidate"</code> so students always receive the latest offline service worker instantly.</li>
+      <li><strong>Web Manifest Caching</strong>: <code>/manifest.json</code> is cached for 1 hour.</li>
+      <li><strong>Immutable Static Assets</strong>: <code>/_next/static/</code> files are cached for 1 year with <code>immutable</code> flag.</li>
+      <li><strong>Security Headers</strong>: Injects <code>X-Frame-Options SAMEORIGIN</code>, <code>X-Content-Type-Options nosniff</code>, and <code>Referrer-Policy strict-origin-when-cross-origin</code>.</li>
+      <li><strong>Gzip Compression</strong>: Compresses text, JSON, and application scripts on the fly.</li>
+    </ul>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Step 3: Launch Production Stack</h3>
+    <pre><code># Build and launch all services in background
+docker compose -f docker-compose.prod.yml up -d --build
+
+# Verify container health and status
+docker compose -f docker-compose.prod.yml ps</code></pre>
+  </div>
+
+  <h2>4.5 Host-Level Service Deployment (Systemd + PM2 + Node.js)</h2>
+  <p>
+    For bare-metal Linux servers or virtual machines deploying without Docker:
+  </p>
+
+  <div class="avoid-break">
+    <h3>Option A: Linux Systemd Units</h3>
+    <p>Create <code>/etc/systemd/system/eotc-api.service</code>:</p>
+    <pre><code>[Unit]
+Description=EOTC Learning Platform API Service
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=eotc
+WorkingDirectory=/var/www/senbet-learning/apps/api
+EnvironmentFile=/var/www/senbet-learning/.env
+ExecStart=/usr/bin/node dist/server.js
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=eotc-api
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Option B: PM2 Process Manager</h3>
+    <pre><code># Install PM2 globally
+npm install -g pm2
+
+# Build all monorepo apps
+pnpm build
+
+# Start API and Web services with cluster mode
+pm2 start apps/api/dist/server.js --name "eotc-api" -i max
+pm2 start "pnpm --filter '@eotc/web' start" --name "eotc-web"
+
+# Save process list for system reboot persistence
+pm2 save
+pm2 startup</code></pre>
+  </div>
+
+  <h2>4.6 Mobile Application Build & Parish Offline Sideloading (EAS / APK)</h2>
+  <p>
+    The mobile application can be distributed directly to Sunday School students and teachers without requiring Google Play or Apple App Store accounts:
+  </p>
+
+  <div class="avoid-break">
+    <h3>1. Direct Parish Offline APK Build (Android)</h3>
+    <p>
+      Using Expo Application Services (EAS), build an installable APK for parish distribution:
+    </p>
+    <pre><code># Install EAS CLI globally
+npm install -g eas-cli
+
+# Navigate to mobile project
+cd apps/mobile
+
+# Build standalone Android APK
+eas build --platform android --profile preview-apk --local</code></pre>
+    <p>
+      The generated <code>.apk</code> file can be copied to USB drives or local SD cards and installed on parish tablets or Android smartphones via USB transfer or local Wi-Fi sharing.
+    </p>
+  </div>
+
+  <div class="avoid-break">
+    <h3>2. App Store Distribution Builds</h3>
+    <pre><code># Build Google Play Android App Bundle (AAB)
+eas build --platform android --profile production
+
+# Build Apple App Store IPA
+eas build --platform ios --profile production</code></pre>
+  </div>
+
+  <h2>4.7 Automated Database Backup & Disaster Recovery Scripts</h2>
+  <p>
+    Parish data integrity is mission-critical. Automated backup and restoration scripts are included in the repository:
+  </p>
+
+  <div class="avoid-break">
+    <h3>Automated Backup Execution (scripts/backup-db.ps1)</h3>
+    <pre><code># Execute automated database backup
+powershell -ExecutionPolicy Bypass -File .\scripts\backup-db.ps1</code></pre>
+    <p>
+      This script dumps the PostgreSQL database into <code>backups/backup_YYYYMMDD_HHMMSS.sql.gz</code>, calculates SHA-256 integrity hashes, and automatically purges archives older than 30 days. On Linux servers, configure this command in <code>crontab</code> to run nightly at 2:00 AM.
+    </p>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Database Restoration (scripts/restore-db.ps1)</h3>
+    <pre><code># Restore from backup archive
+powershell -ExecutionPolicy Bypass -File .\scripts\restore-db.ps1 -BackupFile .\backups\backup_20261021_050000.sql.gz</code></pre>
+  </div>
+
+  <h2>4.8 Live Production Smoke Testing & Health Monitoring</h2>
+  <p>
+    Verify end-to-end service health immediately following any deployment using the automated smoke test script:
+  </p>
+  <pre><code>powershell -ExecutionPolicy Bypass -File .\scripts\smoke-test.ps1 -BaseUrl http://localhost:4000</code></pre>
+
+  <div class="avoid-break">
+    <h3>Production Health Checklist</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 30%;">Endpoint</th>
+          <th style="width: 20%;">Method</th>
+          <th style="width: 20%;">Expected Status</th>
+          <th>Verification Goal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/api/health</code></td>
+          <td><code>GET</code></td>
+          <td><code>200 OK</code></td>
+          <td>API process uptime and PostgreSQL connection pool responsiveness.</td>
+        </tr>
+        <tr>
+          <td><code>/api/curriculum/grades</code></td>
+          <td><code>GET</code></td>
+          <td><code>200 OK</code></td>
+          <td>Public curriculum catalog discovery and database read operations.</td>
+        </tr>
+        <tr>
+          <td><code>/api/admin/users</code></td>
+          <td><code>GET</code> (no token)</td>
+          <td><code>401 Unauthorized</code></td>
+          <td>Security check: verifies unauthenticated requests are strictly rejected.</td>
+        </tr>
+        <tr>
+          <td><code>/sw.js</code></td>
+          <td><code>GET</code></td>
+          <td><code>200 OK</code></td>
+          <td>Verifies offline Service Worker script is served with <code>no-cache</code> header.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 5: APPENDICES & REFERENCE SHEETS                                  -->
+  <!-- ========================================================================= -->
+  <div class="page-break"></div>
+
+  <h1>5. Appendices & Reference Sheets</h1>
+
+  <h2>5.1 CLI Operations Cheat Sheet</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 35%;">Task / Operation</th>
+        <th>Command</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Run All Monorepo Tests</td>
+        <td><code>pnpm test</code></td>
+      </tr>
+      <tr>
+        <td>Run Senior QA Integrity Suite</td>
+        <td><code>pnpm --filter "@eotc/api" test qa-senior-e2e</code></td>
+      </tr>
+      <tr>
+        <td>Run Typecheck Across Workspace</td>
+        <td><code>pnpm typecheck</code></td>
+      </tr>
+      <tr>
+        <td>Compile Production Builds</td>
+        <td><code>pnpm build</code></td>
+      </tr>
+      <tr>
+        <td>Deploy Prisma Migrations</td>
+        <td><code>pnpm --filter "@eotc/api" prisma migrate deploy</code></td>
+      </tr>
+      <tr>
+        <td>Seed Database Curriculum</td>
+        <td><code>pnpm --filter "@eotc/api" prisma db seed</code></td>
+      </tr>
+      <tr>
+        <td>Launch Docker Production Stack</td>
+        <td><code>docker compose -f docker-compose.prod.yml up -d --build</code></td>
+      </tr>
+      <tr>
+        <td>Execute Database Backup</td>
+        <td><code>powershell -ExecutionPolicy Bypass -File .\scripts\backup-db.ps1</code></td>
+      </tr>
+      <tr>
+        <td>Execute Live Smoke Tests</td>
+        <td><code>powershell -ExecutionPolicy Bypass -File .\scripts\smoke-test.ps1 -BaseUrl http://localhost:4000</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>5.2 API Error Code Reference Matrix</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Error Code</th>
+        <th style="width: 15%;">HTTP Status</th>
+        <th>Root Cause & Corrective Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>INVALID_CREDENTIALS</code></td>
+        <td><code>401</code></td>
+        <td>Incorrect email or password entered. Verify credentials or execute admin password reset.</td>
+      </tr>
+      <tr>
+        <td><code>ACCOUNT_INACTIVE</code></td>
+        <td><code>403</code></td>
+        <td>The account has been suspended by an administrator. Contact parish coordinator for reactivation.</td>
+      </tr>
+      <tr>
+        <td><code>FORBIDDEN</code></td>
+        <td><code>403</code></td>
+        <td>Access denied. Attempted to access an administrative endpoint with a student or teacher role.</td>
+      </tr>
+      <tr>
+        <td><code>VALIDATION_ERROR</code></td>
+        <td><code>400</code></td>
+        <td>Payload failed Zod validation (e.g. invalid email format, short password, or startPage &gt; endPage).</td>
+      </tr>
+      <tr>
+        <td><code>PRECONDITION_FAILED</code></td>
+        <td><code>400</code></td>
+        <td>Cannot publish chapter: missing textbook PDF, zero quizzes attached, or questions missing choices.</td>
+      </tr>
+      <tr>
+        <td><code>DUPLICATE_RESOURCE</code></td>
+        <td><code>409</code></td>
+        <td>Attempted to create a duplicate grade level, email, or subject code within the same grade.</td>
+      </tr>
+      <tr>
+        <td><code>NOT_FOUND</code></td>
+        <td><code>404</code></td>
+        <td>Requested curriculum chapter, user, or endpoint does not exist.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>5.3 Parish Offline Deployment Scenarios</h2>
+  <div class="avoid-break">
+    <h3>Scenario A: Rural Parish Sunday School (Zero Internet)</h3>
+    <ol>
+      <li>The parish coordinator visits a central church or diocese with internet access once per term.</li>
+      <li>The coordinator downloads the latest curriculum packages onto a master laptop or USB drive using the Admin Portal.</li>
+      <li>At the rural church, the coordinator installs the standalone Android APK onto parish tablets or student smartphones via USB.</li>
+      <li>Students study textbooks, read reference documents, and take practice quizzes completely offline throughout the term.</li>
+      <li>When the coordinator returns to internet connectivity, the student devices batch-sync their accumulated quiz results in seconds.</li>
+    </ol>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Scenario B: Urban Parish Computer Lab (Local Network Deployment)</h3>
+    <ol>
+      <li>Deploy the Docker Compose stack onto a local parish lab PC running Windows 11 or Linux.</li>
+      <li>Connect lab computers or student tablets to the local parish Wi-Fi router (no internet uplink required).</li>
+      <li>Students navigate their browser to <code>http://parish-server-ip:3001</code> to access the Web PWA.</li>
+      <li>All student attempts and reading progress synchronize locally to the parish PostgreSQL server.</li>
+    </ol>
+  </div>
+
+  <div class="footer-bar">
+    <span>EOTC Senbet Tmhrtbet Learning Platform · Official User & Deployment Manual</span>
+    <span>Ethiopian Orthodox Tewahedo Church · Sunday School Department</span>
+  </div>
+
+</body>
+</html>

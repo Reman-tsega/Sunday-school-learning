@@ -1,0 +1,17 @@
+{
+  "short_name": "ሰንበት ት/ቤት",
+  "name": "የሰንበት ትምህርት ቤት አንድነት የመማሪያ መድረክ",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FCFBF7",
+  "theme_color": "#0C2340",
+  "display": "standalone",
+  "scope": "/",
+  "description": "EOTC Senbet Tmhrtbetoch Andnet Lean Offline-First Learning Platform"
+}

@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "የሰንበት ት/ቤት አንድነት (EOTC Learning)",
+    "slug": "eotc-learning-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "primaryColor": "#0C2340",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.eotc.senbet.learning",
+      "infoPlist": {
+        "UIBackgroundModes": ["fetch"],
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "org.eotc.senbet.learning",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0C2340"
+      },
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      "expo-sqlite"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "eotc-learning-offline"
+      }
+    }
+  }
+}

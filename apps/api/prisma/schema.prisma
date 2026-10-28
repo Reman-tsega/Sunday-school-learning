@@ -1,0 +1,438 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum NotificationTargetType {
+  BROADCAST
+  BY_GRADE
+  BY_ROLE
+}
+
+enum PackageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum TicketCategory {
+  CURRICULUM
+  TECHNICAL_OFFLINE
+  ACCOUNT_ENROLLMENT
+  GENERAL
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id           String          @id @default(uuid())
+  email        String          @unique
+  passwordHash String
+  fullName     String
+  role         Role            @default(STUDENT)
+  isActive     Boolean         @default(true)
+  age          Int?
+  address      String?
+  baptismalName String?
+  phoneNumber  String?
+  churchParish String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  sessions             RefreshSession[]
+  quizAttempts         QuizAttempt[]
+  progress             StudentProgress[]
+  enrolledGrades       StudentGradeEnrollment[]
+  auditLogs            AuditLog[]
+  sentNotifications    Notification[]          @relation("SentNotifications")
+  receivedNotifications NotificationRecipient[]
+  supportTickets       SupportTicket[]
+  ticketMessages       TicketMessage[]
+
+  @@map("users")
+}
+
+model RefreshSession {
+  id         String   @id @default(uuid())
+  tokenHash  String   @unique
+  userId     String
+  userAgent  String?
+  ipAddress  String?
+  expiresAt  DateTime
+  isRevoked  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_sessions")
+}
+
+model Grade {
+  id          String    @id @default(uuid())
+  level       Int       @unique
+  name        String
+  amharicName String?
+  description String?
+  orderIndex  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  subjects         Subject[]
+  enrolledStudents StudentGradeEnrollment[]
+  notifications    Notification[]
+
+  @@map("grades")
+}
+
+model Subject {
+  id          String    @id @default(uuid())
+  gradeId     String
+  name        String
+  amharicName String?
+  code        String
+  description String?
+  iconUrl     String?
+  orderIndex  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Master Textbook for Subject
+  textbookUrl            String?
+  textbookFileKey        String?
+  textbookFileName       String?
+  textbookFileSize       Int?
+  textbookChecksumSha256 String?
+  textbookTotalPages     Int?
+
+  grade       Grade     @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  chapters    Chapter[]
+
+  @@unique([gradeId, code])
+  @@index([gradeId])
+  @@map("subjects")
+}
+
+model Chapter {
+  id            String             @id @default(uuid())
+  subjectId     String
+  chapterNumber Int
+  title         String
+  amharicTitle  String?
+  description   String?
+  orderIndex    Int                @default(0)
+  isPublished   Boolean            @default(false)
+  version       Int                @default(1)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  subject       Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  textbook      TextbookDocument?
+  quizzes       Quiz[]
+  references    ReferenceLink[]
+  packages      LearningPackage[]
+  progress      StudentProgress[]
+
+  @@unique([subjectId, chapterNumber])
+  @@index([subjectId])
+  @@map("chapters")
+}
+
+model TextbookDocument {
+  id             String   @id @default(uuid())
+  chapterId      String   @unique
+  title          String
+  fileUrl        String
+  fileKey        String?
+  fileSize       Int
+  checksumSha256 String
+  mimeType       String   @default("application/pdf")
+  startPage      Int
+  endPage        Int
+  totalPages     Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  chapter        Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@map("textbook_documents")
+}
+
+model Quiz {
+  id               String         @id @default(uuid())
+  chapterId        String
+  title            String
+  amharicTitle     String?
+  description      String?
+  timeLimitMinutes Int?
+  passingScore     Int            @default(70)
+  isPractice       Boolean        @default(true)
+  isPublished      Boolean        @default(false)
+  version          Int            @default(1)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  chapter          Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  questions        QuizQuestion[]
+  attempts         QuizAttempt[]
+
+  @@index([chapterId])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id                 String           @id @default(uuid())
+  quizId             String
+  prompt             String
+  amharicPrompt      String?
+  orderIndex         Int              @default(0)
+  points             Int              @default(1)
+  explanation        String?
+  amharicExplanation String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  quiz               Quiz             @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  choices            QuestionChoice[]
+  attemptAnswers     QuizAttemptAnswer[]
+
+  @@index([quizId])
+  @@map("quiz_questions")
+}
+
+model QuestionChoice {
+  id             String              @id @default(uuid())
+  questionId     String
+  text           String
+  amharicText    String?
+  orderIndex     Int                 @default(0)
+  isCorrect      Boolean             @default(false)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  question       QuizQuestion        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  attemptAnswers QuizAttemptAnswer[]
+
+  @@index([questionId])
+  @@map("question_choices")
+}
+
+model ReferenceLink {
+  id                      String   @id @default(uuid())
+  chapterId               String
+  title                   String
+  amharicTitle            String?
+  url                     String
+  isDownloadable          Boolean  @default(false)
+  downloadableDocUrl      String?
+  downloadableDocSize     Int?
+  downloadableDocChecksum String?
+  orderIndex              Int      @default(0)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  chapter                 Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([chapterId])
+  @@map("reference_links")
+}
+
+model LearningPackage {
+  id               String        @id @default(uuid())
+  chapterId        String
+  version          Int           @default(1)
+  status           PackageStatus @default(PUBLISHED)
+  manifestJson     Json
+  checksumSha256   String
+  packageSizeBytes Int
+  publishedAt      DateTime      @default(now())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  chapter          Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([chapterId, version])
+  @@index([chapterId])
+  @@map("learning_packages")
+}
+
+model QuizAttempt {
+  id                String              @id @default(uuid())
+  clientAttemptUuid String              @unique
+  userId            String
+  quizId            String
+  quizVersion       Int
+  startedAt         DateTime
+  completedAt       DateTime
+  score             Int
+  maxScore          Int
+  passed            Boolean
+  clientDevice      String              @default("unknown")
+  isOffline         Boolean             @default(true)
+  syncedAt          DateTime            @default(now())
+  createdAt         DateTime            @default(now())
+
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz              Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers           QuizAttemptAnswer[]
+
+  @@index([userId])
+  @@index([quizId])
+  @@map("quiz_attempts")
+}
+
+model QuizAttemptAnswer {
+  id               String         @id @default(uuid())
+  attemptId        String
+  questionId       String
+  selectedChoiceId String
+  isCorrect        Boolean
+  pointsEarned     Int            @default(0)
+
+  attempt          QuizAttempt    @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question         QuizQuestion   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedChoice   QuestionChoice @relation(fields: [selectedChoiceId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@map("quiz_attempt_answers")
+}
+
+model StudentProgress {
+  id            String   @id @default(uuid())
+  userId        String
+  chapterId     String
+  isCompleted   Boolean  @default(false)
+  lastReadPage  Int      @default(1)
+  lastStudiedAt DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter       Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId])
+  @@index([userId])
+  @@map("student_progress")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model StudentGradeEnrollment {
+  id         String   @id @default(uuid())
+  userId     String
+  gradeId    String
+  enrolledAt DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grade      Grade    @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gradeId])
+  @@index([userId])
+  @@index([gradeId])
+  @@map("student_grade_enrollments")
+}
+
+model Notification {
+  id             String                 @id @default(uuid())
+  title          String
+  amharicTitle   String?
+  content        String
+  amharicContent String?
+  targetType     NotificationTargetType @default(BROADCAST)
+  targetGradeId  String?
+  targetRole     Role?
+  senderId       String?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  sender         User?                  @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)
+  targetGrade    Grade?                 @relation(fields: [targetGradeId], references: [id], onDelete: SetNull)
+  recipients     NotificationRecipient[]
+
+  @@index([targetType])
+  @@index([targetGradeId])
+  @@map("notifications")
+}
+
+model NotificationRecipient {
+  id             String       @id @default(uuid())
+  notificationId String
+  userId         String
+  isRead         Boolean      @default(false)
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+  @@index([userId, isRead])
+  @@map("notification_recipients")
+}
+
+model SupportTicket {
+  id           String         @id @default(uuid())
+  ticketNumber Int            @default(autoincrement())
+  userId       String
+  subject      String
+  category     TicketCategory @default(GENERAL)
+  status       TicketStatus   @default(OPEN)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     TicketMessage[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id         String        @id @default(uuid())
+  ticketId   String
+  senderId   String
+  senderRole Role          @default(STUDENT)
+  message    String
+  createdAt  DateTime      @default(now())
+
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender     User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@index([senderId])
+  @@map("ticket_messages")
+}
+
+

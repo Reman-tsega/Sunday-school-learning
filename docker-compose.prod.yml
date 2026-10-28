@@ -1,0 +1,76 @@
+services:
+  # 1. PostgreSQL 16 Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: eotc_prod_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-StrongProductionPassword2026!}
+      POSTGRES_DB: ${POSTGRES_DB:-eotc_learning}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eotc_learning"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eotc_network
+
+  # 2. Express Backend API
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: eotc_prod_api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-StrongProductionPassword2026!}@postgres:5432/${POSTGRES_DB:-eotc_learning}?schema=public
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-eotc-access-secret-prod-2026-very-secure-key}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-eotc-refresh-secret-prod-2026-very-secure-key}
+      CORS_ORIGIN: "*"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - eotc_network
+
+  # 3. Next.js 15 Web PWA
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: eotc_prod_web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: /api
+    depends_on:
+      - api
+    networks:
+      - eotc_network
+
+  # 4. Nginx Reverse Proxy Gateway
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: eotc_prod_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web
+      - api
+    networks:
+      - eotc_network
+
+volumes:
+  postgres_prod_data:
+
+networks:
+  eotc_network:
+    driver: bridge
