@@ -190,34 +190,7 @@ export function Navbar() {
               ) : (
                 /* Authenticated User Links */
                 <>
-                  {isAdminRoute ? (
-                    /* Admin Page: Do NOT duplicate options found on sidebar, no Teacher Portal */
-                    <>
-                      <Link
-                        href="/"
-                        className="flex items-center space-x-1.5 text-xs bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 font-semibold px-2.5 py-1.5 rounded-lg transition"
-                      >
-                        <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-                        <span>{lang === 'am' ? 'የተማሪዎች እይታ' : 'Student View'}</span>
-                      </Link>
-
-                      <Link
-                        href="/about"
-                        className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
-                      >
-                        <Info className="w-3.5 h-3.5 text-amber-400" />
-                        <span>{lang === 'am' ? 'ስለ መድረኩ' : 'About'}</span>
-                      </Link>
-
-                      <Link
-                        href="/faq"
-                        className="flex items-center space-x-1 text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-800 transition"
-                      >
-                        <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
-                        <span>{lang === 'am' ? 'ጥያቄዎች' : 'FAQ'}</span>
-                      </Link>
-                    </>
-                  ) : (
+                  {isAdminRoute ? null : (
                     /* Non-Admin Page / Student View */
                     <>
                       <Link
@@ -565,25 +538,29 @@ export function Navbar() {
                 </Link>
               </>
             ) : userRole === 'ADMIN' ? (
-              /* Admin Links in Mobile Drawer - no duplicate teacher portal or announcements */
+              /* Admin Links in Mobile Drawer - no duplicate teacher portal or redundant views on admin routes */
               <>
-                <Link
-                  href="/admin"
-                  onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs"
-                >
-                  <Shield className="w-4 h-4 text-amber-400" />
-                  <span>{lang === 'am' ? 'ወደ አስተዳዳሪ ስቱዲዮ' : 'Admin Control Studio'}</span>
-                </Link>
+                {!isAdminRoute && (
+                  <>
+                    <Link
+                      href="/admin"
+                      onClick={handleNavClick}
+                      className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs"
+                    >
+                      <Shield className="w-4 h-4 text-amber-400" />
+                      <span>{lang === 'am' ? 'ወደ አስተዳዳሪ ስቱዲዮ' : 'Admin Control Studio'}</span>
+                    </Link>
 
-                <Link
-                  href="/"
-                  onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
-                >
-                  <BookOpen className="w-4 h-4 text-amber-400" />
-                  <span>{lang === 'am' ? 'የተማሪዎች እይታ (ትምህርቶች)' : 'Student View (Courses)'}</span>
-                </Link>
+                    <Link
+                      href="/"
+                      onClick={handleNavClick}
+                      className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
+                    >
+                      <BookOpen className="w-4 h-4 text-amber-400" />
+                      <span>{lang === 'am' ? 'የተማሪዎች እይታ (ትምህርቶች)' : 'Student View (Courses)'}</span>
+                    </Link>
+                  </>
+                )}
               </>
             ) : userRole === 'TEACHER' ? (
               /* Teacher Links in Mobile Drawer */
@@ -629,35 +606,37 @@ export function Navbar() {
               </>
             )}
 
-            {/* Common informational links */}
-            <div className="pt-2 border-t border-slate-800/80 grid grid-cols-3 gap-1.5">
-              <Link
-                href="/about"
-                onClick={handleNavClick}
-                className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
-              >
-                <Info className="w-4 h-4 text-amber-400 mb-1" />
-                <span className="truncate">{lang === 'am' ? 'ስለ እኛ' : 'About'}</span>
-              </Link>
+            {/* Common informational links (hidden on admin route per requirements) */}
+            {!isAdminRoute && (
+              <div className="pt-2 border-t border-slate-800/80 grid grid-cols-3 gap-1.5">
+                <Link
+                  href="/about"
+                  onClick={handleNavClick}
+                  className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
+                >
+                  <Info className="w-4 h-4 text-amber-400 mb-1" />
+                  <span className="truncate">{lang === 'am' ? 'ስለ እኛ' : 'About'}</span>
+                </Link>
 
-              <Link
-                href="/faq"
-                onClick={handleNavClick}
-                className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
-              >
-                <HelpCircle className="w-4 h-4 text-amber-400 mb-1" />
-                <span className="truncate">{lang === 'am' ? 'ጥያቄዎች' : 'FAQ'}</span>
-              </Link>
+                <Link
+                  href="/faq"
+                  onClick={handleNavClick}
+                  className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
+                >
+                  <HelpCircle className="w-4 h-4 text-amber-400 mb-1" />
+                  <span className="truncate">{lang === 'am' ? 'ጥያቄዎች' : 'FAQ'}</span>
+                </Link>
 
-              <Link
-                href="/support"
-                onClick={handleNavClick}
-                className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
-              >
-                <MessageSquare className="w-4 h-4 text-amber-400 mb-1" />
-                <span className="truncate">{lang === 'am' ? 'እርዳታ' : 'Support'}</span>
-              </Link>
-            </div>
+                <Link
+                  href="/support"
+                  onClick={handleNavClick}
+                  className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
+                >
+                  <MessageSquare className="w-4 h-4 text-amber-400 mb-1" />
+                  <span className="truncate">{lang === 'am' ? 'እርዳታ' : 'Support'}</span>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Status & Sync in Mobile Menu - ONLY for Authenticated Users */}
