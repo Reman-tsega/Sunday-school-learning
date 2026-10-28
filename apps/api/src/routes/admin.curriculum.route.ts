@@ -21,6 +21,7 @@ import {
   deleteQuiz,
   deleteQuestion,
   deleteReferenceLink,
+  deletePracticeQuestion,
   publishChapter,
   unpublishChapter,
   uploadPdf,
@@ -114,6 +115,9 @@ adminCurriculumRouter.delete('/questions/:questionId', deleteQuestion);
 // Reference Links
 adminCurriculumRouter.post('/chapters/:chapterId/references', addReferenceLink);
 adminCurriculumRouter.delete('/references/:referenceId', deleteReferenceLink);
+
+// Practice Questions
+adminCurriculumRouter.delete('/practice-questions/:questionId', deletePracticeQuestion);
 
 // Publishing Controls
 adminCurriculumRouter.post('/chapters/:chapterId/publish', publishChapter);

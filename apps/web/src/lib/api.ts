@@ -1232,6 +1232,21 @@ export class ApiClient {
     const json = await res.json();
     return json.data || [];
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async deletePracticeQuestion(questionId: string): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/admin/curriculum/practice-questions/${questionId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeader(),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to delete practice question: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
 }
 
 export const api = new ApiClient();

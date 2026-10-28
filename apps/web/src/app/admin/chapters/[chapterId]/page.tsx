@@ -21,9 +21,11 @@ import {
   ExternalLink,
   Sparkles,
   Edit3,
+  X,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import type { QuestionType } from '@eotc/shared';
 
 export default function AdminChapterStudioPage() {
   const params = useParams();
@@ -122,6 +124,144 @@ export default function AdminChapterStudioPage() {
     description: '',
   });
 
+  // Practice Questions (Self-Study Formative Drills) State
+  const [practiceQuestions, setPracticeQuestions] = useState<any[]>([]);
+  const [showPracticeQuestionModal, setShowPracticeQuestionModal] = useState(false);
+  const [isSubmittingPracticeQuestion, setIsSubmittingPracticeQuestion] = useState(false);
+  const [practiceQuestionForm, setPracticeQuestionForm] = useState({
+    questionType: 'MULTIPLE_CHOICE' as QuestionType,
+    prompt: '',
+    amharicPrompt: '',
+    explanation: '',
+    amharicExplanation: '',
+    choices: [
+      { text: '', amharicText: '', isCorrect: true, orderIndex: 1 },
+      { text: '', amharicText: '', isCorrect: false, orderIndex: 2 },
+    ],
+    tfAnswer: 'TRUE' as 'TRUE' | 'FALSE',
+    saAnswer: '',
+    saAmharicAnswer: '',
+  });
+
+  const handleAddPracticeChoice = () => {
+    setPracticeQuestionForm((prev) => ({
+      ...prev,
+      choices: [
+        ...prev.choices,
+        { text: '', amharicText: '', isCorrect: false, orderIndex: prev.choices.length + 1 },
+      ],
+    }));
+  };
+
+  const handleRemovePracticeChoice = (idxToRemove: number) => {
+    if (practiceQuestionForm.choices.length <= 2) return;
+    setPracticeQuestionForm((prev) => {
+      const updated = prev.choices.filter((_, idx) => idx !== idxToRemove);
+      if (!updated.some((c) => c.isCorrect) && updated[0]) {
+        updated[0].isCorrect = true;
+      }
+      return {
+        ...prev,
+        choices: updated.map((c, i) => ({ ...c, orderIndex: i + 1 })),
+      };
+    });
+  };
+
+  const handleSavePracticeQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!practiceQuestionForm.prompt.trim() && !practiceQuestionForm.amharicPrompt.trim()) {
+      setActionMessage({
+        type: 'error',
+        text: lang === 'am' ? 'እባክዎ የጥያቄውን ጽሑፍ ያስገቡ' : 'Please provide question prompt',
+      });
+      return;
+    }
+
+    try {
+      setIsSubmittingPracticeQuestion(true);
+      const payload: any = {
+        chapterId,
+        questionType: practiceQuestionForm.questionType,
+        prompt: practiceQuestionForm.prompt.trim() || practiceQuestionForm.amharicPrompt.trim(),
+        amharicPrompt: practiceQuestionForm.amharicPrompt.trim() || undefined,
+        explanation: practiceQuestionForm.explanation.trim() || undefined,
+        amharicExplanation: practiceQuestionForm.amharicExplanation.trim() || undefined,
+      };
+
+      if (practiceQuestionForm.questionType === 'MULTIPLE_CHOICE') {
+        const valid = practiceQuestionForm.choices.filter((c) => c.text.trim() || c.amharicText.trim());
+        if (valid.length < 2) {
+          throw new Error(lang === 'am' ? 'ቢያንስ 2 ምርጫዎች ያስፈልጋሉ' : 'At least 2 choices required');
+        }
+        if (!valid.some((c) => c.isCorrect)) valid[0]!.isCorrect = true;
+        payload.choices = valid.map((c, i) => ({
+          text: c.text.trim() || c.amharicText.trim(),
+          amharicText: c.amharicText.trim() || undefined,
+          isCorrect: c.isCorrect,
+          orderIndex: i + 1,
+        }));
+      } else if (practiceQuestionForm.questionType === 'TRUE_FALSE') {
+        payload.choices = [
+          { text: 'True', amharicText: 'እውነት', isCorrect: practiceQuestionForm.tfAnswer === 'TRUE', orderIndex: 1 },
+          { text: 'False', amharicText: 'ሐሰት', isCorrect: practiceQuestionForm.tfAnswer === 'FALSE', orderIndex: 2 },
+        ];
+      } else if (practiceQuestionForm.questionType === 'SHORT_ANSWER') {
+        payload.hasAnswer = !!(practiceQuestionForm.saAnswer.trim() || practiceQuestionForm.saAmharicAnswer.trim());
+        payload.answerText = practiceQuestionForm.saAnswer.trim() || undefined;
+        payload.amharicAnswerText = practiceQuestionForm.saAmharicAnswer.trim() || undefined;
+      }
+
+      await api.submitTeacherPracticeQuestion(payload);
+      setShowPracticeQuestionModal(false);
+      setActionMessage({
+        type: 'success',
+        text: lang === 'am' ? 'የልምምድ ጥያቄው ወዲያውኑ ጸድቆ ተመዝግቧል!' : 'Practice drill created and published immediately!',
+      });
+      // reset form
+      setPracticeQuestionForm({
+        questionType: 'MULTIPLE_CHOICE',
+        prompt: '',
+        amharicPrompt: '',
+        explanation: '',
+        amharicExplanation: '',
+        choices: [
+          { text: '', amharicText: '', isCorrect: true, orderIndex: 1 },
+          { text: '', amharicText: '', isCorrect: false, orderIndex: 2 },
+        ],
+        tfAnswer: 'TRUE',
+        saAnswer: '',
+        saAmharicAnswer: '',
+      });
+      const updated = await api.getChapterPracticeQuestions(chapterId).catch(() => []);
+      setPracticeQuestions(updated || []);
+    } catch (err: any) {
+      setActionMessage({
+        type: 'error',
+        text: err.message || (lang === 'am' ? 'ጥያቄውን መመዝገብ አልተቻለም' : 'Failed to save practice question'),
+      });
+    } finally {
+      setIsSubmittingPracticeQuestion(false);
+    }
+  };
+
+  const handleDeletePracticeQuestion = async (id: string) => {
+    if (!confirm(lang === 'am' ? 'ይህን የልምምድ ጥያቄ መሰረዝ ይፈልጋሉ?' : 'Delete this practice question?')) return;
+    try {
+      await api.deletePracticeQuestion(id);
+      setActionMessage({
+        type: 'success',
+        text: lang === 'am' ? 'የልምምድ ጥያቄው ተሰርዟል!' : 'Practice question deleted!',
+      });
+      const updated = await api.getChapterPracticeQuestions(chapterId).catch(() => []);
+      setPracticeQuestions(updated || []);
+    } catch (err: any) {
+      setActionMessage({
+        type: 'error',
+        text: err.message || (lang === 'am' ? 'መሰረዝ አልተቻለም' : 'Failed to delete practice question'),
+      });
+    }
+  };
+
   const handleUpdateChapterDetails = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -168,6 +308,9 @@ export default function AdminChapterStudioPage() {
           setUploadedPdfFileName(parts[parts.length - 1] || 'Attached PDF');
         }
       }
+
+      const drills = await api.getChapterPracticeQuestions(chapterId).catch(() => []);
+      setPracticeQuestions(drills || []);
     } catch (err: any) {
       setActionMessage({
         type: 'error',
@@ -645,8 +788,8 @@ export default function AdminChapterStudioPage() {
         </div>
       )}
 
-      {/* 3-Column Content Studio Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* 4-Section Content Studio Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {/* 1. TEXTBOOK PDF & PAGE CLAMPING */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
           <div className="flex items-center space-x-2 pb-2 border-b border-slate-800">
@@ -1071,6 +1214,101 @@ export default function AdminChapterStudioPage() {
             </div>
           )}
         </div>
+
+        {/* 4. PRACTICE DRILLS (SELF-STUDY) */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="flex items-center space-x-2">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                {lang === 'am' ? '፬. የልምምድ ጥያቄዎች' : '4. Practice Drills'}
+              </h2>
+            </div>
+            <button
+              onClick={() => setShowPracticeQuestionModal(true)}
+              className="text-[11px] text-amber-300 hover:text-amber-200 font-semibold flex items-center space-x-0.5 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
+            >
+              <PlusCircle className="w-3 h-3 mr-0.5" />
+              <span>{lang === 'am' ? 'ጥያቄ ጨምር' : 'Add Drill'}</span>
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between text-[11px] text-slate-400">
+            <span>{lang === 'am' ? 'ጠቅላላ የልምምድ ጥያቄዎች' : 'Total Practice Drills'}</span>
+            <span className="font-mono font-bold text-amber-400">{practiceQuestions.length}</span>
+          </div>
+
+          {practiceQuestions.length === 0 ? (
+            <div className="p-6 text-center text-slate-500 text-xs italic bg-slate-950 rounded-lg border border-slate-800">
+              {lang === 'am'
+                ? 'ምንም የልምምድ ጥያቄ አልተጨመረም። "ጥያቄ ጨምር" የሚለውን ይጫኑ።'
+                : 'No practice questions yet. Click "Add Drill" to create one.'}
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+              {practiceQuestions.map((q: any, idx: number) => {
+                const qType = q.questionType || 'MULTIPLE_CHOICE';
+                return (
+                  <div key={q.id} className="p-2.5 bg-slate-950/70 border border-slate-800 rounded-lg space-y-1.5">
+                    <div className="flex justify-between items-start text-xs text-slate-200 font-medium">
+                      <div className="flex-1 pr-2">
+                        <div className="flex items-center space-x-1.5 mb-1">
+                          <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-800 text-slate-300 rounded">
+                            #{idx + 1}
+                          </span>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                            qType === 'MULTIPLE_CHOICE'
+                              ? 'bg-blue-950 text-blue-300 border border-blue-800'
+                              : qType === 'TRUE_FALSE'
+                              ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                              : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                          }`}>
+                            {qType === 'MULTIPLE_CHOICE'
+                              ? (lang === 'am' ? 'ባለብዙ ምርጫ' : 'Multiple Choice')
+                              : qType === 'TRUE_FALSE'
+                              ? (lang === 'am' ? 'እውነት/ሐሰት' : 'True/False')
+                              : (lang === 'am' ? 'አጭር መልስ' : 'Short Answer')}
+                          </span>
+                        </div>
+                        <p className="line-clamp-2">{pick(q.amharicPrompt, q.prompt)}</p>
+                      </div>
+                      <button
+                        onClick={() => handleDeletePracticeQuestion(q.id)}
+                        className="text-slate-500 hover:text-red-400 p-1 transition shrink-0"
+                        title={lang === 'am' ? 'ጥያቄውን ሰርዝ' : 'Delete Drill'}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {qType === 'SHORT_ANSWER' ? (
+                      (q.answerText || q.amharicAnswerText) && (
+                        <div className="text-[11px] bg-slate-900/80 p-1.5 rounded border border-slate-800 text-slate-300">
+                          <span className="text-amber-400 font-semibold">{lang === 'am' ? 'የሚጠበቅ መልስ፡ ' : 'Expected: '}</span>
+                          <span>{pick(q.amharicAnswerText, q.answerText)}</span>
+                        </div>
+                      )
+                    ) : (
+                      <div className="space-y-0.5 pl-2 pt-0.5">
+                        {q.choices?.map((c: any) => (
+                          <div
+                            key={c.id}
+                            className={`text-[11px] flex items-center space-x-1.5 ${
+                              c.isCorrect ? 'text-emerald-400 font-semibold' : 'text-slate-400'
+                            }`}
+                          >
+                            <span>{c.isCorrect ? '✓' : '•'}</span>
+                            <span className="truncate">{pick(c.amharicText, c.text)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* CREATE QUIZ MODAL */}
@@ -1433,6 +1671,278 @@ export default function AdminChapterStudioPage() {
                   className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm"
                 >
                   {lang === 'am' ? 'አስቀምጥ' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ADD PRACTICE DRILL MODAL (ADMIN CREATION) */}
+      {showPracticeQuestionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 my-8">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-5 h-5 text-amber-400" />
+                <h2 className="text-base font-bold text-white">
+                  {lang === 'am' ? 'አዲስ የልምምድ ጥያቄ ጨምር (ቀጥታ የሚጸድቅ)' : 'Add Practice Drill (Direct Publish)'}
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowPracticeQuestionModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePracticeQuestion} className="space-y-4 text-xs">
+              {/* Question Type Switcher */}
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1.5">
+                  {lang === 'am' ? 'የጥያቄ ዓይነት' : 'Question Type'}
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { type: 'MULTIPLE_CHOICE' as QuestionType, labelEn: 'Multiple Choice', labelAm: 'ባለብዙ ምርጫ' },
+                    { type: 'TRUE_FALSE' as QuestionType, labelEn: 'True / False', labelAm: 'እውነት / ሐሰት' },
+                    { type: 'SHORT_ANSWER' as QuestionType, labelEn: 'Short Answer', labelAm: 'አጭር መልስ' },
+                  ].map((qt) => (
+                    <button
+                      key={qt.type}
+                      type="button"
+                      onClick={() => setPracticeQuestionForm((p) => ({ ...p, questionType: qt.type }))}
+                      className={`py-2 px-2 rounded-lg font-semibold text-center transition border ${
+                        practiceQuestionForm.questionType === qt.type
+                          ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm'
+                          : 'bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800'
+                      }`}
+                    >
+                      {lang === 'am' ? qt.labelAm : qt.labelEn}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Question Prompt */}
+              <div className="space-y-2">
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">
+                    {lang === 'am' ? 'የጥያቄው ጽሑፍ (አማርኛ)' : 'Question Prompt (Amharic)'}
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={practiceQuestionForm.amharicPrompt}
+                    onChange={(e) =>
+                      setPracticeQuestionForm((p) => ({ ...p, amharicPrompt: e.target.value }))
+                    }
+                    placeholder="ጥያቄውን በአማርኛ እዚህ ይጻፉ..."
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">
+                    {lang === 'am' ? 'የጥያቄው ጽሑፍ (እንግሊዝኛ - አማራጭ)' : 'Question Prompt (English - Optional)'}
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={practiceQuestionForm.prompt}
+                    onChange={(e) =>
+                      setPracticeQuestionForm((p) => ({ ...p, prompt: e.target.value }))
+                    }
+                    placeholder="Enter question prompt in English..."
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              {/* MULTIPLE CHOICE CHOICES */}
+              {practiceQuestionForm.questionType === 'MULTIPLE_CHOICE' && (
+                <div className="space-y-2 p-3 bg-slate-950/80 rounded-xl border border-slate-800">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-300 font-semibold">
+                      {lang === 'am' ? 'ምርጫዎችና ትክክለኛ መልስ' : 'Choices & Correct Answer'}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleAddPracticeChoice}
+                      className="text-amber-400 hover:text-amber-300 font-semibold flex items-center space-x-1"
+                    >
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      <span>{lang === 'am' ? 'ምርጫ ጨምር' : 'Add Choice'}</span>
+                    </button>
+                  </div>
+
+                  {practiceQuestionForm.choices.map((choice, cIdx) => (
+                    <div key={cIdx} className="flex items-center space-x-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                      <input
+                        type="radio"
+                        name="adminPracticeChoice"
+                        checked={choice.isCorrect}
+                        onChange={() => {
+                          setPracticeQuestionForm((p) => ({
+                            ...p,
+                            choices: p.choices.map((c, i) => ({ ...c, isCorrect: i === cIdx })),
+                          }));
+                        }}
+                        className="w-4 h-4 text-amber-500 focus:ring-amber-400 cursor-pointer"
+                        title="Mark correct"
+                      />
+                      <input
+                        type="text"
+                        placeholder={lang === 'am' ? `ምርጫ ${cIdx + 1} (አማርኛ)` : `Choice ${cIdx + 1} (Amharic)`}
+                        value={choice.amharicText}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setPracticeQuestionForm((p) => ({
+                            ...p,
+                            choices: p.choices.map((c, i) => (i === cIdx ? { ...c, amharicText: val } : c)),
+                          }));
+                        }}
+                        className="flex-1 bg-slate-950 border border-slate-700 rounded px-2.5 py-1 text-white"
+                      />
+                      <input
+                        type="text"
+                        placeholder={`Choice ${cIdx + 1} (En)`}
+                        value={choice.text}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setPracticeQuestionForm((p) => ({
+                            ...p,
+                            choices: p.choices.map((c, i) => (i === cIdx ? { ...c, text: val } : c)),
+                          }));
+                        }}
+                        className="w-28 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-white text-[11px]"
+                      />
+                      {practiceQuestionForm.choices.length > 2 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePracticeChoice(cIdx)}
+                          className="text-slate-500 hover:text-red-400 p-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* TRUE / FALSE */}
+              {practiceQuestionForm.questionType === 'TRUE_FALSE' && (
+                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2">
+                  <label className="block text-slate-300 font-semibold mb-1">
+                    {lang === 'am' ? 'ትክክለኛውን መልስ ይምረጡ' : 'Select Correct Truth Value'}
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPracticeQuestionForm((p) => ({ ...p, tfAnswer: 'TRUE' }))}
+                      className={`py-2 px-3 rounded-lg font-bold flex items-center justify-center space-x-2 border transition ${
+                        practiceQuestionForm.tfAnswer === 'TRUE'
+                          ? 'bg-emerald-600 text-white border-emerald-400 shadow'
+                          : 'bg-slate-900 text-slate-400 border-slate-700 hover:bg-slate-800'
+                      }`}
+                    >
+                      <span>✓ {lang === 'am' ? 'እውነት (True)' : 'True'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPracticeQuestionForm((p) => ({ ...p, tfAnswer: 'FALSE' }))}
+                      className={`py-2 px-3 rounded-lg font-bold flex items-center justify-center space-x-2 border transition ${
+                        practiceQuestionForm.tfAnswer === 'FALSE'
+                          ? 'bg-rose-600 text-white border-rose-400 shadow'
+                          : 'bg-slate-900 text-slate-400 border-slate-700 hover:bg-slate-800'
+                      }`}
+                    >
+                      <span>✕ {lang === 'am' ? 'ሐሰት (False)' : 'False'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* SHORT ANSWER */}
+              {practiceQuestionForm.questionType === 'SHORT_ANSWER' && (
+                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2">
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">
+                      {lang === 'am' ? 'የሚጠበቅ መልስ (አማርኛ - አማራጭ)' : 'Expected Answer (Amharic - Optional)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={practiceQuestionForm.saAmharicAnswer}
+                      onChange={(e) =>
+                        setPracticeQuestionForm((p) => ({ ...p, saAmharicAnswer: e.target.value }))
+                      }
+                      placeholder="ተማሪው መልስ ሲከፍት የሚታየው መልስ..."
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">
+                      {lang === 'am' ? 'የሚጠበቅ መልስ (እንግሊዝኛ - አማራጭ)' : 'Expected Answer (English - Optional)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={practiceQuestionForm.saAnswer}
+                      onChange={(e) =>
+                        setPracticeQuestionForm((p) => ({ ...p, saAnswer: e.target.value }))
+                      }
+                      placeholder="Model answer revealed when student clicks Show Answer..."
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* EXPLANATION */}
+              <div className="space-y-2">
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">
+                    {lang === 'am' ? 'መንፈሳዊ ማብራሪያ (አማርኛ - አማራጭ)' : 'Spiritual Explanation (Amharic - Optional)'}
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={practiceQuestionForm.amharicExplanation}
+                    onChange={(e) =>
+                      setPracticeQuestionForm((p) => ({ ...p, amharicExplanation: e.target.value }))
+                    }
+                    placeholder="ተማሪው መልሱን ሲመረምር የሚታየው ማብራሪያ..."
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">
+                    {lang === 'am' ? 'መንፈሳዊ ማብራሪያ (እንግሊዝኛ - አማራጭ)' : 'Spiritual Explanation (English - Optional)'}
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={practiceQuestionForm.explanation}
+                    onChange={(e) =>
+                      setPracticeQuestionForm((p) => ({ ...p, explanation: e.target.value }))
+                    }
+                    placeholder="Spiritual or scriptural explanation revealed with answer..."
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowPracticeQuestionModal(false)}
+                  className="px-3 py-1.5 bg-slate-800 text-slate-300 rounded font-semibold hover:bg-slate-700"
+                >
+                  {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingPracticeQuestion}
+                  className="px-4 py-1.5 bg-amber-500 font-bold text-slate-950 rounded hover:bg-amber-400 flex items-center space-x-1.5 shadow"
+                >
+                  {isSubmittingPracticeQuestion && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{lang === 'am' ? 'መዝግብና አትም' : 'Save & Publish'}</span>
                 </button>
               </div>
             </form>

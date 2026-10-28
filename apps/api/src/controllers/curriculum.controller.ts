@@ -326,6 +326,15 @@ export async function deleteReferenceLink(req: Request, res: Response<ApiRespons
   }
 }
 
+export async function deletePracticeQuestion(req: Request, res: Response<ApiResponse<unknown>>, next: NextFunction) {
+  try {
+    await curriculumService.deletePracticeQuestion(req.params.questionId as string);
+    res.status(200).json({ success: true, data: { message: 'Practice question deleted' }, meta: { timestamp: new Date().toISOString() } });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function getChapterPdf(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const chapterId = req.params.chapterId as string;

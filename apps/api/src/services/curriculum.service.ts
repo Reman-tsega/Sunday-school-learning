@@ -526,6 +526,12 @@ export class CurriculumService {
     return prisma.referenceLink.delete({ where: { id } });
   }
 
+  async deletePracticeQuestion(id: string) {
+    const existing = await prisma.practiceQuestion.findUnique({ where: { id } });
+    if (!existing) throw new AppError(404, 'NOT_FOUND', 'Practice question not found');
+    return prisma.practiceQuestion.delete({ where: { id } });
+  }
+
   // ==========================================
   // PUBLISHING WORKFLOW & PACKAGE MANIFEST
   // ==========================================

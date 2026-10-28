@@ -351,6 +351,8 @@ export class TeacherService {
       throw new AppError(404, 'NOT_FOUND', 'Chapter not found');
     }
 
+    const isAdmin = teacher.role === 'ADMIN';
+
     const reference = await prisma.referenceLink.create({
       data: {
         chapterId,
@@ -362,30 +364,34 @@ export class TeacherService {
         downloadableDocSize: data.downloadableDocSize ?? null,
         downloadableDocChecksum: data.downloadableDocChecksum ?? null,
         orderIndex: data.orderIndex ?? 0,
-        status: 'PENDING_REVIEW',
+        status: isAdmin ? 'APPROVED' : 'PENDING_REVIEW',
         createdById: teacherId,
+        reviewedById: isAdmin ? teacherId : null,
+        reviewedAt: isAdmin ? new Date() : null,
       },
     });
 
-    // Notify administrators
-    try {
-      await notificationService.createNotification(teacherId, {
-        title: `New Reference Submission: ${data.title}`,
-        amharicTitle: `አዲስ የማጣቀሻ ሰነድ ይሁንታ ይጠብቃል፡ ${data.amharicTitle || data.title}`,
-        content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Teacher'}) submitted a reference document for ${chapter.title} (Grade ${chapter.subject.grade.level}).`,
-        amharicContent: `መምህር ${teacher.fullName} ለ«${chapter.amharicTitle || chapter.title}» አዲስ የማጣቀሻ ሰነድ ለይሁንታ አቅርበዋል።`,
-        targetType: 'BY_ROLE',
-        targetRole: 'ADMIN',
-      });
-    } catch (e) {
-      console.warn('Failed to dispatch moderation notification to admins:', e);
+    if (!isAdmin) {
+      // Notify administrators
+      try {
+        await notificationService.createNotification(teacherId, {
+          title: `New Reference Submission: ${data.title}`,
+          amharicTitle: `አዲስ የማጣቀሻ ሰነድ ይሁንታ ይጠብቃል፡ ${data.amharicTitle || data.title}`,
+          content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Teacher'}) submitted a reference document for ${chapter.title} (Grade ${chapter.subject.grade.level}).`,
+          amharicContent: `መምህር ${teacher.fullName} ለ«${chapter.amharicTitle || chapter.title}» አዲስ የማጣቀሻ ሰነድ ለይሁንታ አቅርበዋል።`,
+          targetType: 'BY_ROLE',
+          targetRole: 'ADMIN',
+        });
+      } catch (e) {
+        console.warn('Failed to dispatch moderation notification to admins:', e);
+      }
     }
 
     return reference;
   }
 
   /**
-   * Teacher submits a practice question for admin review
+   * Teacher or Admin submits a practice question (auto-approved if Admin)
    */
   async createPracticeQuestionSubmission(teacherId: string, data: CreatePracticeQuestionInput) {
     const teacher = await this.getTeacherAndParish(teacherId);
@@ -403,6 +409,8 @@ export class TeacherService {
       throw new AppError(404, 'NOT_FOUND', 'Chapter not found');
     }
 
+    const isAdmin = teacher.role === 'ADMIN';
+
     const createData: any = {
       chapterId: data.chapterId,
       questionType: data.questionType,
@@ -414,8 +422,10 @@ export class TeacherService {
       amharicAnswerText: data.amharicAnswerText ?? null,
       explanation: data.explanation ?? null,
       amharicExplanation: data.amharicExplanation ?? null,
-      status: 'PENDING_REVIEW',
+      status: isAdmin ? 'APPROVED' : 'PENDING_REVIEW',
       createdById: teacherId,
+      reviewedById: isAdmin ? teacherId : null,
+      reviewedAt: isAdmin ? new Date() : null,
     };
 
     if (data.choices && data.choices.length > 0) {
@@ -436,18 +446,20 @@ export class TeacherService {
       },
     });
 
-    // Notify administrators
-    try {
-      await notificationService.createNotification(teacherId, {
-        title: `New Practice Question Pending Review`,
-        amharicTitle: `አዲስ የልምምድ ጥያቄ ይሁንታ ይጠብቃል`,
-        content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Teacher'}) submitted a practice question for ${chapter.title} (Grade ${chapter.subject.grade.level}).`,
-        amharicContent: `መምህር ${teacher.fullName} ለ«${chapter.amharicTitle || chapter.title}» አዲስ የልምምድ ጥያቄ አቅርበዋል።`,
-        targetType: 'BY_ROLE',
-        targetRole: 'ADMIN',
-      });
-    } catch (e) {
-      console.warn('Failed to dispatch practice question moderation alert:', e);
+    if (!isAdmin) {
+      // Notify administrators
+      try {
+        await notificationService.createNotification(teacherId, {
+          title: `New Practice Question Pending Review`,
+          amharicTitle: `አዲስ የልምምድ ጥያቄ ይሁንታ ይጠብቃል`,
+          content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Teacher'}) submitted a practice question for ${chapter.title} (Grade ${chapter.subject.grade.level}).`,
+          amharicContent: `መምህር ${teacher.fullName} ለ«${chapter.amharicTitle || chapter.title}» አዲስ የልምምድ ጥያቄ አቅርበዋል።`,
+          targetType: 'BY_ROLE',
+          targetRole: 'ADMIN',
+        });
+      } catch (e) {
+        console.warn('Failed to dispatch practice question moderation alert:', e);
+      }
     }
 
     return question;
