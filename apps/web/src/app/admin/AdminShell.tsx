@@ -280,32 +280,17 @@ export default function AdminShell({
 
       {/* Desktop Sidebar (hidden on mobile, visible on md and up) */}
       <aside className="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 flex-col flex-shrink-0 min-h-screen">
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-lg">
-              ✞
-            </div>
-            <div>
-              <h1 className="font-bold text-sm tracking-wide text-white">
-                {lang === 'am' ? 'አስተዳዳሪ ፖርታል' : 'Admin Portal'}
-              </h1>
-              <p className="text-[11px] text-amber-400">
-                {lang === 'am' ? 'የቁጥጥር ስቱዲዮ' : 'Control Studio'}
-              </p>
-            </div>
+        <div className="p-5 border-b border-slate-800 flex items-center space-x-3">
+          <div className="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+            ✞
           </div>
-
-          <div className="flex items-center space-x-1.5">
-            <ThemeToggle variant="compact" />
-            <NotificationBell />
-            <button
-              onClick={toggleLang}
-              className="flex items-center space-x-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-bold transition"
-              title={lang === 'am' ? 'Switch to English' : 'ወደ አማርኛ ቀይር'}
-            >
-              <Globe className="w-3 h-3 text-amber-400" />
-              <span>{lang === 'am' ? 'EN' : 'አማ'}</span>
-            </button>
+          <div className="min-w-0">
+            <h1 className="font-bold text-sm tracking-wide text-white truncate">
+              {lang === 'am' ? 'አስተዳዳሪ ፖርታል' : 'Admin Portal'}
+            </h1>
+            <p className="text-[11px] text-amber-400 truncate">
+              {lang === 'am' ? 'የቁጥጥር ስቱዲዮ' : 'Control Studio'}
+            </p>
           </div>
         </div>
 
