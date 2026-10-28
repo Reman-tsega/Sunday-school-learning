@@ -137,15 +137,15 @@ export default function AdminStudentsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-amber-400 mb-1">
+          <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 mb-1">
             <GraduationCap className="w-6 h-6" />
-            <h1 className="text-2xl font-bold tracking-tight text-white">
+            <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white">
               {lang === 'am'
                 ? 'የሰንበት ትምህርት ቤት ተማሪዎች ማውጫ እና ውጤት'
                 : 'Sunday School Students & Progress'}
             </h1>
           </div>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-stone-500 dark:text-slate-400">
             {lang === 'am'
               ? 'ተማሪዎችን በሰንበት ት/ቤት ወይም በክፍል ለይተው ይመልከቱ፤ የመማርና የፈተና ሂደታቸውን ይከታተሉ።'
               : 'Filter students by Sunday School parish or grade level, and monitor their learning completion.'}
@@ -155,52 +155,52 @@ export default function AdminStudentsPage() {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 flex items-center justify-between shadow-xs">
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <p className="text-xs font-semibold text-stone-500 dark:text-slate-400 uppercase tracking-wider">
               {lang === 'am' ? 'ጠቅላላ የተመዘገቡ ተማሪዎች' : 'Total Students'}
             </p>
-            <p className="text-2xl font-black text-white mt-1">{totalStudents}</p>
+            <p className="text-2xl font-black text-stone-900 dark:text-white mt-1">{totalStudents}</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
             <GraduationCap className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 flex items-center justify-between shadow-xs">
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <p className="text-xs font-semibold text-stone-500 dark:text-slate-400 uppercase tracking-wider">
               {lang === 'am' ? 'የተወከሉ ሰንበት ት/ቤቶች' : 'Sunday Schools / Parishes'}
             </p>
-            <p className="text-2xl font-black text-white mt-1">{uniqueParishesCount}</p>
+            <p className="text-2xl font-black text-stone-900 dark:text-white mt-1">{uniqueParishesCount}</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
             <Church className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 flex items-center justify-between shadow-xs">
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <p className="text-xs font-semibold text-stone-500 dark:text-slate-400 uppercase tracking-wider">
               {lang === 'am' ? 'አማካይ የትምህርት ማጠናቀቂያ' : 'Avg Completion Rate'}
             </p>
-            <p className="text-2xl font-black text-amber-400 mt-1">{avgProgress}%</p>
+            <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{avgProgress}%</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
             <TrendingUp className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm space-y-3">
+      <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-4 shadow-xs space-y-3">
         <form
           onSubmit={handleSearchSubmit}
           className="grid grid-cols-1 md:grid-cols-12 gap-3"
         >
           {/* Search Box */}
           <div className="md:col-span-5 relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-slate-400" />
             <input
               type="text"
               value={searchQuery}
@@ -210,17 +210,17 @@ export default function AdminStudentsPage() {
                   ? 'በተማሪ ስም፣ ክርስትና ስም፣ ኢሜይል ወይም ስልክ ይፈልጉ...'
                   : 'Search by name, baptismal name, email, or phone...'
               }
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+              className="w-full pl-10 pr-4 py-2.5 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-sm text-stone-900 dark:text-slate-100 placeholder-stone-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-amber-500 transition"
             />
           </div>
 
           {/* Sunday School Filter */}
           <div className="md:col-span-4 relative">
-            <Church className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Church className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-slate-400" />
             <select
               value={selectedSundaySchool}
               onChange={(e) => setSelectedSundaySchool(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition appearance-none"
+              className="w-full pl-10 pr-4 py-2.5 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-sm text-stone-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-amber-500 transition appearance-none cursor-pointer"
             >
               <option value="">
                 {lang === 'am'
@@ -237,11 +237,11 @@ export default function AdminStudentsPage() {
 
           {/* Grade Filter */}
           <div className="md:col-span-2 relative">
-            <Filter className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Filter className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-slate-400" />
             <select
               value={selectedGradeId}
               onChange={(e) => setSelectedGradeId(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition appearance-none"
+              className="w-full pl-10 pr-4 py-2.5 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-sm text-stone-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-amber-500 transition appearance-none cursor-pointer"
             >
               <option value="">
                 {lang === 'am' ? 'ሁሉም ክፍሎች' : 'All Grades'}
@@ -258,7 +258,7 @@ export default function AdminStudentsPage() {
           <div className="md:col-span-1">
             <button
               type="submit"
-              className="w-full h-full min-h-[42px] px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center justify-center shadow-md"
+              className="w-full h-full min-h-[42px] px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center justify-center shadow-xs"
             >
               {lang === 'am' ? 'ፈልግ' : 'Search'}
             </button>
@@ -266,7 +266,7 @@ export default function AdminStudentsPage() {
         </form>
 
         {(selectedSundaySchool || selectedGradeId || searchQuery) && (
-          <div className="flex items-center space-x-2 text-xs text-amber-300 pt-1">
+          <div className="flex items-center space-x-2 text-xs text-amber-700 dark:text-amber-300 pt-1">
             <span>{lang === 'am' ? 'ተጣርቷል፦' : 'Active filters:'}</span>
             {selectedSundaySchool && (
               <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40">
@@ -289,7 +289,7 @@ export default function AdminStudentsPage() {
                 setSelectedGradeId('');
                 setSearchQuery('');
               }}
-              className="text-slate-400 hover:text-white underline ml-2"
+              className="text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white underline ml-2"
             >
               {lang === 'am' ? 'ሁሉንም አጽዳ' : 'Clear all'}
             </button>
@@ -299,38 +299,38 @@ export default function AdminStudentsPage() {
 
       {/* Error Banner */}
       {errorMessage && (
-        <div className="p-4 bg-red-950/80 border border-red-800 rounded-xl text-red-200 text-sm flex items-center space-x-3">
-          <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
+        <div className="p-4 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-200 text-sm flex items-center space-x-3">
+          <AlertCircle className="w-5 h-5 shrink-0 text-red-500 dark:text-red-400" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {/* Students Directory Content */}
       {isLoading ? (
-        <div className="p-12 flex flex-col items-center justify-center text-slate-400 space-y-3">
-          <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+        <div className="p-12 flex flex-col items-center justify-center text-stone-500 dark:text-slate-400 space-y-3">
+          <Loader2 className="w-8 h-8 animate-spin text-amber-500 dark:text-amber-400" />
           <p className="text-sm">
             {lang === 'am' ? 'የተማሪዎች መረጃ በመጫን ላይ...' : 'Loading students directory...'}
           </p>
         </div>
       ) : students.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded-xl text-slate-400 space-y-3">
-          <GraduationCap className="w-12 h-12 mx-auto text-slate-600 mb-2" />
-          <p className="text-base font-semibold text-slate-200">
+        <div className="p-12 text-center bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl text-stone-500 dark:text-slate-400 space-y-3 shadow-xs">
+          <GraduationCap className="w-12 h-12 mx-auto text-stone-300 dark:text-slate-600 mb-2" />
+          <p className="text-base font-semibold text-stone-800 dark:text-slate-200">
             {lang === 'am' ? 'ምንም ተማሪ አልተገኘም' : 'No students found'}
           </p>
-          <p className="text-sm max-w-md mx-auto text-slate-400">
+          <p className="text-sm max-w-md mx-auto text-stone-500 dark:text-slate-400">
             {lang === 'am'
               ? 'በተመረጡት ማጣሪያዎች የሚገኝ ተማሪ የለም። እባክዎ ማጣሪያውን ቀይረው ይሞክሩ።'
               : 'No students match your selected filters. Try broadening your criteria.'}
           </p>
         </div>
       ) : (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+        <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-950/70 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                <tr className="border-b border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/70 text-stone-600 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
                   <th className="py-3.5 px-4">{lang === 'am' ? 'ተማሪ' : 'Student'}</th>
                   <th className="py-3.5 px-4">{lang === 'am' ? 'ሰንበት ት/ቤት / አጥቢያ' : 'Sunday School / Parish'}</th>
                   <th className="py-3.5 px-4">{lang === 'am' ? 'የተመዘገቡ ክፍሎች' : 'Enrolled Grades'}</th>
@@ -339,32 +339,32 @@ export default function AdminStudentsPage() {
                   <th className="py-3.5 px-4 text-right">{lang === 'am' ? 'ተግባር' : 'Action'}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 text-sm">
+              <tbody className="divide-y divide-stone-100 dark:divide-slate-800/60 text-sm">
                 {students.map((student) => (
                   <tr
                     key={student.id}
-                    className="hover:bg-slate-800/40 transition group"
+                    className="hover:bg-stone-50/80 dark:hover:bg-slate-800/40 transition group"
                   >
                     {/* Student Info */}
                     <td className="py-3.5 px-4">
                       <div>
-                        <p className="font-bold text-white group-hover:text-amber-300 transition">
+                        <p className="font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-300 transition">
                           {student.fullName}
                         </p>
                         {student.baptismalName && (
-                          <p className="text-xs text-amber-400/90 font-medium">
+                          <p className="text-xs text-amber-700 dark:text-amber-400/90 font-medium">
                             {lang === 'am' ? 'የክርስትና ስም፦ ' : 'Baptismal: '}
                             {student.baptismalName}
                           </p>
                         )}
-                        <div className="flex items-center space-x-3 text-xs text-slate-400 mt-1">
+                        <div className="flex items-center space-x-3 text-xs text-stone-500 dark:text-slate-400 mt-1">
                           <span className="flex items-center">
-                            <Mail className="w-3 h-3 mr-1 text-slate-500" />
+                            <Mail className="w-3 h-3 mr-1 text-stone-400 dark:text-slate-500" />
                             {student.email}
                           </span>
                           {student.phoneNumber && (
                             <span className="flex items-center">
-                              <Phone className="w-3 h-3 mr-1 text-slate-500" />
+                              <Phone className="w-3 h-3 mr-1 text-stone-400 dark:text-slate-500" />
                               {student.phoneNumber}
                             </span>
                           )}
@@ -375,14 +375,14 @@ export default function AdminStudentsPage() {
                     {/* Sunday School / Parish */}
                     <td className="py-3.5 px-4">
                       {student.churchParish ? (
-                        <div className="flex items-center space-x-1.5 text-slate-200">
-                          <Church className="w-4 h-4 text-amber-400 shrink-0" />
+                        <div className="flex items-center space-x-1.5 text-stone-700 dark:text-slate-200">
+                          <Church className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                           <span className="font-medium text-xs sm:text-sm">
                             {student.churchParish}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-500 italic">
+                        <span className="text-xs text-stone-400 dark:text-slate-500 italic">
                           {lang === 'am' ? 'አልተገለጸም' : 'Unspecified'}
                         </span>
                       )}
@@ -395,13 +395,13 @@ export default function AdminStudentsPage() {
                           student.enrolledGrades.map((g) => (
                             <span
                               key={g.id}
-                              className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-amber-300 border border-slate-700"
+                              className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 dark:bg-slate-800 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-slate-700"
                             >
                               {lang === 'am' && g.amharicName ? g.amharicName : g.gradeName}
                             </span>
                           ))
                         ) : (
-                          <span className="text-xs text-slate-500 italic">
+                          <span className="text-xs text-stone-400 dark:text-slate-500 italic">
                             {lang === 'am' ? 'ክፍል አልተመዘገበም' : 'None enrolled'}
                           </span>
                         )}
@@ -412,15 +412,15 @@ export default function AdminStudentsPage() {
                     <td className="py-3.5 px-4">
                       <div className="w-36 space-y-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-300 font-semibold">
+                          <span className="text-stone-700 dark:text-slate-300 font-semibold">
                             {student.progressPercent}%
                           </span>
-                          <span className="text-slate-400 text-[11px]">
+                          <span className="text-stone-500 dark:text-slate-400 text-[11px]">
                             {student.totalChaptersCompleted}/{student.totalChaptersAvailable}{' '}
                             {lang === 'am' ? 'ምዕራፍ' : 'ch'}
                           </span>
                         </div>
-                        <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-stone-200 dark:bg-slate-800 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
                               student.progressPercent >= 80
@@ -436,10 +436,10 @@ export default function AdminStudentsPage() {
                     </td>
 
                     {/* Last Active */}
-                    <td className="py-3.5 px-4 text-xs text-slate-400">
+                    <td className="py-3.5 px-4 text-xs text-stone-500 dark:text-slate-400">
                       {student.lastActiveAt ? (
                         <div className="flex items-center space-x-1">
-                          <Clock className="w-3.5 h-3.5 text-slate-500" />
+                          <Clock className="w-3.5 h-3.5 text-stone-400 dark:text-slate-500" />
                           <span>
                             {new Date(student.lastActiveAt).toLocaleDateString(
                               lang === 'am' ? 'am-ET' : 'en-US',
@@ -448,7 +448,7 @@ export default function AdminStudentsPage() {
                           </span>
                         </div>
                       ) : (
-                        <span className="text-slate-500 italic">
+                        <span className="text-stone-400 dark:text-slate-500 italic">
                           {lang === 'am' ? 'ገና አልጀመረም' : 'Not started'}
                         </span>
                       )}
@@ -458,7 +458,7 @@ export default function AdminStudentsPage() {
                     <td className="py-3.5 px-4 text-right">
                       <button
                         onClick={() => handleViewProgress(student.id)}
-                        className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 hover:text-amber-200 border border-amber-500/30 rounded-lg text-xs font-semibold transition"
+                        className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200 border border-amber-500/30 rounded-lg text-xs font-semibold transition"
                       >
                         {lang === 'am' ? 'ዝርዝር ሂደት' : 'View Progress'}
                       </button>
@@ -473,20 +473,20 @@ export default function AdminStudentsPage() {
 
       {/* Slide-over / Modal for Student Progress Details */}
       {selectedStudentId && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+            <div className="px-6 py-4 border-b border-stone-200 dark:border-slate-800 flex items-center justify-between bg-stone-50 dark:bg-slate-950/60">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
                   <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-stone-900 dark:text-white">
                     {studentDetails?.fullName || (lang === 'am' ? 'የተማሪው ዝርዝር ውጤት' : 'Student Progress Details')}
                   </h3>
                   {studentDetails?.churchParish && (
-                    <p className="text-xs text-amber-400 font-medium flex items-center mt-0.5">
+                    <p className="text-xs text-amber-700 dark:text-amber-400 font-medium flex items-center mt-0.5">
                       <Church className="w-3.5 h-3.5 mr-1" />
                       {studentDetails.churchParish}
                     </p>
@@ -495,7 +495,7 @@ export default function AdminStudentsPage() {
               </div>
               <button
                 onClick={() => setSelectedStudentId(null)}
-                className="w-8 h-8 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition"
+                className="w-8 h-8 rounded-lg hover:bg-stone-200 dark:hover:bg-slate-800 text-stone-400 hover:text-stone-700 dark:hover:text-white flex items-center justify-center transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -504,8 +504,8 @@ export default function AdminStudentsPage() {
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-6 flex-1">
               {isLoadingDetails ? (
-                <div className="py-16 flex flex-col items-center justify-center text-slate-400 space-y-3">
-                  <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+                <div className="py-16 flex flex-col items-center justify-center text-stone-500 dark:text-slate-400 space-y-3">
+                  <Loader2 className="w-8 h-8 animate-spin text-amber-500 dark:text-amber-400" />
                   <p className="text-sm">
                     {lang === 'am' ? 'ዝርዝር መረጃዎችን በማምጣት ላይ...' : 'Fetching progress details...'}
                   </p>
@@ -513,36 +513,36 @@ export default function AdminStudentsPage() {
               ) : studentDetails ? (
                 <>
                   {/* Basic Profile Summary Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 text-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-50 dark:bg-slate-950/60 p-4 rounded-xl border border-stone-200 dark:border-slate-800/80 text-xs">
                     <div>
-                      <span className="text-slate-500 block">
+                      <span className="text-stone-500 dark:text-slate-500 block">
                         {lang === 'am' ? 'ክርስትና ስም' : 'Baptismal Name'}
                       </span>
-                      <span className="text-slate-200 font-semibold mt-0.5 block">
+                      <span className="text-stone-800 dark:text-slate-200 font-semibold mt-0.5 block">
                         {studentDetails.baptismalName || '-'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">
+                      <span className="text-stone-500 dark:text-slate-500 block">
                         {lang === 'am' ? 'ስልክ ቁጥር' : 'Phone'}
                       </span>
-                      <span className="text-slate-200 font-semibold mt-0.5 block">
+                      <span className="text-stone-800 dark:text-slate-200 font-semibold mt-0.5 block">
                         {studentDetails.phoneNumber || '-'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">
+                      <span className="text-stone-500 dark:text-slate-500 block">
                         {lang === 'am' ? 'ዕድሜ / አድራሻ' : 'Age / Address'}
                       </span>
-                      <span className="text-slate-200 font-semibold mt-0.5 block">
+                      <span className="text-stone-800 dark:text-slate-200 font-semibold mt-0.5 block">
                         {studentDetails.age ? `${studentDetails.age} yrs` : ''} {studentDetails.address ? `• ${studentDetails.address}` : '-'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">
+                      <span className="text-stone-500 dark:text-slate-500 block">
                         {lang === 'am' ? 'የማጠናቀቂያ መጠን' : 'Overall Completion'}
                       </span>
-                      <span className="text-amber-400 font-bold mt-0.5 block">
+                      <span className="text-amber-700 dark:text-amber-400 font-bold mt-0.5 block">
                         {studentDetails.progressPercent}% ({studentDetails.totalChaptersCompleted}/{studentDetails.totalChaptersAvailable})
                       </span>
                     </div>
@@ -550,27 +550,27 @@ export default function AdminStudentsPage() {
 
                   {/* Chapters Progress Checklist */}
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-2 text-white font-bold text-sm">
-                      <BookOpen className="w-4 h-4 text-amber-400" />
+                    <div className="flex items-center space-x-2 text-stone-900 dark:text-white font-bold text-sm">
+                      <BookOpen className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                       <h4>{lang === 'am' ? 'የምዕራፎች ንባብ እና ማጠቃለያ ሁኔታ' : 'Chapter Reading & Completion'}</h4>
                     </div>
 
-                    <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-800/60">
+                    <div className="bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-stone-200 dark:divide-slate-800/60">
                       {studentDetails.chaptersProgress.length === 0 ? (
-                        <p className="p-4 text-xs text-slate-500 italic">
+                        <p className="p-4 text-xs text-stone-400 dark:text-slate-500 italic">
                           {lang === 'am' ? 'ምንም የታተሙ ምዕራፎች የሉም' : 'No published chapters'}
                         </p>
                       ) : (
                         studentDetails.chaptersProgress.map((ch) => (
                           <div
                             key={ch.chapterId}
-                            className="p-3.5 flex items-center justify-between text-xs hover:bg-slate-900/60 transition"
+                            className="p-3.5 flex items-center justify-between text-xs hover:bg-stone-100/70 dark:hover:bg-slate-900/60 transition"
                           >
                             <div className="space-y-0.5">
-                              <p className="font-semibold text-slate-200">
+                              <p className="font-semibold text-stone-800 dark:text-slate-200">
                                 {ch.subjectTitle} — {lang === 'am' && ch.amharicTitle ? ch.amharicTitle : ch.title}
                               </p>
-                              <div className="flex items-center space-x-3 text-slate-500 text-[11px]">
+                              <div className="flex items-center space-x-3 text-stone-500 dark:text-slate-500 text-[11px]">
                                 <span>
                                   {lang === 'am' ? 'የተነበበው የመጨረሻ ገጽ፦ ' : 'Last read page: '}
                                   {ch.lastReadPage}
@@ -585,17 +585,17 @@ export default function AdminStudentsPage() {
                             </div>
                             <div>
                               {ch.isCompleted ? (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
                                   <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                                   {lang === 'am' ? 'ተጠናቋል' : 'Completed'}
                                 </span>
                               ) : ch.lastReadPage > 1 ? (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30">
                                   <Clock className="w-3.5 h-3.5 mr-1" />
                                   {lang === 'am' ? 'በንባብ ላይ' : 'In Progress'}
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-400">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-stone-200 dark:bg-slate-800 text-stone-600 dark:text-slate-400">
                                   {lang === 'am' ? 'ገና አልተጀመረም' : 'Not Started'}
                                 </span>
                               )}
@@ -608,38 +608,38 @@ export default function AdminStudentsPage() {
 
                   {/* Quiz Attempts History */}
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-2 text-white font-bold text-sm">
-                      <Award className="w-4 h-4 text-amber-400" />
+                    <div className="flex items-center space-x-2 text-stone-900 dark:text-white font-bold text-sm">
+                      <Award className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                       <h4>{lang === 'am' ? 'የፈተና እና ጥያቄዎች ውጤት' : 'Quiz & Assessment Attempts'}</h4>
                     </div>
 
-                    <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-800/60">
+                    <div className="bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-stone-200 dark:divide-slate-800/60">
                       {studentDetails.quizAttempts.length === 0 ? (
-                        <p className="p-4 text-xs text-slate-500 italic">
+                        <p className="p-4 text-xs text-stone-400 dark:text-slate-500 italic">
                           {lang === 'am' ? 'ምንም የፈተና ሙከራ አልተመዘገበም' : 'No quiz attempts recorded yet'}
                         </p>
                       ) : (
                         studentDetails.quizAttempts.map((qa) => (
                           <div
                             key={qa.id}
-                            className="p-3.5 flex items-center justify-between text-xs hover:bg-slate-900/60 transition"
+                            className="p-3.5 flex items-center justify-between text-xs hover:bg-stone-100/70 dark:hover:bg-slate-900/60 transition"
                           >
                             <div className="space-y-0.5">
-                              <p className="font-semibold text-slate-200">{qa.quizTitle}</p>
-                              <p className="text-[11px] text-slate-500">
+                              <p className="font-semibold text-stone-800 dark:text-slate-200">{qa.quizTitle}</p>
+                              <p className="text-[11px] text-stone-500 dark:text-slate-500">
                                 {new Date(qa.attemptedAt).toLocaleString()}
                               </p>
                             </div>
                             <div className="flex items-center space-x-3">
-                              <span className="font-bold text-slate-300">
+                              <span className="font-bold text-stone-700 dark:text-slate-300">
                                 {qa.score} / {qa.maxScore} (
                                 {qa.maxScore > 0 ? Math.round((qa.score / qa.maxScore) * 100) : 0}%)
                               </span>
                               <span
                                 className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                                   qa.passed
-                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                    : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                    ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'
+                                    : 'bg-rose-50 dark:bg-red-500/20 text-rose-700 dark:text-red-300 border border-rose-200 dark:border-red-500/30'
                                 }`}
                               >
                                 {qa.passed
@@ -661,10 +661,10 @@ export default function AdminStudentsPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-3.5 border-t border-slate-800 bg-slate-950/60 flex justify-end">
+            <div className="px-6 py-3.5 border-t border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/60 flex justify-end">
               <button
                 onClick={() => setSelectedStudentId(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition"
+                className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white rounded-xl text-xs font-semibold transition"
               >
                 {lang === 'am' ? 'ዝጋ' : 'Close'}
               </button>

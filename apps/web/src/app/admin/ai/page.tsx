@@ -163,10 +163,10 @@ function AiCurriculumContent() {
       {/* Top Header & Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs text-slate-400 mb-2">
+          <div className="flex items-center space-x-2 text-xs text-stone-500 dark:text-slate-400 mb-2">
             <Link
               href={`/admin/curriculum?grade=${selectedGradeId}&subject=${selectedSubjectId}`}
-              className="hover:text-amber-400 flex items-center space-x-1"
+              className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center space-x-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>{lang === 'am' ? 'ወደ ስርዓተ ትምህርት ተመለስ' : 'Back to Curriculum'}</span>
@@ -176,19 +176,19 @@ function AiCurriculumContent() {
                 <span>/</span>
                 <Link
                   href={`/admin/chapters/${selectedChapterId}`}
-                  className="hover:text-amber-400 flex items-center space-x-1"
+                  className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center space-x-1"
                 >
-                  <FileEdit className="w-3 h-3 text-amber-400" />
+                  <FileEdit className="w-3 h-3 text-amber-500" />
                   <span>{lang === 'am' ? 'ወደ ምዕራፍ ስቱዲዮ ተመለስ' : 'Back to Chapter Studio'}</span>
                 </Link>
               </>
             )}
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center space-x-2.5">
-            <Sparkles className="w-6 h-6 text-amber-400" />
+          <h1 className="text-2xl font-bold text-stone-900 dark:text-white tracking-tight flex items-center space-x-2.5">
+            <Sparkles className="w-6 h-6 text-amber-500" />
             <span>{lang === 'am' ? 'አይአይ ስርዓተ ትምህርት ረዳት ስቱዲዮ' : 'AI Curriculum Studio'}</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-stone-500 dark:text-slate-400 text-sm mt-1">
             {lang === 'am'
               ? 'የትምህርት ርዕስ በመስጠት የምዕራፍ ይዘት ረቂቅ፣ የገጽ ክልል ምክረ ሃሳብና ፬ አማራጭ ያላቸው የፈተና ጥያቄዎችን አመንጭ'
               : 'Generate chapter outlines, page range recommendations, and 4-choice practice quizzes with AI'}
@@ -198,7 +198,7 @@ function AiCurriculumContent() {
         {selectedChapterId ? (
           <Link
             href={`/admin/chapters/${selectedChapterId}`}
-            className="flex items-center space-x-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow transition"
+            className="flex items-center space-x-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow-xs transition"
           >
             <FileEdit className="w-4 h-4" />
             <span>{lang === 'am' ? 'ወደ ምዕራፉ ስቱዲዮ ሂድ' : 'Open in Chapter Studio'}</span>
@@ -206,7 +206,7 @@ function AiCurriculumContent() {
         ) : (
           <Link
             href={`/admin/curriculum?grade=${selectedGradeId}&subject=${selectedSubjectId}`}
-            className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold rounded-lg text-sm border border-slate-700 transition"
+            className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-stone-100 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 font-semibold rounded-lg text-sm border border-stone-200 dark:border-slate-700 transition shadow-xs"
           >
             <Layers className="w-4 h-4" />
             <span>{lang === 'am' ? 'ስርዓተ ትምህርት ማውጫ' : 'Curriculum Index'}</span>
@@ -216,16 +216,16 @@ function AiCurriculumContent() {
 
       {/* Generator Form */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2 pb-2 border-b border-slate-800">
-            <Wand2 className="w-4 h-4 text-amber-400" />
+        <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 space-y-4 shadow-xs">
+          <h2 className="text-sm font-bold text-stone-900 dark:text-white uppercase tracking-wider flex items-center space-x-2 pb-2 border-b border-stone-200 dark:border-slate-800">
+            <Wand2 className="w-4 h-4 text-amber-500" />
             <span>{lang === 'am' ? '፩. የትምህርት ዒላማ ምረጥ' : '1. Target Selection'}</span>
           </h2>
 
           <div className="space-y-3 text-xs">
             {/* Grade Selector */}
             <div>
-              <label className="block text-slate-400 mb-1 font-semibold">
+              <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                 {lang === 'am' ? 'የትምህርት ክፍል' : 'Grade'}
               </label>
               <select
@@ -236,7 +236,7 @@ function AiCurriculumContent() {
                   setSelectedSubjectId(gr?.subjects?.[0]?.id || '');
                   setSelectedChapterId('');
                 }}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
               >
                 {grades.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -248,7 +248,7 @@ function AiCurriculumContent() {
 
             {/* Subject Selector */}
             <div>
-              <label className="block text-slate-400 mb-1 font-semibold">
+              <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                 {lang === 'am' ? 'የትምህርት ዓይነት' : 'Subject'}
               </label>
               <select
@@ -257,7 +257,7 @@ function AiCurriculumContent() {
                   setSelectedSubjectId(e.target.value);
                   setSelectedChapterId('');
                 }}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
               >
                 <option value="">{lang === 'am' ? '-- ምረጥ --' : '-- Select --'}</option>
                 {subjects.map((s: any) => (
@@ -270,13 +270,13 @@ function AiCurriculumContent() {
 
             {/* Optional Chapter Target */}
             <div>
-              <label className="block text-slate-400 mb-1 font-semibold">
+              <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                 {lang === 'am' ? 'ዒላማ የተደረገ ምዕራፍ (አማራጭ)' : 'Target Chapter (Optional)'}
               </label>
               <select
                 value={selectedChapterId}
                 onChange={(e) => setSelectedChapterId(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
               >
                 <option value="">{lang === 'am' ? '-- አዲስ ምዕራፍ --' : '-- New Chapter --'}</option>
                 {chapters.map((ch: any) => (
@@ -289,7 +289,7 @@ function AiCurriculumContent() {
 
             {/* Topic Prompt */}
             <div>
-              <label className="block text-slate-400 mb-1 font-semibold">
+              <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                 {lang === 'am' ? 'የርዕሰ ጉዳዩ ዋና ጭብጥ' : 'Topic & Learning Prompt'}
               </label>
               <textarea
@@ -302,7 +302,7 @@ function AiCurriculumContent() {
                     ? 'ለምሳሌ፡ የሰማዕታት ሕይወት፣ ገዳማዊ ሥርዓትና የቅዱሳን አበው ታሪክ'
                     : 'e.g. Early monasticism in Ethiopia and theological councils'
                 }
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-500 text-xs"
+                className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg p-2.5 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500 text-xs"
               />
             </div>
 
@@ -310,7 +310,7 @@ function AiCurriculumContent() {
               type="button"
               onClick={handleGenerate}
               disabled={isGenerating || !topicPrompt.trim()}
-              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold rounded-lg transition flex items-center justify-center space-x-1.5 shadow"
+              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold rounded-lg transition flex items-center justify-center space-x-1.5 shadow-xs"
             >
               {isGenerating ? (
                 <>
@@ -328,27 +328,27 @@ function AiCurriculumContent() {
         </div>
 
         {/* Generated Curriculum Outline & Questions Output */}
-        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-5 shadow-sm">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-              <BookOpen className="w-4 h-4 text-amber-400" />
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 space-y-5 shadow-xs">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
+            <h2 className="text-sm font-bold text-stone-900 dark:text-white uppercase tracking-wider flex items-center space-x-2">
+              <BookOpen className="w-4 h-4 text-amber-500" />
               <span>{lang === 'am' ? '፪. የተዘጋጀ ረቂቅ ይዘትና ፈተና' : '2. Generated Outline & Quizzes'}</span>
             </h2>
 
             {generatedResult && (
               <button
                 onClick={handleCopyJson}
-                className="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-2.5 py-1 rounded border border-slate-700 flex items-center space-x-1 transition"
+                className="text-xs bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 px-2.5 py-1 rounded border border-stone-200 dark:border-slate-700 flex items-center space-x-1 transition"
               >
-                {copySuccess ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copySuccess ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copySuccess ? (lang === 'am' ? 'ተቀድቷል!' : 'Copied!') : (lang === 'am' ? 'ኮፒ አድርግ' : 'Copy JSON')}</span>
               </button>
             )}
           </div>
 
           {!generatedResult ? (
-            <div className="p-12 text-center text-slate-500 bg-slate-950/60 rounded-xl border border-slate-800/80 space-y-2">
-              <Sparkles className="w-8 h-8 text-slate-600 mx-auto" />
+            <div className="p-12 text-center text-stone-400 dark:text-slate-500 bg-stone-50 dark:bg-slate-950/60 rounded-xl border border-stone-200 dark:border-slate-800/80 space-y-2">
+              <Sparkles className="w-8 h-8 text-stone-300 dark:text-slate-600 mx-auto" />
               <p className="text-xs">
                 {lang === 'am'
                   ? 'የርዕስ ሃሳብ አስገብተው "ይዘትና ፈተና አመንጭ" የሚለውን ይጫኑ።'
@@ -357,30 +357,30 @@ function AiCurriculumContent() {
             </div>
           ) : (
             <div className="space-y-4 text-xs">
-              <div className="p-4 bg-slate-950 rounded-lg border border-slate-800 space-y-2">
+              <div className="p-4 bg-stone-50 dark:bg-slate-950 rounded-lg border border-stone-200 dark:border-slate-800 space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-amber-300">{generatedResult.title}</h3>
-                  <span className="text-[11px] text-slate-400 font-mono">{generatedResult.subject}</span>
+                  <h3 className="text-sm font-bold text-amber-700 dark:text-amber-300">{generatedResult.title}</h3>
+                  <span className="text-[11px] text-stone-500 dark:text-slate-400 font-mono">{generatedResult.subject}</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-400 font-semibold block">
+                  <span className="text-stone-600 dark:text-slate-400 font-semibold block">
                     {lang === 'am' ? 'የመማሪያ ዓላማዎች:' : 'Learning Objectives:'}
                   </span>
-                  <ul className="list-disc list-inside text-slate-300 space-y-0.5 pl-1">
+                  <ul className="list-disc list-inside text-stone-700 dark:text-slate-300 space-y-0.5 pl-1">
                     {generatedResult.learningObjectives.map((obj: string, i: number) => (
                       <li key={i}>{obj}</li>
                     ))}
                   </ul>
                 </div>
-                <div className="pt-2 text-[11px] text-emerald-400 font-medium">
+                <div className="pt-2 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
                   {generatedResult.readingPagesRecommendation.summary}
                 </div>
               </div>
 
               {/* Questions Preview */}
               <div className="space-y-3">
-                <h4 className="font-bold text-white text-xs flex items-center space-x-1.5">
-                  <HelpCircle className="w-4 h-4 text-cyan-400" />
+                <h4 className="font-bold text-stone-900 dark:text-white text-xs flex items-center space-x-1.5">
+                  <HelpCircle className="w-4 h-4 text-cyan-500" />
                   <span>
                     {lang === 'am'
                       ? `የተዘጋጁ የፈተና ጥያቄዎች (${generatedResult.quizQuestions.length})`
@@ -389,12 +389,12 @@ function AiCurriculumContent() {
                 </h4>
 
                 {generatedResult.quizQuestions.map((q: any, idx: number) => (
-                  <div key={idx} className="p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-2">
+                  <div key={idx} className="p-3 bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 rounded-lg space-y-2">
                     <div className="flex items-start justify-between">
-                      <span className="font-semibold text-slate-200">
+                      <span className="font-semibold text-stone-800 dark:text-slate-200">
                         {idx + 1}. {q.prompt}
                       </span>
-                      <span className="text-[10px] text-amber-400 font-mono">{q.points} pts</span>
+                      <span className="text-[10px] text-amber-700 dark:text-amber-400 font-mono font-bold">{q.points} pts</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-2">
@@ -403,8 +403,8 @@ function AiCurriculumContent() {
                           key={ci}
                           className={`p-2 rounded text-[11px] flex items-center space-x-1.5 border ${
                             c.isCorrect
-                              ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300 font-medium'
-                              : 'bg-slate-900 border-slate-800 text-slate-400'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-medium'
+                              : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-stone-600 dark:text-slate-400'
                           }`}
                         >
                           <span>{String.fromCharCode(65 + ci)}.</span>
@@ -413,7 +413,7 @@ function AiCurriculumContent() {
                       ))}
                     </div>
 
-                    <p className="text-[10px] text-slate-500 italic pl-2">
+                    <p className="text-[10px] text-stone-500 dark:text-slate-500 italic pl-2">
                       {lang === 'am' ? 'ማብራሪያ:' : 'Explanation:'} {q.explanation}
                     </p>
                   </div>
@@ -424,7 +424,7 @@ function AiCurriculumContent() {
                 <div className="pt-2 flex justify-end">
                   <Link
                     href={`/admin/chapters/${selectedChapterId}`}
-                    className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition shadow"
+                    className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition shadow-xs"
                   >
                     <span>{lang === 'am' ? 'ወደ ምዕራፍ ስቱዲዮ ተመለስና አስቀምጥ' : 'Back to Chapter Studio'}</span>
                     <ChevronRight className="w-3.5 h-3.5" />

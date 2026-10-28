@@ -356,11 +356,11 @@ function AdminCurriculumContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center space-x-2.5">
-            <Layers className="w-6 h-6 text-amber-400" />
+          <h1 className="text-2xl font-bold text-stone-900 dark:text-white tracking-tight flex items-center space-x-2.5">
+            <Layers className="w-6 h-6 text-amber-600 dark:text-amber-400" />
             <span>{lang === 'am' ? 'ስርዓተ ትምህርት አስተዳደር' : 'Curriculum Management'}</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-stone-500 dark:text-slate-400 text-sm mt-1">
             {lang === 'am'
               ? 'የትምህርት ክፍሎችን፣ ዓይነቶችንና ምዕራፎችን ማደራጀት፣ ዋና መጽሐፍትን በገጽ መከፋፈል'
               : 'Organize grades, subjects, chapters, and divide master textbooks by page'}
@@ -370,15 +370,15 @@ function AdminCurriculumContent() {
         <div className="flex items-center space-x-3">
           <Link
             href="/admin/ai"
-            className="flex items-center space-x-2 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-lg text-sm border border-slate-700 shadow transition"
+            className="flex items-center space-x-2 px-3.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-amber-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-amber-300 font-bold rounded-lg text-sm border border-stone-300 dark:border-slate-700 shadow-xs transition"
           >
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             <span>{lang === 'am' ? 'አይአይ ረዳት ስቱዲዮ' : 'AI Curriculum Studio'}</span>
           </Link>
 
           <button
             onClick={() => setShowGradeModal(true)}
-            className="flex items-center space-x-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow transition"
+            className="flex items-center space-x-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow-xs transition cursor-pointer"
           >
             <PlusCircle className="w-4 h-4" />
             <span>{lang === 'am' ? 'አዲስ ክፍል ጨምር' : 'Add Grade'}</span>
@@ -387,8 +387,8 @@ function AdminCurriculumContent() {
       </div>
 
       {/* Advanced Search & Topic Filter Bar */}
-      <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center space-x-3 shadow-sm">
-        <Search className="w-5 h-5 text-slate-400 flex-shrink-0" />
+      <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-3 rounded-xl flex items-center space-x-3 shadow-xs">
+        <Search className="w-5 h-5 text-stone-400 dark:text-slate-400 flex-shrink-0" />
         <input
           type="text"
           value={searchQuery}
@@ -398,12 +398,12 @@ function AdminCurriculumContent() {
               ? 'በርዕሰ ጉዳይ፣ በምዕራፍ ርዕስ ወይም በኮድ ይፈልጉ... (ምሳሌ፡ Church History ወይም HIST)'
               : 'Search by subject topic, chapter title, or code... (e.g. Church History or HIST)'
           }
-          className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none"
+          className="w-full bg-transparent text-sm text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-slate-500 focus:outline-none"
         />
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
-            className="text-xs text-slate-400 hover:text-white px-2 py-1 bg-slate-800 rounded transition"
+            className="text-xs text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white px-2 py-1 bg-stone-100 dark:bg-slate-800 rounded transition"
           >
             {lang === 'am' ? 'አጥፋ' : 'Clear'}
           </button>
@@ -415,21 +415,21 @@ function AdminCurriculumContent() {
         <div
           className={`p-4 rounded-xl flex items-center justify-between text-sm ${
             actionMessage.type === 'success'
-              ? 'bg-emerald-950/80 border border-emerald-800 text-emerald-200'
-              : 'bg-red-950/80 border border-red-800 text-red-200'
+              ? 'bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
+              : 'bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
           }`}
         >
           <div className="flex items-center space-x-2">
             {actionMessage.type === 'success' ? (
-              <CheckCircle className="w-4 h-4 text-emerald-400" />
+              <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-red-400" />
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
             )}
             <span>{actionMessage.text}</span>
           </div>
           <button
             onClick={() => setActionMessage(null)}
-            className="text-xs text-slate-400 hover:text-white"
+            className="text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white"
           >
             {lang === 'am' ? 'ዝጋ' : 'Close'}
           </button>
@@ -440,10 +440,10 @@ function AdminCurriculumContent() {
       <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-thin">
         <button
           onClick={() => setSelectedGradeLevel('ALL')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
             selectedGradeLevel === 'ALL'
-              ? 'bg-amber-500 text-slate-950 font-bold shadow'
-              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
+              : 'bg-stone-100 hover:bg-stone-200 text-stone-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
           }`}
         >
           {lang === 'am' ? 'ሁሉም ክፍሎች' : 'All Grades'}
@@ -455,10 +455,10 @@ function AdminCurriculumContent() {
               setSelectedGradeLevel(g.level);
               setExpandedGrades((prev) => ({ ...prev, [g.id]: true }));
             }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
               selectedGradeLevel === g.level
-                ? 'bg-amber-500 text-slate-950 font-bold shadow'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
+                : 'bg-stone-100 hover:bg-stone-200 text-stone-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
             }`}
           >
             {pick(g.amharicName, g.name)}
@@ -468,13 +468,13 @@ function AdminCurriculumContent() {
 
       {/* Curriculum Tree Accordion */}
       {isLoading ? (
-        <div className="p-12 text-center text-slate-400 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-center space-x-2">
-          <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
+        <div className="p-12 text-center text-stone-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl flex items-center justify-center space-x-2 shadow-xs">
+          <Loader2 className="w-5 h-5 animate-spin text-amber-500 dark:text-amber-400" />
           <span>{lang === 'am' ? 'ስርዓተ ትምህርቱን በመጫን ላይ...' : 'Loading curriculum...'}</span>
         </div>
       ) : filteredGrades.length === 0 ? (
-        <div className="p-12 text-center text-slate-400 bg-slate-900 border border-slate-800 rounded-xl">
-          <BookOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+        <div className="p-12 text-center text-stone-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl shadow-xs">
+          <BookOpen className="w-10 h-10 text-stone-300 dark:text-slate-600 mx-auto mb-3" />
           <p>
             {searchQuery
               ? (lang === 'am' ? `"${searchQuery}" የሚል ውጤት አልተገኘም።` : `No results found for "${searchQuery}".`)
@@ -488,41 +488,41 @@ function AdminCurriculumContent() {
             return (
               <div
                 key={grade.id}
-                className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm transition"
+                className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-xs transition"
               >
                 {/* Grade Header */}
                 <div
                   onClick={() => toggleGrade(grade.id)}
-                  className="p-4 bg-slate-900 hover:bg-slate-850 cursor-pointer flex items-center justify-between border-b border-slate-800/80 select-none"
+                  className="p-4 bg-white hover:bg-stone-50 dark:bg-slate-900 dark:hover:bg-slate-850 cursor-pointer flex items-center justify-between border-b border-stone-200 dark:border-slate-800/80 select-none transition"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm">
                       {grade.level}
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-base">
+                      <h3 className="font-bold text-stone-900 dark:text-white text-base">
                         {pick(grade.amharicName, grade.name)}
                       </h3>
                     </div>
                   </div>
 
                   <div className="flex items-center space-x-3">
-                    <span className="text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full">
+                    <span className="text-xs text-stone-600 dark:text-slate-400 bg-stone-100 dark:bg-slate-800 px-2.5 py-1 rounded-full font-medium">
                       {(grade.subjects || []).length} {lang === 'am' ? 'የትምህርት ዓይነቶች' : 'Subjects'}
                     </span>
                     {isExpanded ? (
-                      <ChevronDown className="w-5 h-5 text-slate-400" />
+                      <ChevronDown className="w-5 h-5 text-stone-400 dark:text-slate-400" />
                     ) : (
-                      <ChevronRight className="w-5 h-5 text-slate-400" />
+                      <ChevronRight className="w-5 h-5 text-stone-400 dark:text-slate-400" />
                     )}
                   </div>
                 </div>
 
                 {/* Grade Content (Subjects & Chapters) */}
                 {isExpanded && (
-                  <div className="p-5 space-y-6 bg-slate-950/40">
-                    <div className="flex justify-between items-center pb-2 border-b border-slate-800/60">
-                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  <div className="p-5 space-y-6 bg-stone-50/50 dark:bg-slate-950/40">
+                    <div className="flex justify-between items-center pb-2 border-b border-stone-200 dark:border-slate-800/60">
+                      <span className="text-xs font-semibold text-stone-600 dark:text-slate-400 uppercase tracking-wider">
                         {lang === 'am' ? 'የትምህርት ዓይነቶች' : 'Subjects'} ({lang === 'am' ? `ክፍል ${grade.level}` : `Grade ${grade.level}`})
                       </span>
                       <button
@@ -530,7 +530,7 @@ function AdminCurriculumContent() {
                           setActiveGradeIdForSubject(grade.id);
                           setSubjectForm({ name: '', amharicName: '', code: '', description: '' });
                         }}
-                        className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center space-x-1"
+                        className="text-xs text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-semibold flex items-center space-x-1 cursor-pointer"
                       >
                         <PlusCircle className="w-3.5 h-3.5" />
                         <span>{lang === 'am' ? 'አዲስ የትምህርት ዓይነት ጨምር' : 'Add Subject'}</span>
@@ -538,7 +538,7 @@ function AdminCurriculumContent() {
                     </div>
 
                     {(grade.subjects || []).length === 0 ? (
-                      <p className="text-xs text-slate-500 italic py-2">
+                      <p className="text-xs text-stone-400 dark:text-slate-500 italic py-2">
                         {lang === 'am' ? 'ለዚህ ክፍል የተመዘገበ የትምህርት ዓይነት የለም።' : 'No subjects registered for this grade.'}
                       </p>
                     ) : (
@@ -547,16 +547,16 @@ function AdminCurriculumContent() {
                           <div
                             key={subject.id}
                             id={`subject-${subject.id}`}
-                            className="bg-slate-900/90 border border-slate-800 rounded-lg p-4 space-y-4 transition"
+                            className="bg-white dark:bg-slate-900/90 border border-stone-200 dark:border-slate-800 rounded-lg p-4 space-y-4 shadow-2xs transition"
                           >
                             {/* Subject Header & Master Textbook Info */}
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-800/60">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-stone-100 dark:border-slate-800/60">
                               <div className="flex items-center space-x-3">
-                                <span className="font-mono text-xs px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-semibold">
+                                <span className="font-mono text-xs px-2 py-0.5 rounded bg-stone-100 dark:bg-slate-800 text-amber-800 dark:text-amber-300 font-semibold border border-stone-200 dark:border-transparent">
                                   {subject.code}
                                 </span>
                                 <div>
-                                  <h4 className="font-bold text-sm text-slate-100 flex items-center space-x-2">
+                                  <h4 className="font-bold text-sm text-stone-900 dark:text-slate-100 flex items-center space-x-2">
                                     <span>{pick(subject.amharicName, subject.name)}</span>
                                     <button
                                       onClick={() => {
@@ -569,7 +569,7 @@ function AdminCurriculumContent() {
                                           textbookTotalPages: subject.textbookTotalPages || 100,
                                         });
                                       }}
-                                      className="p-1 text-slate-500 hover:text-amber-400 transition"
+                                      className="p-1 text-stone-400 hover:text-amber-600 dark:text-slate-500 dark:hover:text-amber-400 transition cursor-pointer"
                                       title={lang === 'am' ? 'የትምህርት ዓይነት አሻሽል' : 'Edit Subject'}
                                     >
                                       <Edit3 className="w-3.5 h-3.5" />
@@ -581,32 +581,32 @@ function AdminCurriculumContent() {
                               {/* Master Textbook Status & Upload */}
                               <div className="flex flex-wrap items-center gap-2">
                                 {subject.textbookUrl ? (
-                                  <div className="flex items-center space-x-2 bg-slate-950 px-2.5 py-1 rounded border border-emerald-800/70 text-[11px]">
-                                    <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                                    <span className="text-emerald-300 font-medium truncate max-w-[140px]" title={subject.textbookFileName || 'Master Textbook'}>
+                                  <div className="flex items-center space-x-2 bg-emerald-50 dark:bg-slate-950 px-2.5 py-1 rounded border border-emerald-200 dark:border-emerald-800/70 text-[11px]">
+                                    <FileText className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                    <span className="text-emerald-800 dark:text-emerald-300 font-medium truncate max-w-[140px]" title={subject.textbookFileName || 'Master Textbook'}>
                                       {subject.textbookFileName || (lang === 'am' ? 'ዋና መጽሐፍ' : 'Master Textbook')}
                                     </span>
-                                    <span className="text-slate-400 font-mono">
+                                    <span className="text-stone-500 dark:text-slate-400 font-mono">
                                       ({subject.textbookTotalPages || 100}p)
                                     </span>
                                     <a
                                       href={subject.textbookUrl}
                                       target="_blank"
                                       rel="noreferrer"
-                                      className="text-amber-400 hover:text-amber-300 ml-1"
+                                      className="text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 ml-1"
                                       title={lang === 'am' ? 'ፒዲኤፉን እይ' : 'View PDF'}
                                     >
                                       <ExternalLink className="w-3 h-3" />
                                     </a>
                                   </div>
                                 ) : (
-                                  <span className="text-[11px] text-slate-500 bg-slate-950 px-2 py-1 rounded border border-slate-800">
+                                  <span className="text-[11px] text-stone-500 dark:text-slate-500 bg-stone-100 dark:bg-slate-950 px-2 py-1 rounded border border-stone-200 dark:border-slate-800">
                                     {lang === 'am' ? 'ዋና መጽሐፍ አልተጫነም' : 'No Master Textbook'}
                                   </span>
                                 )}
 
                                 {/* Upload / Replace Master Textbook Button */}
-                                <label className="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-2.5 py-1 rounded border border-slate-700 flex items-center space-x-1 cursor-pointer transition">
+                                <label className="text-xs bg-stone-100 hover:bg-stone-200 text-amber-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-amber-300 px-2.5 py-1 rounded border border-stone-300 dark:border-slate-700 flex items-center space-x-1 cursor-pointer transition">
                                   <input
                                     type="file"
                                     accept="application/pdf"
@@ -619,7 +619,7 @@ function AdminCurriculumContent() {
                                   />
                                   {uploadingSubjectId === subject.id ? (
                                     <>
-                                      <Loader2 className="w-3 h-3 animate-spin text-amber-400" />
+                                      <Loader2 className="w-3 h-3 animate-spin text-amber-500 dark:text-amber-400" />
                                       <span>{lang === 'am' ? 'በመጫን ላይ...' : 'Uploading...'}</span>
                                     </>
                                   ) : (
@@ -644,7 +644,7 @@ function AdminCurriculumContent() {
                                       description: '',
                                     });
                                   }}
-                                  className="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded border border-amber-500/30 flex items-center space-x-1 transition"
+                                  className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:hover:bg-amber-500/20 dark:text-amber-300 px-2.5 py-1 rounded border border-amber-200 dark:border-amber-500/30 flex items-center space-x-1 transition cursor-pointer"
                                 >
                                   <PlusCircle className="w-3.5 h-3.5" />
                                   <span>{lang === 'am' ? 'ምዕራፍ ጨምር' : 'Add Chapter'}</span>
@@ -655,7 +655,7 @@ function AdminCurriculumContent() {
                             {/* Chapters inside Subject */}
                             <div className="pl-1 space-y-2">
                               {(subject.chapters || []).length === 0 ? (
-                                <p className="text-xs text-slate-500 italic py-1">
+                                <p className="text-xs text-stone-400 dark:text-slate-500 italic py-1">
                                   {lang === 'am'
                                     ? 'ምንም ምዕራፍ አልተጨመረም። "ምዕራፍ ጨምር" የሚለውን ይጫኑ።'
                                     : 'No chapters added yet. Click "Add Chapter".'}
@@ -664,14 +664,14 @@ function AdminCurriculumContent() {
                                 subject.chapters.map((ch: any) => (
                                   <div
                                     key={ch.id}
-                                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-slate-950 border border-slate-800/80 hover:border-slate-750 transition gap-3"
+                                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800/80 hover:border-stone-300 dark:hover:border-slate-750 transition gap-3"
                                   >
                                     <div className="flex items-center space-x-3">
-                                      <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-amber-400 font-bold">
+                                      <span className="text-xs font-mono px-2 py-0.5 rounded bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 text-amber-700 dark:text-amber-400 font-bold">
                                         #{ch.chapterNumber}
                                       </span>
                                       <div>
-                                        <h5 className="text-xs font-semibold text-white flex items-center space-x-1.5">
+                                        <h5 className="text-xs font-semibold text-stone-900 dark:text-white flex items-center space-x-1.5">
                                           <span>{pick(ch.amharicTitle, ch.title)}</span>
                                           {!ch.isPublished && (
                                             <button
@@ -684,7 +684,7 @@ function AdminCurriculumContent() {
                                                   description: ch.description || '',
                                                 });
                                               }}
-                                              className="p-0.5 text-slate-500 hover:text-amber-400 transition"
+                                              className="p-0.5 text-stone-400 hover:text-amber-600 dark:text-slate-500 dark:hover:text-amber-400 transition cursor-pointer"
                                               title={lang === 'am' ? 'ምዕራፍ አሻሽል' : 'Edit Chapter'}
                                             >
                                               <Edit3 className="w-3 h-3" />
@@ -697,12 +697,12 @@ function AdminCurriculumContent() {
                                     <div className="flex flex-wrap items-center gap-2">
                                       {/* Status */}
                                       {ch.isPublished ? (
-                                        <span className="flex items-center text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded-full">
+                                        <span className="flex items-center text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full">
                                           <CheckCircle2 className="w-3 h-3 mr-1" />
                                           {lang === 'am' ? `የታተመ (v${ch.version})` : `Published (v${ch.version})`}
                                         </span>
                                       ) : (
-                                        <span className="flex items-center text-[11px] font-semibold text-amber-400 bg-amber-950/60 border border-amber-800 px-2 py-0.5 rounded-full">
+                                        <span className="flex items-center text-[11px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full">
                                           <Clock className="w-3 h-3 mr-1" />
                                           {lang === 'am' ? 'ረቂቅ' : 'Draft'}
                                         </span>
@@ -710,12 +710,12 @@ function AdminCurriculumContent() {
 
                                       {/* PDF Status Chip */}
                                       {ch.textbook ? (
-                                        <span className="flex items-center text-[10px] text-emerald-300 bg-emerald-950/40 border border-emerald-800/60 px-2 py-0.5 rounded">
+                                        <span className="flex items-center text-[10px] text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 rounded">
                                           <FileText className="w-3 h-3 mr-1" />
                                           PDF ({ch.textbook.startPage}-{ch.textbook.endPage})
                                         </span>
                                       ) : (
-                                        <span className="flex items-center text-[10px] text-slate-500 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
+                                        <span className="flex items-center text-[10px] text-stone-400 dark:text-slate-500 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 px-2 py-0.5 rounded">
                                           <FileText className="w-3 h-3 mr-1" />
                                           {lang === 'am' ? 'PDF የለም' : 'No PDF'}
                                         </span>
@@ -723,12 +723,12 @@ function AdminCurriculumContent() {
 
                                       {/* Quiz Status Chip */}
                                       {ch.quizzes && ch.quizzes.length > 0 ? (
-                                        <span className="flex items-center text-[10px] text-cyan-300 bg-cyan-950/40 border border-cyan-800/60 px-2 py-0.5 rounded">
+                                        <span className="flex items-center text-[10px] text-cyan-800 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 px-2 py-0.5 rounded">
                                           <HelpCircle className="w-3 h-3 mr-1" />
                                           {ch.quizzes[0].questions?.length || 0} {lang === 'am' ? 'ጥያቄዎች' : 'Questions'}
                                         </span>
                                       ) : (
-                                        <span className="flex items-center text-[10px] text-slate-500 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
+                                        <span className="flex items-center text-[10px] text-stone-400 dark:text-slate-500 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 px-2 py-0.5 rounded">
                                           <HelpCircle className="w-3 h-3 mr-1" />
                                           {lang === 'am' ? 'ፈተና የለም' : 'No Quiz'}
                                         </span>
@@ -736,7 +736,7 @@ function AdminCurriculumContent() {
 
                                       {/* References Chip */}
                                       {ch.references && ch.references.length > 0 ? (
-                                        <span className="flex items-center text-[10px] text-purple-300 bg-purple-950/40 border border-purple-800/60 px-2 py-0.5 rounded">
+                                        <span className="flex items-center text-[10px] text-purple-800 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 px-2 py-0.5 rounded">
                                           <Link2 className="w-3 h-3 mr-1" />
                                           {ch.references.length} {lang === 'am' ? 'ማጣቀሻ' : 'References'}
                                         </span>
@@ -745,7 +745,7 @@ function AdminCurriculumContent() {
                                       {/* Studio Link Button */}
                                       <Link
                                         href={`/admin/chapters/${ch.id}`}
-                                        className="text-xs px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-semibold rounded border border-amber-500/30 flex items-center space-x-1 transition ml-1"
+                                        className="text-xs px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:hover:bg-amber-500/20 dark:text-amber-300 font-semibold rounded border border-amber-200 dark:border-amber-500/30 flex items-center space-x-1 transition ml-1"
                                       >
                                         <FileEdit className="w-3.5 h-3.5" />
                                         <span>{lang === 'am' ? 'ይዘት አዘጋጅ' : 'Studio'}</span>
@@ -754,7 +754,7 @@ function AdminCurriculumContent() {
                                       {/* Delete Chapter Button */}
                                       <button
                                         onClick={() => handleDeleteChapter(ch.id, pick(ch.amharicTitle, ch.title))}
-                                        className="p-1 text-slate-500 hover:text-red-400 hover:bg-red-950/40 rounded transition"
+                                        className="p-1 text-stone-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded transition cursor-pointer"
                                         title={lang === 'am' ? 'ምዕራፉን ሰርዝ' : 'Delete Chapter'}
                                       >
                                         <Trash2 className="w-3.5 h-3.5" />
@@ -778,15 +778,15 @@ function AdminCurriculumContent() {
 
       {/* CREATE GRADE MODAL */}
       {showGradeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-              <GraduationCap className="w-5 h-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <h2 className="text-lg font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+              <GraduationCap className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               <span>{lang === 'am' ? 'አዲስ ክፍል ጨምር' : 'Add Grade'}</span>
             </h2>
             <form onSubmit={handleCreateGrade} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ደረጃ / ቁጥር (1-12)' : 'Grade Level (1-12)'}
                 </label>
                 <input
@@ -796,11 +796,11 @@ function AdminCurriculumContent() {
                   required
                   value={gradeForm.level}
                   onChange={(e) => setGradeForm({ ...gradeForm, level: Number(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'የክፍል ስም በእንግሊዝኛ' : 'Grade Name (English)'}
                 </label>
                 <input
@@ -809,11 +809,11 @@ function AdminCurriculumContent() {
                   placeholder="Grade 6"
                   value={gradeForm.name}
                   onChange={(e) => setGradeForm({ ...gradeForm, name: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'የክፍል ስም በአማርኛ' : 'Grade Name (Amharic)'}
                 </label>
                 <input
@@ -821,21 +821,21 @@ function AdminCurriculumContent() {
                   placeholder="ክፍል ፮"
                   value={gradeForm.amharicName}
                   onChange={(e) => setGradeForm({ ...gradeForm, amharicName: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowGradeModal(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm"
+                  className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 rounded-lg text-sm transition cursor-pointer"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow-xs transition cursor-pointer"
                 >
                   {lang === 'am' ? 'ፍጠር' : 'Create'}
                 </button>
@@ -847,15 +847,15 @@ function AdminCurriculumContent() {
 
       {/* CREATE SUBJECT MODAL */}
       {activeGradeIdForSubject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center space-x-2">
-              <BookOpen className="w-5 h-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+              <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               <span>{lang === 'am' ? 'አዲስ የትምህርት ዓይነት መዝግብ' : 'Add Subject'}</span>
             </h2>
             <form onSubmit={handleCreateSubject} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'የትምህርት ዓይነት ኮድ' : 'Subject Code'}
                 </label>
                 <input
@@ -864,11 +864,11 @@ function AdminCurriculumContent() {
                   placeholder={lang === 'am' ? 'ለምሳሌ፡ HIST-G6' : 'e.g. HIST-G6'}
                   value={subjectForm.code}
                   onChange={(e) => setSubjectForm({ ...subjectForm, code: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 font-mono uppercase"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500 font-mono uppercase"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ስም በእንግሊዝኛ' : 'Subject Name (English)'}
                 </label>
                 <input
@@ -877,11 +877,11 @@ function AdminCurriculumContent() {
                   placeholder="Church History"
                   value={subjectForm.name}
                   onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ስም በአማርኛ' : 'Subject Name (Amharic)'}
                 </label>
                 <input
@@ -889,21 +889,21 @@ function AdminCurriculumContent() {
                   placeholder="ታሪከ ቤተ ክርስቲያን"
                   value={subjectForm.amharicName}
                   onChange={(e) => setSubjectForm({ ...subjectForm, amharicName: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setActiveGradeIdForSubject(null)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm"
+                  className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 rounded-lg text-sm transition cursor-pointer"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow-xs transition cursor-pointer"
                 >
                   {lang === 'am' ? 'ፍጠር' : 'Create'}
                 </button>
@@ -915,15 +915,15 @@ function AdminCurriculumContent() {
 
       {/* EDIT SUBJECT MODAL (DRAFT STATE EDITING) */}
       {editingSubject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center space-x-2">
-              <Edit3 className="w-5 h-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+              <Edit3 className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               <span>{lang === 'am' ? 'የትምህርት ዓይነት አሻሽል' : 'Edit Subject'}</span>
             </h2>
             <form onSubmit={handleUpdateSubject} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'የትምህርት ዓይነት ኮድ' : 'Subject Code'}
                 </label>
                 <input
@@ -931,11 +931,11 @@ function AdminCurriculumContent() {
                   required
                   value={editSubjectForm.code}
                   onChange={(e) => setEditSubjectForm({ ...editSubjectForm, code: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 font-mono uppercase"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500 font-mono uppercase"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ስም በእንግሊዝኛ' : 'Subject Name (English)'}
                 </label>
                 <input
@@ -943,22 +943,22 @@ function AdminCurriculumContent() {
                   required
                   value={editSubjectForm.name}
                   onChange={(e) => setEditSubjectForm({ ...editSubjectForm, name: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ስም በአማርኛ' : 'Subject Name (Amharic)'}
                 </label>
                 <input
                   type="text"
                   value={editSubjectForm.amharicName}
                   onChange={(e) => setEditSubjectForm({ ...editSubjectForm, amharicName: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'የመጽሐፍ ጠቅላላ ገጾች' : 'Master Textbook Total Pages'}
                 </label>
                 <input
@@ -966,21 +966,21 @@ function AdminCurriculumContent() {
                   min={1}
                   value={editSubjectForm.textbookTotalPages}
                   onChange={(e) => setEditSubjectForm({ ...editSubjectForm, textbookTotalPages: Number(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setEditingSubject(null)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm"
+                  className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 rounded-lg text-sm transition cursor-pointer"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow-xs transition cursor-pointer"
                 >
                   {lang === 'am' ? 'አስቀምጥ' : 'Save Changes'}
                 </button>
@@ -992,15 +992,15 @@ function AdminCurriculumContent() {
 
       {/* CREATE CHAPTER MODAL */}
       {activeSubjectIdForChapter && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center space-x-2">
-              <Layers className="w-5 h-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+              <Layers className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               <span>{lang === 'am' ? 'አዲስ ምዕራፍ ጨምር' : 'Add Chapter'}</span>
             </h2>
             <form onSubmit={handleCreateChapter} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'የምዕራፍ ቁጥር' : 'Chapter Number'}
                 </label>
                 <input
@@ -1009,11 +1009,11 @@ function AdminCurriculumContent() {
                   required
                   value={chapterForm.chapterNumber}
                   onChange={(e) => setChapterForm({ ...chapterForm, chapterNumber: Number(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ርዕስ በእንግሊዝኛ' : 'Title (English)'}
                 </label>
                 <input
@@ -1022,11 +1022,11 @@ function AdminCurriculumContent() {
                   placeholder="The Early Church"
                   value={chapterForm.title}
                   onChange={(e) => setChapterForm({ ...chapterForm, title: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ርዕስ በአማርኛ' : 'Title (Amharic)'}
                 </label>
                 <input
@@ -1034,21 +1034,21 @@ function AdminCurriculumContent() {
                   placeholder="ምዕራፍ ፩: የቀደምት ቤተ ክርስቲያን ታሪክ"
                   value={chapterForm.amharicTitle}
                   onChange={(e) => setChapterForm({ ...chapterForm, amharicTitle: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setActiveSubjectIdForChapter(null)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm"
+                  className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 rounded-lg text-sm transition cursor-pointer"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow-xs transition cursor-pointer"
                 >
                   {lang === 'am' ? 'ፍጠር' : 'Create'}
                 </button>
@@ -1060,15 +1060,15 @@ function AdminCurriculumContent() {
 
       {/* EDIT CHAPTER MODAL (DRAFT STATE EDITING) */}
       {editingChapter && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center space-x-2">
-              <Edit3 className="w-5 h-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+              <Edit3 className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               <span>{lang === 'am' ? 'ምዕራፍ አሻሽል (ረቂቅ)' : 'Edit Chapter (Draft)'}</span>
             </h2>
             <form onSubmit={handleUpdateChapter} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'የምዕራፍ ቁጥር' : 'Chapter Number'}
                 </label>
                 <input
@@ -1077,11 +1077,11 @@ function AdminCurriculumContent() {
                   required
                   value={editChapterForm.chapterNumber}
                   onChange={(e) => setEditChapterForm({ ...editChapterForm, chapterNumber: Number(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ርዕስ በእንግሊዝኛ' : 'Title (English)'}
                 </label>
                 <input
@@ -1089,32 +1089,32 @@ function AdminCurriculumContent() {
                   required
                   value={editChapterForm.title}
                   onChange={(e) => setEditChapterForm({ ...editChapterForm, title: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ርዕስ በአማርኛ' : 'Title (Amharic)'}
                 </label>
                 <input
                   type="text"
                   value={editChapterForm.amharicTitle}
                   onChange={(e) => setEditChapterForm({ ...editChapterForm, amharicTitle: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setEditingChapter(null)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm"
+                  className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 rounded-lg text-sm transition cursor-pointer"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow-xs transition cursor-pointer"
                 >
                   {lang === 'am' ? 'አስቀምጥ' : 'Save Changes'}
                 </button>

@@ -161,22 +161,22 @@ export default function AdminModerationPage() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 text-white shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 text-stone-900 dark:text-white shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition">
         <div className="space-y-1.5">
           <div className="flex items-center space-x-2">
-            <span className="text-xs uppercase tracking-wider font-extrabold text-amber-400 bg-amber-950/70 px-2.5 py-0.5 rounded-full border border-amber-500/30 flex items-center">
-              <ShieldCheck className="w-3.5 h-3.5 inline mr-1 text-amber-400" />
+            <span className="text-xs uppercase tracking-wider font-extrabold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/70 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/30 flex items-center">
+              <ShieldCheck className="w-3.5 h-3.5 inline mr-1 text-amber-600 dark:text-amber-400" />
               <span>✟ {lang === 'am' ? 'የይዘት ማጣሪያና ማፅደቂያ' : 'Doctrinal Moderation Desk'}</span>
             </span>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-stone-500 dark:text-slate-400 font-medium">
               {pendingQuestions.length + pendingReferences.length}{' '}
               {lang === 'am' ? 'በግምገማ ላይ ያሉ' : 'pending items'}
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-stone-900 dark:text-white">
             {lang === 'am' ? 'የመምህራን ይዘት ግምገማ' : 'Teacher Content Moderation'}
           </h1>
-          <p className="text-slate-400 text-xs sm:text-sm max-w-2xl leading-relaxed">
+          <p className="text-stone-500 dark:text-slate-400 text-xs sm:text-sm max-w-2xl leading-relaxed">
             {lang === 'am'
               ? 'በመምህራን የቀረቡትን ማጣቀሻዎች እና የልምምድ ጥያቄዎች ኦርቶዶክሳዊ ትምህርትን መሠረት ያደረጉ መሆናቸውን አረጋግጠው ያጽድቁ ወይም በምክንያት ይመልሱ።'
               : 'Review submitted supplementary reference links and self-study practice questions to uphold theological and educational excellence.'}
@@ -186,7 +186,7 @@ export default function AdminModerationPage() {
         <button
           onClick={loadPending}
           disabled={loading}
-          className="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 transition flex items-center justify-center shrink-0 self-start sm:self-auto cursor-pointer"
+          className="p-3 rounded-2xl bg-stone-100 hover:bg-stone-200 text-amber-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-amber-400 border border-stone-300 dark:border-slate-700 transition flex items-center justify-center shrink-0 self-start sm:self-auto cursor-pointer"
           title={lang === 'am' ? 'ዳግም ጫን' : 'Refresh'}
         >
           <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
@@ -197,27 +197,27 @@ export default function AdminModerationPage() {
         <div
           className={`p-4 rounded-2xl flex items-start space-x-3 text-xs sm:text-sm font-bold animate-in fade-in ${
             notification.type === 'success'
-              ? 'bg-emerald-950/80 text-emerald-200 border border-emerald-500/40'
-              : 'bg-rose-950/80 text-rose-200 border border-rose-500/40'
+              ? 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-500/40'
+              : 'bg-rose-50 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-500/40'
           }`}
         >
           {notification.type === 'success' ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
           ) : (
-            <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
           )}
           <span>{notification.text}</span>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-800 bg-slate-900/60 p-1.5 rounded-2xl gap-2">
+      <div className="flex border-b border-stone-200 dark:border-slate-800 bg-stone-100 dark:bg-slate-900/60 p-1.5 rounded-2xl gap-2">
         <button
           onClick={() => setActiveTab('questions')}
           className={`flex items-center space-x-2 py-2.5 px-4 font-bold text-xs sm:text-sm rounded-xl transition cursor-pointer ${
             activeTab === 'questions'
-              ? 'bg-amber-500 text-slate-950 shadow-md'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              ? 'bg-amber-500 text-slate-950 shadow-xs'
+              : 'text-stone-600 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
           }`}
         >
           <HelpCircle className="w-4 h-4" />
@@ -227,7 +227,7 @@ export default function AdminModerationPage() {
               className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
                 activeTab === 'questions'
                   ? 'bg-slate-950 text-amber-300'
-                  : 'bg-amber-500/20 text-amber-400'
+                  : 'bg-amber-500/20 text-amber-700 dark:text-amber-400'
               }`}
             >
               {pendingQuestions.length}
@@ -239,8 +239,8 @@ export default function AdminModerationPage() {
           onClick={() => setActiveTab('references')}
           className={`flex items-center space-x-2 py-2.5 px-4 font-bold text-xs sm:text-sm rounded-xl transition cursor-pointer ${
             activeTab === 'references'
-              ? 'bg-amber-500 text-slate-950 shadow-md'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              ? 'bg-amber-500 text-slate-950 shadow-xs'
+              : 'text-stone-600 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -250,7 +250,7 @@ export default function AdminModerationPage() {
               className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
                 activeTab === 'references'
                   ? 'bg-slate-950 text-amber-300'
-                  : 'bg-amber-500/20 text-amber-400'
+                  : 'bg-amber-500/20 text-amber-700 dark:text-amber-400'
               }`}
             >
               {pendingReferences.length}
@@ -261,8 +261,8 @@ export default function AdminModerationPage() {
 
       {/* Loading Skeleton */}
       {loading && (
-        <div className="py-16 text-center text-slate-400 space-y-3">
-          <Loader2 className="w-8 h-8 animate-spin text-amber-400 mx-auto" />
+        <div className="py-16 text-center text-stone-500 dark:text-slate-400 space-y-3">
+          <Loader2 className="w-8 h-8 animate-spin text-amber-500 dark:text-amber-400 mx-auto" />
           <p className="text-xs font-semibold">
             {lang === 'am' ? 'በግምገማ ላይ ያሉትን በማዘጋጀት ላይ...' : 'Loading pending contributions...'}
           </p>
@@ -273,12 +273,12 @@ export default function AdminModerationPage() {
       {!loading && activeTab === 'questions' && (
         <div className="space-y-4">
           {pendingQuestions.length === 0 ? (
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center text-slate-400 space-y-2">
-              <CheckCircle2 className="w-12 h-12 text-emerald-400/60 mx-auto" />
-              <h3 className="font-bold text-base text-white">
+            <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-3xl p-12 text-center text-stone-500 dark:text-slate-400 space-y-2 shadow-xs">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500 dark:text-emerald-400/60 mx-auto" />
+              <h3 className="font-bold text-base text-stone-900 dark:text-white">
                 {lang === 'am' ? 'በግምገማ ላይ ያለ ምንም የልምምድ ጥያቄ የለም!' : 'All Practice Questions Moderated!'}
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-stone-400 dark:text-slate-500">
                 {lang === 'am'
                   ? 'መምህራን አዳዲስ ጥያቄዎችን ሲያቀርቡ እዚህ ይዘረዘራሉ።'
                   : 'Newly submitted teacher drills will appear here for verification.'}
@@ -289,29 +289,29 @@ export default function AdminModerationPage() {
               {pendingQuestions.map((q) => (
                 <div
                   key={q.id}
-                  className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4 hover:border-slate-700 transition"
+                  className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4 hover:border-stone-300 dark:hover:border-slate-700 transition"
                 >
                   {/* Meta Bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 dark:border-slate-800 pb-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[10px] uppercase font-black text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-600/40">
+                      <span className="text-[10px] uppercase font-black text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-600/40">
                         {q.questionType}
                       </span>
-                      <span className="text-xs font-bold text-slate-300">
+                      <span className="text-xs font-bold text-stone-800 dark:text-slate-300">
                         {q.chapter?.amharicTitle || q.chapter?.title || 'Chapter'}
                       </span>
                     </div>
 
                     {/* Submitter & Parish */}
-                    <div className="flex items-center space-x-3 text-xs text-slate-400">
+                    <div className="flex items-center space-x-3 text-xs text-stone-500 dark:text-slate-400">
                       <div className="flex items-center space-x-1.5">
-                        <User className="w-3.5 h-3.5 text-slate-500" />
-                        <span className="font-semibold text-slate-300">
+                        <User className="w-3.5 h-3.5 text-stone-400 dark:text-slate-500" />
+                        <span className="font-semibold text-stone-800 dark:text-slate-300">
                           {q.createdBy?.fullName || 'Teacher'}
                         </span>
                       </div>
                       {q.createdBy?.churchParish && (
-                        <div className="flex items-center space-x-1 text-amber-400/90 bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/40 font-semibold text-[11px]">
+                        <div className="flex items-center space-x-1 text-amber-700 dark:text-amber-400/90 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800/40 font-semibold text-[11px]">
                           <Church className="w-3 h-3" />
                           <span>{q.createdBy.churchParish}</span>
                         </div>
@@ -321,11 +321,11 @@ export default function AdminModerationPage() {
 
                   {/* Question Content */}
                   <div className="space-y-2">
-                    <h3 className="font-bold text-base sm:text-lg text-white">
+                    <h3 className="font-bold text-base sm:text-lg text-stone-900 dark:text-white">
                       {q.amharicPrompt || q.prompt}
                     </h3>
                     {q.prompt && q.prompt !== q.amharicPrompt && (
-                      <p className="text-xs text-slate-400 font-medium">{q.prompt}</p>
+                      <p className="text-xs text-stone-500 dark:text-slate-400 font-medium">{q.prompt}</p>
                     )}
 
                     {/* Choices display */}
@@ -336,15 +336,15 @@ export default function AdminModerationPage() {
                             key={c.id || c.orderIndex}
                             className={`p-2.5 rounded-xl border text-xs flex items-center justify-between ${
                               c.isCorrect
-                                ? 'bg-emerald-950/50 border-emerald-500/60 text-emerald-200'
-                                : 'bg-slate-800/40 border-slate-800 text-slate-300'
+                                ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-500/60 text-emerald-800 dark:text-emerald-200'
+                                : 'bg-stone-50 dark:bg-slate-800/40 border-stone-200 dark:border-slate-800 text-stone-700 dark:text-slate-300'
                             }`}
                           >
                             <span className="font-medium">
                               {pick(c.amharicText, c.text)}
                             </span>
                             {c.isCorrect && (
-                              <span className="text-[10px] uppercase font-bold text-emerald-400 bg-emerald-900/80 px-2 py-0.5 rounded ml-2">
+                              <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/80 px-2 py-0.5 rounded ml-2">
                                 {lang === 'am' ? 'ትክክለኛ መልስ' : 'Correct'}
                               </span>
                             )}
@@ -355,8 +355,8 @@ export default function AdminModerationPage() {
 
                     {/* Short Answer display */}
                     {q.questionType === 'SHORT_ANSWER' && (q.amharicAnswerText || q.answerText) && (
-                      <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60 text-xs text-slate-200">
-                        <span className="font-bold text-amber-400 block mb-1">
+                      <div className="p-3 bg-stone-50 dark:bg-slate-800/60 rounded-xl border border-stone-200 dark:border-slate-700/60 text-xs text-stone-800 dark:text-slate-200">
+                        <span className="font-bold text-amber-700 dark:text-amber-400 block mb-1">
                           {lang === 'am' ? 'የሚጠበቀው መልስ:' : 'Expected Answer:'}
                         </span>
                         <span>{pick(q.amharicAnswerText, q.answerText)}</span>
@@ -365,9 +365,9 @@ export default function AdminModerationPage() {
 
                     {/* Spiritual Explanation display */}
                     {(q.amharicExplanation || q.explanation) && (
-                      <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-800/30 text-xs text-amber-200/90 space-y-0.5">
-                        <span className="font-bold text-amber-400 flex items-center space-x-1 text-[11px]">
-                          <Sparkles className="w-3 h-3 text-amber-400" />
+                      <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 text-xs text-amber-900 dark:text-amber-200/90 space-y-0.5">
+                        <span className="font-bold text-amber-700 dark:text-amber-400 flex items-center space-x-1 text-[11px]">
+                          <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                           <span>{lang === 'am' ? 'የመንፈሳዊ ማብራሪያ' : 'Spiritual Explanation'}</span>
                         </span>
                         <p>{pick(q.amharicExplanation, q.explanation)}</p>
@@ -376,20 +376,20 @@ export default function AdminModerationPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="pt-2 border-t border-slate-800 flex items-center justify-end space-x-3">
+                  <div className="pt-2 border-t border-stone-100 dark:border-slate-800 flex items-center justify-end space-x-3">
                     <button
                       onClick={() => handleOpenDeclineModal('question', q)}
                       disabled={actionLoading}
-                      className="px-4 py-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-500/40 font-bold text-xs transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+                      className="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-950/80 dark:hover:bg-rose-900 dark:text-rose-300 dark:border-rose-500/40 font-bold text-xs transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
                     >
-                      <XCircle className="w-4 h-4 text-rose-400" />
+                      <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                       <span>{lang === 'am' ? 'አትቀበል (Decline)' : 'Decline with Reason'}</span>
                     </button>
 
                     <button
                       onClick={() => handleApprove('question', q.id)}
                       disabled={actionLoading}
-                      className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+                      className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>{lang === 'am' ? 'አጽድቅ (Approve)' : 'Approve Question'}</span>
@@ -406,12 +406,12 @@ export default function AdminModerationPage() {
       {!loading && activeTab === 'references' && (
         <div className="space-y-4">
           {pendingReferences.length === 0 ? (
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center text-slate-400 space-y-2">
-              <CheckCircle2 className="w-12 h-12 text-emerald-400/60 mx-auto" />
-              <h3 className="font-bold text-base text-white">
+            <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-3xl p-12 text-center text-stone-500 dark:text-slate-400 space-y-2 shadow-xs">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500 dark:text-emerald-400/60 mx-auto" />
+              <h3 className="font-bold text-base text-stone-900 dark:text-white">
                 {lang === 'am' ? 'በግምገማ ላይ ያለ ምንም ማጣቀሻ የለም!' : 'All References Moderated!'}
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-stone-400 dark:text-slate-500">
                 {lang === 'am'
                   ? 'መምህራን አዳዲስ የማጣቀሻ ሰነዶችን ሲያቀርቡ እዚህ ይዘረዘራሉ።'
                   : 'Newly submitted teacher reading materials will appear here for review.'}
@@ -422,27 +422,27 @@ export default function AdminModerationPage() {
               {pendingReferences.map((r) => (
                 <div
                   key={r.id}
-                  className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4 hover:border-slate-700 transition"
+                  className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4 hover:border-stone-300 dark:hover:border-slate-700 transition"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 dark:border-slate-800 pb-3">
                     <div className="flex items-center space-x-2">
-                      <span className="text-[10px] uppercase font-black text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-600/40">
+                      <span className="text-[10px] uppercase font-black text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-600/40">
                         {r.isDownloadable ? 'Offline Doc' : 'External Link'}
                       </span>
-                      <span className="text-xs font-bold text-slate-300">
+                      <span className="text-xs font-bold text-stone-800 dark:text-slate-300">
                         {r.chapter?.amharicTitle || r.chapter?.title || 'Chapter'}
                       </span>
                     </div>
 
-                    <div className="flex items-center space-x-3 text-xs text-slate-400">
+                    <div className="flex items-center space-x-3 text-xs text-stone-500 dark:text-slate-400">
                       <div className="flex items-center space-x-1.5">
-                        <User className="w-3.5 h-3.5 text-slate-500" />
-                        <span className="font-semibold text-slate-300">
+                        <User className="w-3.5 h-3.5 text-stone-400 dark:text-slate-500" />
+                        <span className="font-semibold text-stone-800 dark:text-slate-300">
                           {r.createdBy?.fullName || 'Teacher'}
                         </span>
                       </div>
                       {r.createdBy?.churchParish && (
-                        <div className="flex items-center space-x-1 text-amber-400/90 bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/40 font-semibold text-[11px]">
+                        <div className="flex items-center space-x-1 text-amber-700 dark:text-amber-400/90 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800/40 font-semibold text-[11px]">
                           <Church className="w-3 h-3" />
                           <span>{r.createdBy.churchParish}</span>
                         </div>
@@ -451,40 +451,40 @@ export default function AdminModerationPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-bold text-base sm:text-lg text-white">
+                    <h3 className="font-bold text-base sm:text-lg text-stone-900 dark:text-white">
                       {pick(r.amharicTitle, r.title)}
                     </h3>
                     <a
                       href={r.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs font-mono text-amber-400 hover:underline flex items-center space-x-1 max-w-xl truncate"
+                      className="text-xs font-mono text-amber-600 dark:text-amber-400 hover:underline flex items-center space-x-1 max-w-xl truncate"
                     >
                       <span className="truncate">{r.url}</span>
                       <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                     </a>
                     {r.isDownloadable && (
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-stone-500 dark:text-slate-400">
                         {lang === 'am' ? 'ከመስመር ውጭ ማውረድ የሚቻል ሰነድ' : 'Offline Downloadable Document'}
                         {r.downloadableDocSize ? ` (${Math.round(r.downloadableDocSize / 1024)} KB)` : ''}
                       </p>
                     )}
                   </div>
 
-                  <div className="pt-2 border-t border-slate-800 flex items-center justify-end space-x-3">
+                  <div className="pt-2 border-t border-stone-100 dark:border-slate-800 flex items-center justify-end space-x-3">
                     <button
                       onClick={() => handleOpenDeclineModal('reference', r)}
                       disabled={actionLoading}
-                      className="px-4 py-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-500/40 font-bold text-xs transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+                      className="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-950/80 dark:hover:bg-rose-900 dark:text-rose-300 dark:border-rose-500/40 font-bold text-xs transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
                     >
-                      <XCircle className="w-4 h-4 text-rose-400" />
+                      <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                       <span>{lang === 'am' ? 'አትቀበል (Decline)' : 'Decline with Reason'}</span>
                     </button>
 
                     <button
                       onClick={() => handleApprove('reference', r.id)}
                       disabled={actionLoading}
-                      className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+                      className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>{lang === 'am' ? 'አጽድቅ (Approve)' : 'Approve Reference'}</span>
@@ -499,13 +499,13 @@ export default function AdminModerationPage() {
 
       {/* DECLINE FEEDBACK MODAL */}
       {declineModal.isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <form
             onSubmit={handleConfirmDecline}
-            className="bg-slate-900 border border-slate-800 max-w-md w-full rounded-3xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 text-white"
+            className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 max-w-md w-full rounded-3xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 text-stone-900 dark:text-white"
           >
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center space-x-2 text-rose-400">
+            <div className="flex items-center justify-between border-b border-stone-200 dark:border-slate-800 pb-3">
+              <div className="flex items-center space-x-2 text-rose-600 dark:text-rose-400">
                 <XCircle className="w-5 h-5 shrink-0" />
                 <h3 className="font-bold text-base">
                   {lang === 'am' ? 'ይዘቱን በምክንያት ይመልሱ' : 'Decline Contribution'}
@@ -516,20 +516,20 @@ export default function AdminModerationPage() {
                 onClick={() =>
                   setDeclineModal({ isOpen: false, type: 'question', itemId: '', itemTitle: '', reason: '' })
                 }
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
+                className="text-stone-400 hover:text-stone-700 dark:hover:text-white p-1 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-300">
+            <p className="text-xs text-stone-600 dark:text-slate-300">
               {lang === 'am'
                 ? `«${declineModal.itemTitle}» ለምን እንዳልተፈቀደ ለአስተማሪው የሚላክ ግብረ-መልስ ያስገቡ።`
                 : `Specify why "${declineModal.itemTitle}" was declined so the teacher can adjust and re-submit.`}
             </p>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
                 {lang === 'am' ? 'የመመለሻ ምክንያት / ግብረ-መልስ *' : 'Reason for Declining *'}
               </label>
               <textarea
@@ -544,7 +544,7 @@ export default function AdminModerationPage() {
                 onChange={(e) =>
                   setDeclineModal((prev) => ({ ...prev, reason: e.target.value }))
                 }
-                className="w-full p-2.5 rounded-xl border border-slate-700 bg-slate-950 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="w-full p-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-stone-50 dark:bg-slate-950 text-xs text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
             </div>
 
@@ -554,14 +554,14 @@ export default function AdminModerationPage() {
                 onClick={() =>
                   setDeclineModal({ isOpen: false, type: 'question', itemId: '', itemTitle: '', reason: '' })
                 }
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+                className="px-4 py-2 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 text-xs font-semibold cursor-pointer"
               >
                 {lang === 'am' ? 'ይቅር' : 'Cancel'}
               </button>
               <button
                 type="submit"
                 disabled={actionLoading || !declineModal.reason.trim()}
-                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow transition disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-xs transition disabled:opacity-50 cursor-pointer"
               >
                 {actionLoading
                   ? lang === 'am'

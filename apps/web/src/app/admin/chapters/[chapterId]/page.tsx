@@ -661,11 +661,11 @@ export default function AdminChapterStudioPage() {
   return (
     <div className="space-y-8">
       {/* Breadcrumb & Navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-stone-500 dark:text-slate-400">
         <div className="flex items-center space-x-2">
           <Link
             href={`/admin/curriculum?grade=${chapter.subject?.gradeId}&subject=${chapter.subjectId}`}
-            className="hover:text-amber-400 flex items-center space-x-1"
+            className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center space-x-1"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>{lang === 'am' ? 'ወደ ስርዓተ ትምህርት ተመለስ' : 'Back to Curriculum'}</span>
@@ -675,41 +675,41 @@ export default function AdminChapterStudioPage() {
           <span>/</span>
           <span>{pick(chapter.subject?.amharicName, chapter.subject?.name)}</span>
           <span>/</span>
-          <span className="text-white font-medium">
+          <span className="text-stone-900 dark:text-white font-medium">
             {lang === 'am' ? `ምዕራፍ ${chapter.chapterNumber}` : `Chapter ${chapter.chapterNumber}`}
           </span>
         </div>
 
         <Link
           href={`/admin/ai?gradeId=${chapter.subject?.gradeId}&subjectId=${chapter.subjectId}&chapterId=${chapter.id}`}
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold border border-slate-700 transition shadow-sm"
+          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-stone-100 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 font-semibold border border-stone-200 dark:border-slate-700 transition shadow-xs"
         >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
           <span>{lang === 'am' ? 'አይአይ ረዳት ስቱዲዮ' : 'AI Curriculum Studio'}</span>
         </Link>
       </div>
 
       {/* Chapter Title & Publication Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xs">
         <div>
           <div className="flex items-center space-x-3 mb-1">
-            <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-semibold">
+            <span className="text-xs font-mono px-2 py-0.5 rounded bg-stone-100 dark:bg-slate-800 text-amber-700 dark:text-amber-300 font-semibold border border-stone-200 dark:border-slate-700">
               {lang === 'am' ? `ምዕራፍ ${chapter.chapterNumber}` : `Chapter ${chapter.chapterNumber}`}
             </span>
             {chapter.isPublished ? (
-              <span className="flex items-center text-xs font-semibold text-emerald-400 bg-emerald-950/80 border border-emerald-800 px-2.5 py-0.5 rounded-full">
+              <span className="flex items-center text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
                 <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                 {lang === 'am' ? `የታተመ (v${chapter.version})` : `Published (v${chapter.version})`}
               </span>
             ) : (
-              <span className="flex items-center text-xs font-semibold text-amber-400 bg-amber-950/80 border border-amber-800 px-2.5 py-0.5 rounded-full">
+              <span className="flex items-center text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 px-2.5 py-0.5 rounded-full">
                 <Clock className="w-3.5 h-3.5 mr-1" />
                 {lang === 'am' ? 'ረቂቅ' : 'Draft'}
               </span>
             )}
           </div>
           <div className="flex items-center space-x-3">
-            <h1 className="text-xl font-bold text-white tracking-tight">
+            <h1 className="text-xl font-bold text-stone-900 dark:text-white tracking-tight">
               {pick(chapter.amharicTitle, chapter.title)}
             </h1>
             <button
@@ -722,7 +722,7 @@ export default function AdminChapterStudioPage() {
                 });
                 setShowEditChapterModal(true);
               }}
-              className="inline-flex items-center space-x-1 px-2.5 py-1 rounded text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition"
+              className="inline-flex items-center space-x-1 px-2.5 py-1 rounded text-xs bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 border border-stone-200 dark:border-slate-700 transition"
               title={lang === 'am' ? 'ርዕስ አሻሽል' : 'Edit Title'}
             >
               <Edit3 className="w-3 h-3" />
@@ -737,7 +737,7 @@ export default function AdminChapterStudioPage() {
             <button
               onClick={handleUnpublish}
               disabled={isPublishing}
-              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition"
+              className="px-3.5 py-2 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 text-xs font-semibold rounded-lg border border-stone-200 dark:border-slate-700 transition"
             >
               {lang === 'am' ? 'አታሳትም' : 'Unpublish'}
             </button>
@@ -746,7 +746,7 @@ export default function AdminChapterStudioPage() {
           <button
             onClick={handlePublish}
             disabled={isPublishing}
-            className="flex items-center space-x-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm shadow-lg transition"
+            className="flex items-center space-x-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm shadow-xs transition"
           >
             {isPublishing ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -767,21 +767,21 @@ export default function AdminChapterStudioPage() {
         <div
           className={`p-4 rounded-xl flex items-center justify-between text-sm ${
             actionMessage.type === 'success'
-              ? 'bg-emerald-950/80 border border-emerald-800 text-emerald-200'
-              : 'bg-red-950/80 border border-red-800 text-red-200'
+              ? 'bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
+              : 'bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
           }`}
         >
           <div className="flex items-center space-x-2">
             {actionMessage.type === 'success' ? (
-              <CheckCircle className="w-4 h-4 text-emerald-400" />
+              <CheckCircle className="w-4 h-4 text-emerald-500" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-red-400" />
+              <AlertCircle className="w-4 h-4 text-red-500" />
             )}
             <span>{actionMessage.text}</span>
           </div>
           <button
             onClick={() => setActionMessage(null)}
-            className="text-xs text-slate-400 hover:text-white"
+            className="text-xs text-stone-400 hover:text-stone-700 dark:text-slate-400 dark:hover:text-white"
           >
             {lang === 'am' ? 'ዝጋ' : 'Close'}
           </button>
@@ -791,10 +791,10 @@ export default function AdminChapterStudioPage() {
       {/* 4-Section Content Studio Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {/* 1. TEXTBOOK PDF & PAGE CLAMPING */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
-          <div className="flex items-center space-x-2 pb-2 border-b border-slate-800">
-            <BookOpen className="w-4 h-4 text-amber-400" />
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+        <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 space-y-4 shadow-xs">
+          <div className="flex items-center space-x-2 pb-2 border-b border-stone-200 dark:border-slate-800">
+            <BookOpen className="w-4 h-4 text-amber-500" />
+            <h2 className="text-sm font-bold text-stone-900 dark:text-white uppercase tracking-wider">
               {lang === 'am' ? '፩. የመማሪያ መጽሐፍና ገጾች' : '1. Textbook PDF & Pages'}
             </h2>
           </div>
@@ -803,15 +803,15 @@ export default function AdminChapterStudioPage() {
           {chapter.subject?.textbookUrl && (
             <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-amber-300 flex items-center space-x-1">
-                  <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                <span className="font-bold text-amber-700 dark:text-amber-300 flex items-center space-x-1">
+                  <BookOpen className="w-3.5 h-3.5 text-amber-500" />
                   <span>{lang === 'am' ? 'የትምህርቱ ዋና መጽሐፍ' : 'Subject Master Textbook'}</span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono">
+                <span className="text-[10px] text-stone-500 dark:text-slate-400 font-mono">
                   {chapter.subject.textbookTotalPages || 100} {lang === 'am' ? 'ጠቅላላ ገጾች' : 'pages'}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-300 truncate" title={chapter.subject.textbookFileName}>
+              <p className="text-[11px] text-stone-600 dark:text-slate-300 truncate" title={chapter.subject.textbookFileName}>
                 {chapter.subject.textbookFileName || 'Subject Master Textbook PDF'}
               </p>
               <button
@@ -834,7 +834,7 @@ export default function AdminChapterStudioPage() {
                         : 'Subject master textbook selected! Now set start and end pages.',
                   });
                 }}
-                className="w-full py-1.5 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded text-xs transition flex items-center justify-center space-x-1 shadow"
+                className="w-full py-1.5 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded text-xs transition flex items-center justify-center space-x-1 shadow-xs"
               >
                 <span>{lang === 'am' ? 'ይህን ዋና መጽሐፍ ተጠቀም' : 'Use This Master Textbook'}</span>
               </button>
@@ -843,7 +843,7 @@ export default function AdminChapterStudioPage() {
 
           <form onSubmit={handleSaveTextbook} className="space-y-4 text-xs">
             <div>
-              <label className="block text-slate-400 mb-1 font-semibold">
+              <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                 {lang === 'am' ? 'የመጽሐፉ ርዕስ' : 'Textbook Title'}
               </label>
               <input
@@ -852,16 +852,16 @@ export default function AdminChapterStudioPage() {
                 value={textbookForm.title}
                 onChange={(e) => setTextbookForm({ ...textbookForm, title: e.target.value })}
                 placeholder={lang === 'am' ? 'የ፮ኛ ክፍል ታሪከ ቤተ ክርስቲያን' : 'Grade 6 Church History'}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
               />
             </div>
 
             {/* Direct PDF File Upload Box */}
             <div className="space-y-2">
-              <label className="block text-slate-400 font-semibold">
+              <label className="block text-stone-600 dark:text-slate-400 font-semibold">
                 {lang === 'am' ? 'የፒዲኤፍ ፋይል ስቀል' : 'Upload PDF File'}
               </label>
-              <label className="cursor-pointer border-2 border-dashed border-slate-700 hover:border-amber-500/80 rounded-xl p-4 flex flex-col items-center justify-center space-y-2 bg-slate-950/60 hover:bg-slate-950 transition text-center group">
+              <label className="cursor-pointer border-2 border-dashed border-stone-300 dark:border-slate-700 hover:border-amber-500/80 rounded-xl p-4 flex flex-col items-center justify-center space-y-2 bg-stone-50/60 hover:bg-stone-100 dark:bg-slate-950/60 dark:hover:bg-slate-950 transition text-center group">
                 <input
                   type="file"
                   accept="application/pdf"
@@ -870,7 +870,7 @@ export default function AdminChapterStudioPage() {
                   disabled={isUploadingPdf}
                 />
                 {isUploadingPdf ? (
-                  <div className="flex items-center space-x-2 text-amber-400">
+                  <div className="flex items-center space-x-2 text-amber-500">
                     <Loader2 className="w-5 h-5 animate-spin" />
                     <span className="font-semibold text-xs">
                       {lang === 'am' ? 'ፋይሉን በመጫን ላይ...' : 'Uploading file...'}
@@ -878,14 +878,14 @@ export default function AdminChapterStudioPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition">
+                    <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 group-hover:scale-105 transition">
                       <Upload className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="font-semibold text-amber-300 block">
+                      <span className="font-semibold text-amber-700 dark:text-amber-300 block">
                         {lang === 'am' ? 'PDF ፋይል እዚህ ይጫኑ' : 'Upload PDF File Here'}
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[11px] text-stone-500 dark:text-slate-500">
                         {lang === 'am'
                           ? 'ክሊክ በማድረግ ከኮምፒውተርዎ ይምረጡ (.pdf እስከ 100MB)'
                           : 'Click to select from your device (.pdf up to 100MB)'}
@@ -897,28 +897,28 @@ export default function AdminChapterStudioPage() {
 
               {/* Uploaded File Confirmation Banner */}
               {textbookForm.fileUrl && (
-                <div className="p-3 bg-slate-950 border border-emerald-800/60 rounded-lg space-y-1.5">
-                  <div className="flex items-center justify-between text-emerald-400 font-semibold text-[11px]">
+                <div className="p-3 bg-stone-50 dark:bg-slate-950 border border-emerald-300 dark:border-emerald-800/60 rounded-lg space-y-1.5">
+                  <div className="flex items-center justify-between text-emerald-700 dark:text-emerald-400 font-semibold text-[11px]">
                     <span className="flex items-center space-x-1 truncate max-w-[200px]">
-                      <FileCheck className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                      <FileCheck className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
                       <span className="truncate">
                         {uploadedPdfFileName || (lang === 'am' ? 'የተያያዘ PDF ፋይል' : 'Attached PDF File')}
                       </span>
                     </span>
-                    <span className="text-slate-400 font-mono text-[10px]">
+                    <span className="text-stone-500 dark:text-slate-400 font-mono text-[10px]">
                       {(textbookForm.fileSize / (1024 * 1024)).toFixed(2)} MB
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1 border-t border-slate-800 text-[10px]">
-                    <span className="text-slate-500 font-mono truncate max-w-[170px]" title={textbookForm.checksumSha256}>
+                  <div className="flex items-center justify-between pt-1 border-t border-stone-200 dark:border-slate-800 text-[10px]">
+                    <span className="text-stone-500 dark:text-slate-500 font-mono truncate max-w-[170px]" title={textbookForm.checksumSha256}>
                       SHA256: {textbookForm.checksumSha256.substring(0, 14)}...
                     </span>
                     <a
                       href={textbookForm.fileUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-amber-400 hover:text-amber-300 flex items-center space-x-0.5 font-semibold"
+                      className="text-amber-700 dark:text-amber-400 hover:underline flex items-center space-x-0.5 font-semibold"
                     >
                       <span>{lang === 'am' ? 'ፒዲኤፍ እይ' : 'View PDF'}</span>
                       <ExternalLink className="w-3 h-3" />
@@ -930,7 +930,7 @@ export default function AdminChapterStudioPage() {
 
             {/* Manual URL Input (Fallback / Custom Host) */}
             <div>
-              <label className="block text-slate-400 mb-1 font-semibold text-[11px]">
+              <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold text-[11px]">
                 {lang === 'am' ? 'ወይም የፋይል ሊንክ' : 'Or File URL'}
               </label>
               <input
@@ -939,13 +939,13 @@ export default function AdminChapterStudioPage() {
                 value={textbookForm.fileUrl}
                 onChange={(e) => setTextbookForm({ ...textbookForm, fileUrl: e.target.value })}
                 placeholder="https://res.cloudinary.com/.../history.pdf"
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-amber-500 font-mono text-[11px]"
+                className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-lg px-3 py-1.5 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500 font-mono text-[11px]"
               />
             </div>
 
             {/* Clamped Page Ranges */}
-            <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-2">
-              <div className="flex items-center justify-between text-amber-300 font-semibold">
+            <div className="p-3 bg-stone-50 dark:bg-slate-950 rounded-lg border border-stone-200 dark:border-slate-800 space-y-2">
+              <div className="flex items-center justify-between text-amber-700 dark:text-amber-300 font-semibold">
                 <span className="flex items-center">
                   <Sliders className="w-3.5 h-3.5 mr-1" />
                   {lang === 'am' ? 'የተቆረጠ የገጽ ክልል' : 'Clamped Pages Range'}
@@ -955,7 +955,7 @@ export default function AdminChapterStudioPage() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-slate-400 mb-0.5 text-[11px]">
+                  <label className="block text-stone-600 dark:text-slate-400 mb-0.5 text-[11px]">
                     {lang === 'am' ? 'መጀመሪያ ገጽ' : 'Start Page'}
                   </label>
                   <input
@@ -964,11 +964,11 @@ export default function AdminChapterStudioPage() {
                     required
                     value={textbookForm.startPage}
                     onChange={(e) => setTextbookForm({ ...textbookForm, startPage: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white"
+                    className="w-full bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded px-2 py-1 text-stone-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 mb-0.5 text-[11px]">
+                  <label className="block text-stone-600 dark:text-slate-400 mb-0.5 text-[11px]">
                     {lang === 'am' ? 'መጨረሻ ገጽ' : 'End Page'}
                   </label>
                   <input
@@ -977,13 +977,13 @@ export default function AdminChapterStudioPage() {
                     required
                     value={textbookForm.endPage}
                     onChange={(e) => setTextbookForm({ ...textbookForm, endPage: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white"
+                    className="w-full bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded px-2 py-1 text-stone-900 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-0.5 text-[11px]">
+                <label className="block text-stone-600 dark:text-slate-400 mb-0.5 text-[11px]">
                   {lang === 'am' ? 'ጠቅላላ የመጽሐፉ ገጾች' : 'Total Book Pages'}
                 </label>
                 <input
@@ -992,7 +992,7 @@ export default function AdminChapterStudioPage() {
                   required
                   value={textbookForm.totalPages}
                   onChange={(e) => setTextbookForm({ ...textbookForm, totalPages: Number(e.target.value) })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white"
+                  className="w-full bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded px-2 py-1 text-stone-900 dark:text-white"
                 />
               </div>
             </div>
@@ -1000,7 +1000,7 @@ export default function AdminChapterStudioPage() {
             <button
               type="submit"
               disabled={isSavingTextbook}
-              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg transition flex items-center justify-center space-x-1 shadow"
+              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg transition flex items-center justify-center space-x-1 shadow-xs"
             >
               {isSavingTextbook ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
               <span>{lang === 'am' ? 'የመጽሐፍ ገጾችን አስቀምጥ' : 'Save Textbook'}</span>
@@ -1009,17 +1009,17 @@ export default function AdminChapterStudioPage() {
 
           {/* Chapter Extraction Preview & Diagnostics */}
           {chapter.textbook && (
-            <div className="p-3 bg-slate-950/80 rounded-lg border border-amber-500/20 space-y-2 mt-3">
+            <div className="p-3 bg-stone-50 dark:bg-slate-950/80 rounded-lg border border-amber-500/20 space-y-2 mt-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-amber-300 flex items-center space-x-1">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
+                <span className="font-semibold text-amber-700 dark:text-amber-300 flex items-center space-x-1">
+                  <Sparkles className="w-3 h-3 text-amber-500" />
                   <span>{lang === 'am' ? 'የምዕራፍ የተቆረጠ ፒዲኤፍ' : 'Isolated Chapter PDF'}</span>
                 </span>
-                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono text-[10px]">
+                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 font-mono text-[10px]">
                   {Math.max(1, (chapter.textbook.endPage || textbookForm.endPage) - (chapter.textbook.startPage || textbookForm.startPage) + 1)} {lang === 'am' ? 'ገጾች' : 'pages'}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-stone-600 dark:text-slate-400 leading-relaxed">
                 {lang === 'am'
                   ? `ዋና መጽሐፍ ገጽ ${chapter.textbook.startPage || textbookForm.startPage} - ${chapter.textbook.endPage || textbookForm.endPage} ተቆርጦ ለተማሪው ከገጽ ፩ እስከ ${Math.max(1, (chapter.textbook.endPage || textbookForm.endPage) - (chapter.textbook.startPage || textbookForm.startPage) + 1)} ብቻ ይታያል።`
                   : `Pages ${chapter.textbook.startPage || textbookForm.startPage} - ${chapter.textbook.endPage || textbookForm.endPage} from master book are isolated into a standalone document (Pages 1 - ${Math.max(1, (chapter.textbook.endPage || textbookForm.endPage) - (chapter.textbook.startPage || textbookForm.startPage) + 1)}).`}
@@ -1029,7 +1029,7 @@ export default function AdminChapterStudioPage() {
                   href={`/api/chapters/${chapterId}/pdf`}
                   target="_blank"
                   rel="noreferrer"
-                  className="py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded text-center text-[11px] font-semibold transition flex items-center justify-center space-x-1 border border-slate-700"
+                  className="py-1.5 px-2 bg-white dark:bg-slate-800 hover:bg-stone-100 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 rounded text-center text-[11px] font-semibold transition flex items-center justify-center space-x-1 border border-stone-200 dark:border-slate-700"
                 >
                   <BookOpen className="w-3 h-3" />
                   <span>{lang === 'am' ? 'የተቆረጠ PDF እይ' : 'Inspect PDF'}</span>
@@ -1038,7 +1038,7 @@ export default function AdminChapterStudioPage() {
                   href={`/chapters/${chapterId}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="py-1.5 px-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-center text-[11px] font-semibold transition flex items-center justify-center space-x-1 border border-amber-500/30"
+                  className="py-1.5 px-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 rounded text-center text-[11px] font-semibold transition flex items-center justify-center space-x-1 border border-amber-500/30"
                 >
                   <ExternalLink className="w-3 h-3" />
                   <span>{lang === 'am' ? 'የተማሪ ገጽ ፈትሽ' : 'Student View'}</span>
@@ -1049,11 +1049,11 @@ export default function AdminChapterStudioPage() {
         </div>
 
         {/* 2. PRACTICE QUIZ & QUESTIONS */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 space-y-4 shadow-xs">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
             <div className="flex items-center space-x-2">
-              <HelpCircle className="w-4 h-4 text-amber-400" />
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              <HelpCircle className="w-4 h-4 text-amber-500" />
+              <h2 className="text-sm font-bold text-stone-900 dark:text-white uppercase tracking-wider">
                 {lang === 'am' ? '፪. የልምምድ ፈተና' : '2. Practice Quiz'}
               </h2>
             </div>
@@ -1061,14 +1061,14 @@ export default function AdminChapterStudioPage() {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setShowQuestionModal(true)}
-                  className="text-[11px] text-amber-300 hover:text-amber-200 font-semibold flex items-center space-x-0.5 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
+                  className="text-[11px] text-amber-700 dark:text-amber-300 hover:underline font-semibold flex items-center space-x-0.5 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
                 >
                   <PlusCircle className="w-3 h-3 mr-0.5" />
                   <span>{lang === 'am' ? 'ጥያቄ ጨምር' : 'Add Question'}</span>
                 </button>
                 <button
                   onClick={() => handleDeleteQuiz(primaryQuiz.id)}
-                  className="text-slate-500 hover:text-red-400 p-0.5 transition"
+                  className="text-stone-400 dark:text-slate-500 hover:text-red-500 p-0.5 transition"
                   title={lang === 'am' ? 'ፈተናውን ሰርዝ' : 'Delete Quiz'}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -1078,29 +1078,29 @@ export default function AdminChapterStudioPage() {
           </div>
 
           {!primaryQuiz ? (
-            <div className="p-6 text-center text-slate-400 bg-slate-950 rounded-lg border border-slate-800 space-y-3">
+            <div className="p-6 text-center text-stone-500 dark:text-slate-400 bg-stone-50 dark:bg-slate-950 rounded-lg border border-stone-200 dark:border-slate-800 space-y-3">
               <p className="text-xs">
                 {lang === 'am' ? 'ለዚህ ምዕራፍ ምንም ፈተና አልተዘጋጀም።' : 'No quiz prepared for this chapter.'}
               </p>
               <button
                 onClick={() => setShowQuizModal(true)}
-                className="px-3 py-1.5 bg-amber-500 text-slate-950 font-bold text-xs rounded-lg hover:bg-amber-400 transition"
+                className="px-3 py-1.5 bg-amber-500 text-slate-950 font-bold text-xs rounded-lg hover:bg-amber-400 transition shadow-xs"
               >
                 {lang === 'am' ? 'አዲስ ፈተና ፍጠር' : 'Create Quiz'}
               </button>
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
+              <div className="p-3 bg-stone-50 dark:bg-slate-950 rounded-lg border border-stone-200 dark:border-slate-800">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-semibold text-white">
+                  <span className="font-semibold text-stone-900 dark:text-white">
                     {pick(primaryQuiz.amharicTitle, primaryQuiz.title)}
                   </span>
-                  <span className="text-emerald-400 font-mono">
+                  <span className="text-emerald-700 dark:text-emerald-400 font-mono font-bold">
                     {lang === 'am' ? 'ማለፊያ:' : 'Passing:'} {primaryQuiz.passingScore}%
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-stone-500 dark:text-slate-400 mt-1">
                   {lang === 'am' ? 'ጠቅላላ ጥያቄዎች፡' : 'Total Questions:'} {(primaryQuiz.questions || []).length}
                 </p>
               </div>
@@ -1108,23 +1108,23 @@ export default function AdminChapterStudioPage() {
               {/* Questions List */}
               <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                 {(primaryQuiz.questions || []).length === 0 ? (
-                  <p className="text-xs text-slate-500 italic text-center py-4">
+                  <p className="text-xs text-stone-400 dark:text-slate-500 italic text-center py-4">
                     {lang === 'am' ? 'ምንም ጥያቄ አልተጨመረም። "ጥያቄ ጨምር" የሚለውን ይጫኑ።' : 'No questions added yet. Click "Add Question".'}
                   </p>
                 ) : (
                   (primaryQuiz.questions || []).map((q: any, idx: number) => (
-                    <div key={q.id} className="p-2.5 bg-slate-950/70 border border-slate-800 rounded-lg space-y-1">
-                      <div className="flex justify-between items-start text-xs text-slate-300 font-medium">
+                    <div key={q.id} className="p-2.5 bg-stone-50 dark:bg-slate-950/70 border border-stone-200 dark:border-slate-800 rounded-lg space-y-1">
+                      <div className="flex justify-between items-start text-xs text-stone-800 dark:text-slate-300 font-medium">
                         <span className="flex-1 pr-2">
                           {idx + 1}. {pick(q.amharicPrompt, q.prompt)}
                         </span>
                         <div className="flex items-center space-x-2">
-                          <span className="text-amber-400 font-mono text-[11px]">
+                          <span className="text-amber-700 dark:text-amber-400 font-mono text-[11px] font-bold">
                             {q.points} {lang === 'am' ? 'ነጥብ' : 'pts'}
                           </span>
                           <button
                             onClick={() => handleDeleteQuestion(q.id)}
-                            className="text-slate-500 hover:text-red-400 p-0.5 transition"
+                            className="text-stone-400 dark:text-slate-500 hover:text-red-500 p-0.5 transition"
                             title={lang === 'am' ? 'ጥያቄውን ሰርዝ' : 'Delete Question'}
                           >
                             <Trash2 className="w-3 h-3" />
@@ -1136,7 +1136,7 @@ export default function AdminChapterStudioPage() {
                           <div
                             key={c.id}
                             className={`text-[11px] flex items-center space-x-1.5 ${
-                              c.isCorrect ? 'text-emerald-400 font-semibold' : 'text-slate-400'
+                              c.isCorrect ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-stone-500 dark:text-slate-400'
                             }`}
                           >
                             <span>{c.isCorrect ? '✓' : '•'}</span>
@@ -1153,17 +1153,17 @@ export default function AdminChapterStudioPage() {
         </div>
 
         {/* 3. APPROVED REFERENCES */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 space-y-4 shadow-xs">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
             <div className="flex items-center space-x-2">
-              <Link2 className="w-4 h-4 text-amber-400" />
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              <Link2 className="w-4 h-4 text-amber-500" />
+              <h2 className="text-sm font-bold text-stone-900 dark:text-white uppercase tracking-wider">
                 {lang === 'am' ? '፫. አጋዥ መረጃዎች' : '3. References'}
               </h2>
             </div>
             <button
               onClick={() => setShowReferenceModal(true)}
-              className="text-[11px] text-amber-300 hover:text-amber-200 font-semibold flex items-center space-x-0.5"
+              className="text-[11px] text-amber-700 dark:text-amber-300 hover:underline font-semibold flex items-center space-x-0.5"
             >
               <PlusCircle className="w-3 h-3" />
               <span>{lang === 'am' ? 'መረጃ አያይዝ' : 'Add Reference'}</span>
@@ -1171,30 +1171,30 @@ export default function AdminChapterStudioPage() {
           </div>
 
           {(chapter.references || []).length === 0 ? (
-            <div className="p-6 text-center text-slate-500 text-xs italic bg-slate-950 rounded-lg border border-slate-800">
+            <div className="p-6 text-center text-stone-500 dark:text-slate-500 text-xs italic bg-stone-50 dark:bg-slate-950 rounded-lg border border-stone-200 dark:border-slate-800">
               {lang === 'am' ? 'ምንም አጋዥ ማጣቀሻ አልተያያዘም።' : 'No references attached.'}
             </div>
           ) : (
             <div className="space-y-2">
               {chapter.references.map((ref: any) => (
-                <div key={ref.id} className="p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-1">
+                <div key={ref.id} className="p-3 bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 rounded-lg space-y-1">
                   <div className="flex justify-between items-start">
-                    <h4 className="text-xs font-semibold text-slate-200">
+                    <h4 className="text-xs font-semibold text-stone-800 dark:text-slate-200">
                       {pick(ref.amharicTitle, ref.title)}
                     </h4>
                     <div className="flex items-center space-x-1.5">
                       {ref.isDownloadable ? (
-                        <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-950 border border-emerald-800 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 px-1.5 py-0.5 rounded">
                           Offline PDF
                         </span>
                       ) : (
-                        <span className="text-[10px] font-semibold text-blue-400 bg-blue-950 border border-blue-800 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] font-semibold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 px-1.5 py-0.5 rounded">
                           Online Link
                         </span>
                       )}
                       <button
                         onClick={() => handleDeleteReference(ref.id)}
-                        className="text-slate-500 hover:text-red-400 p-0.5 transition"
+                        className="text-stone-400 dark:text-slate-500 hover:text-red-500 p-0.5 transition"
                         title={lang === 'am' ? 'ማጣቀሻውን ሰርዝ' : 'Delete Reference'}
                       >
                         <Trash2 className="w-3 h-3" />
@@ -1205,7 +1205,7 @@ export default function AdminChapterStudioPage() {
                     href={ref.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[11px] text-amber-400 hover:underline truncate block"
+                    className="text-[11px] text-amber-700 dark:text-amber-400 hover:underline truncate block"
                   >
                     {ref.url}
                   </a>
@@ -1216,30 +1216,30 @@ export default function AdminChapterStudioPage() {
         </div>
 
         {/* 4. PRACTICE DRILLS (SELF-STUDY) */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 space-y-4 shadow-xs">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
             <div className="flex items-center space-x-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <h2 className="text-sm font-bold text-stone-900 dark:text-white uppercase tracking-wider">
                 {lang === 'am' ? '፬. የልምምድ ጥያቄዎች' : '4. Practice Drills'}
               </h2>
             </div>
             <button
               onClick={() => setShowPracticeQuestionModal(true)}
-              className="text-[11px] text-amber-300 hover:text-amber-200 font-semibold flex items-center space-x-0.5 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
+              className="text-[11px] text-amber-700 dark:text-amber-300 hover:underline font-semibold flex items-center space-x-0.5 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
             >
               <PlusCircle className="w-3 h-3 mr-0.5" />
               <span>{lang === 'am' ? 'ጥያቄ ጨምር' : 'Add Drill'}</span>
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-400">
+          <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-slate-400">
             <span>{lang === 'am' ? 'ጠቅላላ የልምምድ ጥያቄዎች' : 'Total Practice Drills'}</span>
-            <span className="font-mono font-bold text-amber-400">{practiceQuestions.length}</span>
+            <span className="font-mono font-bold text-amber-700 dark:text-amber-400">{practiceQuestions.length}</span>
           </div>
 
           {practiceQuestions.length === 0 ? (
-            <div className="p-6 text-center text-slate-500 text-xs italic bg-slate-950 rounded-lg border border-slate-800">
+            <div className="p-6 text-center text-stone-500 dark:text-slate-500 text-xs italic bg-stone-50 dark:bg-slate-950 rounded-lg border border-stone-200 dark:border-slate-800">
               {lang === 'am'
                 ? 'ምንም የልምምድ ጥያቄ አልተጨመረም። "ጥያቄ ጨምር" የሚለውን ይጫኑ።'
                 : 'No practice questions yet. Click "Add Drill" to create one.'}
@@ -1249,19 +1249,19 @@ export default function AdminChapterStudioPage() {
               {practiceQuestions.map((q: any, idx: number) => {
                 const qType = q.questionType || 'MULTIPLE_CHOICE';
                 return (
-                  <div key={q.id} className="p-2.5 bg-slate-950/70 border border-slate-800 rounded-lg space-y-1.5">
-                    <div className="flex justify-between items-start text-xs text-slate-200 font-medium">
+                  <div key={q.id} className="p-2.5 bg-stone-50 dark:bg-slate-950/70 border border-stone-200 dark:border-slate-800 rounded-lg space-y-1.5">
+                    <div className="flex justify-between items-start text-xs text-stone-800 dark:text-slate-200 font-medium">
                       <div className="flex-1 pr-2">
                         <div className="flex items-center space-x-1.5 mb-1">
-                          <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-800 text-slate-300 rounded">
+                          <span className="text-[10px] font-mono px-1.5 py-0.2 bg-stone-200 dark:bg-slate-800 text-stone-700 dark:text-slate-300 rounded">
                             #{idx + 1}
                           </span>
-                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
                             qType === 'MULTIPLE_CHOICE'
-                              ? 'bg-blue-950 text-blue-300 border border-blue-800'
+                              ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
                               : qType === 'TRUE_FALSE'
-                              ? 'bg-amber-950 text-amber-300 border border-amber-800'
-                              : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                              ? 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+                              : 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
                           }`}>
                             {qType === 'MULTIPLE_CHOICE'
                               ? (lang === 'am' ? 'ባለብዙ ምርጫ' : 'Multiple Choice')
@@ -1274,7 +1274,7 @@ export default function AdminChapterStudioPage() {
                       </div>
                       <button
                         onClick={() => handleDeletePracticeQuestion(q.id)}
-                        className="text-slate-500 hover:text-red-400 p-1 transition shrink-0"
+                        className="text-stone-400 dark:text-slate-500 hover:text-red-500 p-1 transition shrink-0"
                         title={lang === 'am' ? 'ጥያቄውን ሰርዝ' : 'Delete Drill'}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1283,8 +1283,8 @@ export default function AdminChapterStudioPage() {
 
                     {qType === 'SHORT_ANSWER' ? (
                       (q.answerText || q.amharicAnswerText) && (
-                        <div className="text-[11px] bg-slate-900/80 p-1.5 rounded border border-slate-800 text-slate-300">
-                          <span className="text-amber-400 font-semibold">{lang === 'am' ? 'የሚጠበቅ መልስ፡ ' : 'Expected: '}</span>
+                        <div className="text-[11px] bg-white dark:bg-slate-900/80 p-1.5 rounded border border-stone-200 dark:border-slate-800 text-stone-700 dark:text-slate-300">
+                          <span className="text-amber-700 dark:text-amber-400 font-semibold">{lang === 'am' ? 'የሚጠበቅ መልስ፡ ' : 'Expected: '}</span>
                           <span>{pick(q.amharicAnswerText, q.answerText)}</span>
                         </div>
                       )
@@ -1294,7 +1294,7 @@ export default function AdminChapterStudioPage() {
                           <div
                             key={c.id}
                             className={`text-[11px] flex items-center space-x-1.5 ${
-                              c.isCorrect ? 'text-emerald-400 font-semibold' : 'text-slate-400'
+                              c.isCorrect ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-stone-500 dark:text-slate-400'
                             }`}
                           >
                             <span>{c.isCorrect ? '✓' : '•'}</span>
@@ -1313,15 +1313,15 @@ export default function AdminChapterStudioPage() {
 
       {/* CREATE QUIZ MODAL */}
       {showQuizModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center space-x-2">
-              <HelpCircle className="w-5 h-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+              <HelpCircle className="w-5 h-5 text-amber-500" />
               <span>{lang === 'am' ? 'የልምምድ ፈተና አዘጋጅ' : 'Create Practice Quiz'}</span>
             </h2>
             <form onSubmit={handleCreateQuiz} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1">
+                <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                   {lang === 'am' ? 'የፈተናው ርዕስ' : 'Quiz Title'}
                 </label>
                 <input
@@ -1329,11 +1329,11 @@ export default function AdminChapterStudioPage() {
                   required
                   value={quizForm.amharicTitle}
                   onChange={(e) => setQuizForm({ ...quizForm, amharicTitle: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-stone-900 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-slate-400 mb-1">
+                <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                   {lang === 'am' ? 'ማለፊያ ውጤት (%)' : 'Passing Score (%)'}
                 </label>
                 <input
@@ -1343,20 +1343,20 @@ export default function AdminChapterStudioPage() {
                   required
                   value={quizForm.passingScore}
                   onChange={(e) => setQuizForm({ ...quizForm, passingScore: Number(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-stone-900 dark:text-white"
                 />
               </div>
               <div className="flex justify-end space-x-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowQuizModal(false)}
-                  className="px-3 py-1.5 bg-slate-800 text-slate-300 rounded"
+                  className="px-3 py-1.5 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 rounded border border-stone-200 dark:border-slate-700 transition"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
-                  className="px-3 py-1.5 bg-amber-500 font-bold text-slate-950 rounded hover:bg-amber-400"
+                  className="px-3 py-1.5 bg-amber-500 font-bold text-slate-950 rounded hover:bg-amber-400 shadow-xs"
                 >
                   {lang === 'am' ? 'ፍጠር' : 'Create'}
                 </button>
@@ -1368,16 +1368,16 @@ export default function AdminChapterStudioPage() {
 
       {/* ADD QUESTION MODAL */}
       {showQuestionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center space-x-2">
-              <HelpCircle className="w-5 h-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+              <HelpCircle className="w-5 h-5 text-amber-500" />
               <span>{lang === 'am' ? 'አዲስ ጥያቄ ጨምር' : 'Add Practice Question'}</span>
             </h2>
 
             <form onSubmit={handleAddQuestion} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1">
+                <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                   {lang === 'am' ? 'የጥያቄው ጽሑፍ' : 'Question Prompt'}
                 </label>
                 <textarea
@@ -1385,17 +1385,17 @@ export default function AdminChapterStudioPage() {
                   rows={2}
                   placeholder={
                     lang === 'am'
-                      ? 'ለምሳሌ፡ ሐዋርያት መንፈስ ቅዱስ የወረደባቸው የት ነበር?'
+                      ? 'ለምሳሌ፡ ሐዋርያት መንፈስ ቅዱስ የወረደባቸው የየት ነበር?'
                       : 'e.g. Where did the Holy Spirit descend upon the Apostles?'
                   }
                   value={questionForm.prompt}
                   onChange={(e) => setQuestionForm({ ...questionForm, prompt: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-stone-900 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1">
+                <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                   {lang === 'am' ? 'ማብራሪያ (ለትክክለኛው መልስ)' : 'Explanation (for correct answer)'}
                 </label>
                 <input
@@ -1407,20 +1407,20 @@ export default function AdminChapterStudioPage() {
                   }
                   value={questionForm.explanation}
                   onChange={(e) => setQuestionForm({ ...questionForm, explanation: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-stone-900 dark:text-white"
                 />
               </div>
 
               {/* Choices */}
               <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between">
-                  <label className="block text-slate-400 font-semibold">
+                  <label className="block text-stone-700 dark:text-slate-300 font-semibold">
                     {lang === 'am' ? 'የምርጫ መልሶች (ትክክለኛውን ይምረጡ)' : 'Choices (Select the correct answer)'}
                   </label>
                   <button
                     type="button"
                     onClick={handleAddChoice}
-                    className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center space-x-1"
+                    className="text-xs text-amber-700 dark:text-amber-400 hover:underline font-semibold flex items-center space-x-1"
                   >
                     <PlusCircle className="w-3.5 h-3.5" />
                     <span>{lang === 'am' ? 'አማራጭ ጨምር' : 'Add Option'}</span>
@@ -1428,14 +1428,14 @@ export default function AdminChapterStudioPage() {
                 </div>
 
                 {questionForm.choices.length < 4 && (
-                  <p className="text-[11px] text-amber-400">
+                  <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
                     {lang === 'am' ? '⚠️ ቢያንስ 4 አማራጮች ይመከራሉ' : '⚠️ At least 4 options recommended'}
                   </p>
                 )}
 
                 {questionForm.choices.map((choice, cIdx) => (
                   <div key={cIdx} className="flex items-center space-x-2">
-                    <span className="w-5 text-center text-xs font-bold text-slate-500">
+                    <span className="w-5 text-center text-xs font-bold text-stone-500 dark:text-slate-500">
                       {String.fromCharCode(65 + cIdx)}.
                     </span>
                     <input
@@ -1449,7 +1449,7 @@ export default function AdminChapterStudioPage() {
                         }));
                         setQuestionForm({ ...questionForm, choices: updated });
                       }}
-                      className="text-amber-500 focus:ring-amber-400"
+                      className="text-amber-500 focus:ring-amber-400 cursor-pointer"
                       title={lang === 'am' ? 'እንደ ትክክለኛ መልስ ምረጥ' : 'Mark as correct answer'}
                     />
                     <input
@@ -1465,13 +1465,13 @@ export default function AdminChapterStudioPage() {
                           setQuestionForm({ ...questionForm, choices: updated });
                         }
                       }}
-                      className="flex-1 bg-slate-950 border border-slate-700 rounded px-2.5 py-1 text-white"
+                      className="flex-1 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1 text-stone-900 dark:text-white"
                     />
                     {questionForm.choices.length > 2 && (
                       <button
                         type="button"
                         onClick={() => handleRemoveChoice(cIdx)}
-                        className="p-1 text-slate-500 hover:text-rose-400 transition"
+                        className="p-1 text-stone-400 dark:text-slate-500 hover:text-rose-500 transition"
                         title={lang === 'am' ? 'አማራጩን አስወግድ' : 'Remove choice'}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1485,13 +1485,13 @@ export default function AdminChapterStudioPage() {
                 <button
                   type="button"
                   onClick={() => setShowQuestionModal(false)}
-                  className="px-3 py-1.5 bg-slate-800 text-slate-300 rounded"
+                  className="px-3 py-1.5 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 rounded border border-stone-200 dark:border-slate-700 transition"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
-                  className="px-3 py-1.5 bg-amber-500 font-bold text-slate-950 rounded hover:bg-amber-400"
+                  className="px-3 py-1.5 bg-amber-500 font-bold text-slate-950 rounded hover:bg-amber-400 shadow-xs"
                 >
                   {lang === 'am' ? 'ጥያቄውን መዝግብ' : 'Save Question'}
                 </button>
@@ -1503,15 +1503,15 @@ export default function AdminChapterStudioPage() {
 
       {/* ADD REFERENCE MODAL */}
       {showReferenceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center space-x-2">
-              <Link2 className="w-5 h-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+              <Link2 className="w-5 h-5 text-amber-500" />
               <span>{lang === 'am' ? 'አጋዥ መረጃ አያይዝ' : 'Add Reference'}</span>
             </h2>
             <form onSubmit={handleAddReference} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1">
+                <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                   {lang === 'am' ? 'የርዕስ ስም' : 'Reference Title'}
                 </label>
                 <input
@@ -1520,11 +1520,11 @@ export default function AdminChapterStudioPage() {
                   placeholder={lang === 'am' ? 'የሐዋርያት ታሪክ ዝርዝር ማስታወሻ' : 'Acts of Apostles Notes'}
                   value={referenceForm.title}
                   onChange={(e) => setReferenceForm({ ...referenceForm, title: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-stone-900 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-slate-400 mb-1">
+                <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                   {lang === 'am' ? 'የድረ-ገጽ አድራሻ (URL)' : 'Web URL'}
                 </label>
                 <input
@@ -1533,7 +1533,7 @@ export default function AdminChapterStudioPage() {
                   placeholder="https://eotc-andnet.org/..."
                   value={referenceForm.url}
                   onChange={(e) => setReferenceForm({ ...referenceForm, url: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white font-mono"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-stone-900 dark:text-white font-mono"
                 />
               </div>
               <div className="flex items-center space-x-2 pt-1">
@@ -1544,18 +1544,18 @@ export default function AdminChapterStudioPage() {
                   onChange={(e) => setReferenceForm({ ...referenceForm, isDownloadable: e.target.checked })}
                   className="rounded text-amber-500 focus:ring-amber-400"
                 />
-                <label htmlFor="isDownloadable" className="text-slate-300 font-semibold cursor-pointer">
+                <label htmlFor="isDownloadable" className="text-stone-700 dark:text-slate-300 font-semibold cursor-pointer">
                   {lang === 'am' ? 'ከመስመር ውጭ ይወረዳል (PDF, DOC, PPT)' : 'Available for Offline (PDF, DOC, PPT)'}
                 </label>
               </div>
 
               {referenceForm.isDownloadable && (
-                <div className="space-y-2 p-2.5 bg-slate-950/80 rounded-lg border border-slate-800">
+                <div className="space-y-2 p-2.5 bg-stone-50 dark:bg-slate-950/80 rounded-lg border border-stone-200 dark:border-slate-800">
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-semibold text-[11px]">
+                    <label className="block text-stone-600 dark:text-slate-400 font-semibold text-[11px]">
                       {lang === 'am' ? 'ሰነድ ስቀል (.pdf, .doc, .ppt)' : 'Upload Document (.pdf, .doc, .ppt)'}
                     </label>
-                    <label className="cursor-pointer border border-dashed border-slate-700 hover:border-amber-500 rounded-lg p-2.5 flex items-center justify-center space-x-2 bg-slate-900 hover:bg-slate-850 transition">
+                    <label className="cursor-pointer border border-dashed border-stone-300 dark:border-slate-700 hover:border-amber-500 rounded-lg p-2.5 flex items-center justify-center space-x-2 bg-white dark:bg-slate-900 hover:bg-stone-50 dark:hover:bg-slate-800 transition">
                       <input
                         type="file"
                         accept=".pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
@@ -1564,12 +1564,12 @@ export default function AdminChapterStudioPage() {
                         disabled={isUploadingRefDoc}
                       />
                       {isUploadingRefDoc ? (
-                        <div className="flex items-center space-x-1.5 text-amber-400">
+                        <div className="flex items-center space-x-1.5 text-amber-500">
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
                           <span>{lang === 'am' ? 'በመጫን ላይ...' : 'Uploading...'}</span>
                         </div>
                       ) : (
-                        <div className="flex items-center space-x-1.5 text-amber-300 font-semibold">
+                        <div className="flex items-center space-x-1.5 text-amber-700 dark:text-amber-300 font-semibold">
                           <Upload className="w-3.5 h-3.5" />
                           <span>{lang === 'am' ? 'ከኮምፒውተር ሰነድ ይምረጡ' : 'Select Document from Device'}</span>
                         </div>
@@ -1578,7 +1578,7 @@ export default function AdminChapterStudioPage() {
                   </div>
 
                   <div>
-                    <label className="block text-slate-400 mb-0.5 text-[11px]">
+                    <label className="block text-stone-600 dark:text-slate-400 mb-0.5 text-[11px]">
                       {lang === 'am' ? 'የፋይል ሊንክ (Doc URL)' : 'Doc URL'}
                     </label>
                     <input
@@ -1587,7 +1587,7 @@ export default function AdminChapterStudioPage() {
                       placeholder="https://...file.pdf"
                       value={referenceForm.downloadableDocUrl}
                       onChange={(e) => setReferenceForm({ ...referenceForm, downloadableDocUrl: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-white font-mono text-[11px]"
+                      className="w-full bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1 text-stone-900 dark:text-white font-mono text-[11px]"
                     />
                   </div>
                 </div>
@@ -1597,13 +1597,13 @@ export default function AdminChapterStudioPage() {
                 <button
                   type="button"
                   onClick={() => setShowReferenceModal(false)}
-                  className="px-3 py-1.5 bg-slate-800 text-slate-300 rounded"
+                  className="px-3 py-1.5 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 rounded border border-stone-200 dark:border-slate-700 transition"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
-                  className="px-3 py-1.5 bg-amber-500 font-bold text-slate-950 rounded hover:bg-amber-400"
+                  className="px-3 py-1.5 bg-amber-500 font-bold text-slate-950 rounded hover:bg-amber-400 shadow-xs"
                 >
                   {lang === 'am' ? 'አያይዝ' : 'Attach Reference'}
                 </button>
@@ -1615,15 +1615,15 @@ export default function AdminChapterStudioPage() {
 
       {/* EDIT CHAPTER DETAILS MODAL */}
       {showEditChapterModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center space-x-2">
-              <Edit3 className="w-5 h-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+              <Edit3 className="w-5 h-5 text-amber-500" />
               <span>{lang === 'am' ? 'የምዕራፍ መረጃ አሻሽል' : 'Edit Chapter Details'}</span>
             </h2>
             <form onSubmit={handleUpdateChapterDetails} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'የምዕራፍ ቁጥር' : 'Chapter Number'}
                 </label>
                 <input
@@ -1632,11 +1632,11 @@ export default function AdminChapterStudioPage() {
                   required
                   value={editChapterForm.chapterNumber}
                   onChange={(e) => setEditChapterForm({ ...editChapterForm, chapterNumber: Number(e.target.value) })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ርዕስ በእንግሊዝኛ' : 'Title (English)'}
                 </label>
                 <input
@@ -1644,31 +1644,31 @@ export default function AdminChapterStudioPage() {
                   required
                   value={editChapterForm.title}
                   onChange={(e) => setEditChapterForm({ ...editChapterForm, title: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ርዕስ በአማርኛ' : 'Title (Amharic)'}
                 </label>
                 <input
                   type="text"
                   value={editChapterForm.amharicTitle}
                   onChange={(e) => setEditChapterForm({ ...editChapterForm, amharicTitle: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowEditChapterModal(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm"
+                  className="px-4 py-2 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 rounded-lg text-sm border border-stone-200 dark:border-slate-700 transition"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm shadow-xs"
                 >
                   {lang === 'am' ? 'አስቀምጥ' : 'Save Changes'}
                 </button>
@@ -1680,18 +1680,18 @@ export default function AdminChapterStudioPage() {
 
       {/* ADD PRACTICE DRILL MODAL (ADMIN CREATION) */}
       {showPracticeQuestionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 my-8">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 my-8">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200 dark:border-slate-800">
               <div className="flex items-center space-x-2">
-                <Sparkles className="w-5 h-5 text-amber-400" />
-                <h2 className="text-base font-bold text-white">
+                <Sparkles className="w-5 h-5 text-amber-500" />
+                <h2 className="text-base font-bold text-stone-900 dark:text-white">
                   {lang === 'am' ? 'አዲስ የልምምድ ጥያቄ ጨምር (ቀጥታ የሚጸድቅ)' : 'Add Practice Drill (Direct Publish)'}
                 </h2>
               </div>
               <button
                 onClick={() => setShowPracticeQuestionModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-stone-400 hover:text-stone-700 dark:text-slate-400 dark:hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1700,7 +1700,7 @@ export default function AdminChapterStudioPage() {
             <form onSubmit={handleSavePracticeQuestion} className="space-y-4 text-xs">
               {/* Question Type Switcher */}
               <div>
-                <label className="block text-slate-300 font-semibold mb-1.5">
+                <label className="block text-stone-700 dark:text-slate-300 font-semibold mb-1.5">
                   {lang === 'am' ? 'የጥያቄ ዓይነት' : 'Question Type'}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -1715,8 +1715,8 @@ export default function AdminChapterStudioPage() {
                       onClick={() => setPracticeQuestionForm((p) => ({ ...p, questionType: qt.type }))}
                       className={`py-2 px-2 rounded-lg font-semibold text-center transition border ${
                         practiceQuestionForm.questionType === qt.type
-                          ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm'
-                          : 'bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800'
+                          ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-xs'
+                          : 'bg-stone-50 dark:bg-slate-950 text-stone-700 dark:text-slate-300 border-stone-200 dark:border-slate-800 hover:bg-stone-100 dark:hover:bg-slate-800'
                       }`}
                     >
                       {lang === 'am' ? qt.labelAm : qt.labelEn}
@@ -1728,7 +1728,7 @@ export default function AdminChapterStudioPage() {
               {/* Question Prompt */}
               <div className="space-y-2">
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">
+                  <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                     {lang === 'am' ? 'የጥያቄው ጽሑፍ (አማርኛ)' : 'Question Prompt (Amharic)'}
                   </label>
                   <textarea
@@ -1738,11 +1738,11 @@ export default function AdminChapterStudioPage() {
                       setPracticeQuestionForm((p) => ({ ...p, amharicPrompt: e.target.value }))
                     }
                     placeholder="ጥያቄውን በአማርኛ እዚህ ይጻፉ..."
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg p-2.5 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">
+                  <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                     {lang === 'am' ? 'የጥያቄው ጽሑፍ (እንግሊዝኛ - አማራጭ)' : 'Question Prompt (English - Optional)'}
                   </label>
                   <textarea
@@ -1752,22 +1752,22 @@ export default function AdminChapterStudioPage() {
                       setPracticeQuestionForm((p) => ({ ...p, prompt: e.target.value }))
                     }
                     placeholder="Enter question prompt in English..."
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg p-2.5 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                   />
                 </div>
               </div>
 
               {/* MULTIPLE CHOICE CHOICES */}
               {practiceQuestionForm.questionType === 'MULTIPLE_CHOICE' && (
-                <div className="space-y-2 p-3 bg-slate-950/80 rounded-xl border border-slate-800">
+                <div className="space-y-2 p-3 bg-stone-50 dark:bg-slate-950/80 rounded-xl border border-stone-200 dark:border-slate-800">
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-slate-300 font-semibold">
+                    <label className="text-stone-700 dark:text-slate-300 font-semibold">
                       {lang === 'am' ? 'ምርጫዎችና ትክክለኛ መልስ' : 'Choices & Correct Answer'}
                     </label>
                     <button
                       type="button"
                       onClick={handleAddPracticeChoice}
-                      className="text-amber-400 hover:text-amber-300 font-semibold flex items-center space-x-1"
+                      className="text-amber-700 dark:text-amber-400 hover:underline font-semibold flex items-center space-x-1"
                     >
                       <PlusCircle className="w-3.5 h-3.5" />
                       <span>{lang === 'am' ? 'ምርጫ ጨምር' : 'Add Choice'}</span>
@@ -1775,7 +1775,7 @@ export default function AdminChapterStudioPage() {
                   </div>
 
                   {practiceQuestionForm.choices.map((choice, cIdx) => (
-                    <div key={cIdx} className="flex items-center space-x-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                    <div key={cIdx} className="flex items-center space-x-2 bg-white dark:bg-slate-900/80 p-2 rounded-lg border border-stone-200 dark:border-slate-800">
                       <input
                         type="radio"
                         name="adminPracticeChoice"
@@ -1800,7 +1800,7 @@ export default function AdminChapterStudioPage() {
                             choices: p.choices.map((c, i) => (i === cIdx ? { ...c, amharicText: val } : c)),
                           }));
                         }}
-                        className="flex-1 bg-slate-950 border border-slate-700 rounded px-2.5 py-1 text-white"
+                        className="flex-1 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1 text-stone-900 dark:text-white"
                       />
                       <input
                         type="text"
@@ -1813,13 +1813,13 @@ export default function AdminChapterStudioPage() {
                             choices: p.choices.map((c, i) => (i === cIdx ? { ...c, text: val } : c)),
                           }));
                         }}
-                        className="w-28 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-white text-[11px]"
+                        className="w-28 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2 py-1 text-stone-900 dark:text-white text-[11px]"
                       />
                       {practiceQuestionForm.choices.length > 2 && (
                         <button
                           type="button"
                           onClick={() => handleRemovePracticeChoice(cIdx)}
-                          className="text-slate-500 hover:text-red-400 p-1"
+                          className="text-stone-400 dark:text-slate-500 hover:text-red-500 p-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -1831,8 +1831,8 @@ export default function AdminChapterStudioPage() {
 
               {/* TRUE / FALSE */}
               {practiceQuestionForm.questionType === 'TRUE_FALSE' && (
-                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2">
-                  <label className="block text-slate-300 font-semibold mb-1">
+                <div className="p-3 bg-stone-50 dark:bg-slate-950/80 rounded-xl border border-stone-200 dark:border-slate-800 space-y-2">
+                  <label className="block text-stone-700 dark:text-slate-300 font-semibold mb-1">
                     {lang === 'am' ? 'ትክክለኛውን መልስ ይምረጡ' : 'Select Correct Truth Value'}
                   </label>
                   <div className="grid grid-cols-2 gap-3">
@@ -1841,8 +1841,8 @@ export default function AdminChapterStudioPage() {
                       onClick={() => setPracticeQuestionForm((p) => ({ ...p, tfAnswer: 'TRUE' }))}
                       className={`py-2 px-3 rounded-lg font-bold flex items-center justify-center space-x-2 border transition ${
                         practiceQuestionForm.tfAnswer === 'TRUE'
-                          ? 'bg-emerald-600 text-white border-emerald-400 shadow'
-                          : 'bg-slate-900 text-slate-400 border-slate-700 hover:bg-slate-800'
+                          ? 'bg-emerald-600 text-white border-emerald-400 shadow-xs'
+                          : 'bg-white dark:bg-slate-900 text-stone-600 dark:text-slate-400 border-stone-200 dark:border-slate-700 hover:bg-stone-50 dark:hover:bg-slate-800'
                       }`}
                     >
                       <span>✓ {lang === 'am' ? 'እውነት (True)' : 'True'}</span>
@@ -1852,8 +1852,8 @@ export default function AdminChapterStudioPage() {
                       onClick={() => setPracticeQuestionForm((p) => ({ ...p, tfAnswer: 'FALSE' }))}
                       className={`py-2 px-3 rounded-lg font-bold flex items-center justify-center space-x-2 border transition ${
                         practiceQuestionForm.tfAnswer === 'FALSE'
-                          ? 'bg-rose-600 text-white border-rose-400 shadow'
-                          : 'bg-slate-900 text-slate-400 border-slate-700 hover:bg-slate-800'
+                          ? 'bg-rose-600 text-white border-rose-400 shadow-xs'
+                          : 'bg-white dark:bg-slate-900 text-stone-600 dark:text-slate-400 border-stone-200 dark:border-slate-700 hover:bg-stone-50 dark:hover:bg-slate-800'
                       }`}
                     >
                       <span>✕ {lang === 'am' ? 'ሐሰት (False)' : 'False'}</span>
@@ -1864,9 +1864,9 @@ export default function AdminChapterStudioPage() {
 
               {/* SHORT ANSWER */}
               {practiceQuestionForm.questionType === 'SHORT_ANSWER' && (
-                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2">
+                <div className="p-3 bg-stone-50 dark:bg-slate-950/80 rounded-xl border border-stone-200 dark:border-slate-800 space-y-2">
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">
+                    <label className="block text-stone-700 dark:text-slate-300 font-semibold mb-1">
                       {lang === 'am' ? 'የሚጠበቅ መልስ (አማርኛ - አማራጭ)' : 'Expected Answer (Amharic - Optional)'}
                     </label>
                     <input
@@ -1876,11 +1876,11 @@ export default function AdminChapterStudioPage() {
                         setPracticeQuestionForm((p) => ({ ...p, saAmharicAnswer: e.target.value }))
                       }
                       placeholder="ተማሪው መልስ ሲከፍት የሚታየው መልስ..."
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                      className="w-full bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-stone-900 dark:text-white"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">
+                    <label className="block text-stone-700 dark:text-slate-300 font-semibold mb-1">
                       {lang === 'am' ? 'የሚጠበቅ መልስ (እንግሊዝኛ - አማራጭ)' : 'Expected Answer (English - Optional)'}
                     </label>
                     <input
@@ -1890,7 +1890,7 @@ export default function AdminChapterStudioPage() {
                         setPracticeQuestionForm((p) => ({ ...p, saAnswer: e.target.value }))
                       }
                       placeholder="Model answer revealed when student clicks Show Answer..."
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                      className="w-full bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-stone-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -1899,7 +1899,7 @@ export default function AdminChapterStudioPage() {
               {/* EXPLANATION */}
               <div className="space-y-2">
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">
+                  <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                     {lang === 'am' ? 'መንፈሳዊ ማብራሪያ (አማርኛ - አማራጭ)' : 'Spiritual Explanation (Amharic - Optional)'}
                   </label>
                   <textarea
@@ -1909,11 +1909,11 @@ export default function AdminChapterStudioPage() {
                       setPracticeQuestionForm((p) => ({ ...p, amharicExplanation: e.target.value }))
                     }
                     placeholder="ተማሪው መልሱን ሲመረምር የሚታየው ማብራሪያ..."
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg p-2.5 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">
+                  <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                     {lang === 'am' ? 'መንፈሳዊ ማብራሪያ (እንግሊዝኛ - አማራጭ)' : 'Spiritual Explanation (English - Optional)'}
                   </label>
                   <textarea
@@ -1923,23 +1923,23 @@ export default function AdminChapterStudioPage() {
                       setPracticeQuestionForm((p) => ({ ...p, explanation: e.target.value }))
                     }
                     placeholder="Spiritual or scriptural explanation revealed with answer..."
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg p-2.5 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-800">
+              <div className="flex justify-end space-x-2 pt-2 border-t border-stone-200 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setShowPracticeQuestionModal(false)}
-                  className="px-3 py-1.5 bg-slate-800 text-slate-300 rounded font-semibold hover:bg-slate-700"
+                  className="px-3 py-1.5 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 rounded font-semibold border border-stone-200 dark:border-slate-700 transition"
                 >
                   {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingPracticeQuestion}
-                  className="px-4 py-1.5 bg-amber-500 font-bold text-slate-950 rounded hover:bg-amber-400 flex items-center space-x-1.5 shadow"
+                  className="px-4 py-1.5 bg-amber-500 font-bold text-slate-950 rounded hover:bg-amber-400 flex items-center space-x-1.5 shadow-xs"
                 >
                   {isSubmittingPracticeQuestion && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{lang === 'am' ? 'መዝግብና አትም' : 'Save & Publish'}</span>
