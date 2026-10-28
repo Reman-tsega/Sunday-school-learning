@@ -22,6 +22,7 @@ import {
   Bell,
   MessageSquare,
   Sparkles,
+  GraduationCap,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { syncManager, type SyncState } from '@/lib/sync-manager';
@@ -230,6 +231,16 @@ export function Navbar() {
                     <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
                     <span>{lang === 'am' ? 'እርዳታ' : 'Support'}</span>
                   </Link>
+
+                  {(userRole === 'TEACHER' || userRole === 'ADMIN') && (
+                    <Link
+                      href="/teacher"
+                      className="flex items-center space-x-1.5 text-xs bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-semibold px-2.5 py-1.5 rounded-lg transition"
+                    >
+                      <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{lang === 'am' ? 'የመምህራን መድረክ' : 'Teacher Portal'}</span>
+                    </Link>
+                  )}
 
                   {userRole === 'ADMIN' && (
                     <>
@@ -538,12 +549,42 @@ export function Navbar() {
                 </Link>
 
                 <Link
+                  href="/teacher"
+                  onClick={handleNavClick}
+                  className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs"
+                >
+                  <GraduationCap className="w-4 h-4 text-amber-400" />
+                  <span>{lang === 'am' ? 'የመምህራን መድረክ' : 'Teacher Portal'}</span>
+                </Link>
+
+                <Link
                   href="/admin/notifications"
                   onClick={handleNavClick}
                   className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-200 font-bold text-xs"
                 >
                   <Bell className="w-4 h-4 text-purple-300" />
                   <span>{lang === 'am' ? 'ማስታወቂያ ላክ' : 'Send Announcements'}</span>
+                </Link>
+              </>
+            ) : userRole === 'TEACHER' ? (
+              /* Teacher Links in Mobile Drawer */
+              <>
+                <Link
+                  href="/teacher"
+                  onClick={handleNavClick}
+                  className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs"
+                >
+                  <GraduationCap className="w-4 h-4 text-amber-400" />
+                  <span>{lang === 'am' ? 'የመምህራን መድረክ' : 'Teacher Portal'}</span>
+                </Link>
+
+                <Link
+                  href="/"
+                  onClick={handleNavClick}
+                  className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
+                >
+                  <BookOpen className="w-4 h-4 text-amber-400" />
+                  <span>{lang === 'am' ? 'ሥርዓተ ትምህርት' : 'Curriculum Courses'}</span>
                 </Link>
               </>
             ) : (

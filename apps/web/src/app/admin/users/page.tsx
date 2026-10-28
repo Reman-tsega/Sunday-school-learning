@@ -11,6 +11,7 @@ import {
   Shield,
   Loader2,
   AlertCircle,
+  Church,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
@@ -38,6 +39,9 @@ export default function AdminUsersPage() {
 
   const [roleChangeUser, setRoleChangeUser] = useState<any | null>(null);
   const [selectedRole, setSelectedRole] = useState('STUDENT');
+
+  const [parishModalUser, setParishModalUser] = useState<any | null>(null);
+  const [parishInput, setParishInput] = useState('');
 
   const loadUsers = async () => {
     try {
@@ -146,6 +150,31 @@ export default function AdminUsersPage() {
       setActionMessage({
         type: 'error',
         text: err.message || (lang === 'am' ? 'ሚና መቀየር አልተቻለም' : 'Failed to update role'),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateParish = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!parishModalUser) return;
+    try {
+      setIsSubmitting(true);
+      await api.assignTeacherParish(parishModalUser.id, parishInput.trim());
+      setParishModalUser(null);
+      setActionMessage({
+        type: 'success',
+        text:
+          lang === 'am'
+            ? `የተጠቃሚ ${parishModalUser.fullName} ደብር/ሰንበት ት/ቤት ተመድቧል!`
+            : `Sunday School Parish successfully assigned for ${parishModalUser.fullName}!`,
+      });
+      loadUsers();
+    } catch (err: any) {
+      setActionMessage({
+        type: 'error',
+        text: err.message || (lang === 'am' ? 'ደብር መመደብ አልተቻለም' : 'Failed to assign parish'),
       });
     } finally {
       setIsSubmitting(false);
@@ -268,6 +297,7 @@ export default function AdminUsersPage() {
                   <th className="px-5 py-3">{lang === 'am' ? 'ሙሉ ስም' : 'Full Name'}</th>
                   <th className="px-5 py-3">{lang === 'am' ? 'ኢሜይል' : 'Email'}</th>
                   <th className="px-5 py-3">{lang === 'am' ? 'ሚና' : 'Role'}</th>
+                  <th className="px-5 py-3">{lang === 'am' ? 'ደብር / ሰንበት ት/ቤት' : 'Parish / Sunday School'}</th>
                   <th className="px-5 py-3">{lang === 'am' ? 'ሁኔታ' : 'Status'}</th>
                   <th className="px-5 py-3 text-right">{lang === 'am' ? 'ተግባራት' : 'Actions'}</th>
                 </tr>
@@ -296,6 +326,18 @@ export default function AdminUsersPage() {
                           : (lang === 'am' ? 'ተማሪ' : 'Student')}
                       </span>
                     </td>
+                    <td className="px-5 py-3.5 text-xs">
+                      {u.churchParish ? (
+                        <span className="font-semibold text-amber-400 bg-amber-950/50 border border-amber-800/40 px-2 py-0.5 rounded flex items-center space-x-1 w-fit">
+                          <Church className="w-3 h-3 shrink-0" />
+                          <span>{u.churchParish}</span>
+                        </span>
+                      ) : (
+                        <span className="text-slate-500 italic">
+                          {lang === 'am' ? 'ያልተመደበ' : 'Unassigned'}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-5 py-3.5">
                       <span
                         className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-medium ${
@@ -315,7 +357,20 @@ export default function AdminUsersPage() {
                         )}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-right space-x-2">
+                    <td className="px-5 py-3.5 text-right space-x-2 whitespace-nowrap">
+                      {/* Assign Parish Button */}
+                      <button
+                        onClick={() => {
+                          setParishModalUser(u);
+                          setParishInput(u.churchParish || '');
+                        }}
+                        title={lang === 'am' ? 'ደብር / ሰንበት ት/ቤት መድብ' : 'Assign Sunday School Parish'}
+                        className="px-2.5 py-1 rounded text-xs font-medium bg-amber-950/60 hover:bg-amber-900/60 text-amber-300 border border-amber-800 transition"
+                      >
+                        <Church className="w-3 h-3 inline mr-1" />
+                        <span>{lang === 'am' ? 'ደብር' : 'Parish'}</span>
+                      </button>
+
                       {/* Toggle status */}
                       <button
                         onClick={() => handleToggleStatus(u)}
@@ -540,6 +595,57 @@ export default function AdminUsersPage() {
                   className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm"
                 >
                   {lang === 'am' ? 'አረጋግጥ' : 'Confirm'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ASSIGN SUNDAY SCHOOL PARISH MODAL */}
+      {parishModalUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <h2 className="text-base font-bold text-white flex items-center space-x-2">
+              <Church className="w-5 h-5 text-amber-400" />
+              <span>{lang === 'am' ? 'ሰንበት ት/ቤት / ደብር መድብ' : 'Assign Sunday School Parish'}</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              {lang === 'am' ? 'ተጠቃሚ፡' : 'User:'} <strong className="text-white">{parishModalUser.fullName}</strong> ({parishModalUser.role})
+            </p>
+            <form onSubmit={handleUpdateParish} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  {lang === 'am' ? 'የሰንበት ትምህርት ቤት / የደብር ስም *' : 'Parish / Sunday School Name *'}
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder={lang === 'am' ? 'ምሳሌ፡ ደብረ ሲና እግዝእትነ ማርያም' : 'e.g. Debre Sina St. Mary'}
+                  value={parishInput}
+                  onChange={(e) => setParishInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  {lang === 'am'
+                    ? 'መምህሩ በዚህ ደብር የተመዘገቡ ተማሪዎችን ብቻ ማየትና መከታተል ይችላል።'
+                    : 'The teacher will be scoped to access and monitor students in this Sunday School.'}
+                </p>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setParishModalUser(null)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm"
+                >
+                  {lang === 'am' ? 'ሰርዝ' : 'Cancel'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !parishInput.trim()}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-sm disabled:opacity-50"
+                >
+                  {lang === 'am' ? 'መድብ' : 'Assign'}
                 </button>
               </div>
             </form>

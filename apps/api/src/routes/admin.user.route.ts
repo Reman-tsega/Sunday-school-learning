@@ -7,6 +7,7 @@ import {
   updateUserStatus,
   updateUserRole,
   resetPassword,
+  updateUserParish,
 } from '../controllers/admin.user.controller.js';
 import { authenticate, requireRole } from '../middlewares/auth.middleware.js';
 
@@ -20,4 +21,5 @@ adminUserRouter.get('/', getUsers);
 adminUserRouter.get('/:id', getUserById);
 adminUserRouter.patch('/:id/status', updateUserStatus);
 adminUserRouter.patch('/:id/role', updateUserRole);
+adminUserRouter.patch('/:id/parish', updateUserParish);
 adminUserRouter.post('/:id/reset-password', resetPassword);

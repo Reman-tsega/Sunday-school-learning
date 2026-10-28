@@ -1054,6 +1054,184 @@ export class ApiClient {
     }
     return res.json();
   }
+
+  // ==========================================
+  // TEACHER PARISH & MATERIAL SUBMISSIONS
+  // ==========================================
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async getTeacherParishOverview(): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/teacher/parish/overview`, {
+      headers: this.getAuthHeader(),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to fetch parish overview: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async getTeacherParishStudents(params?: { search?: string; gradeLevel?: number; page?: number; limit?: number }): Promise<any> {
+    const query = new URLSearchParams();
+    if (params?.search) query.set('search', params.search);
+    if (params?.gradeLevel) query.set('gradeLevel', String(params.gradeLevel));
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.limit) query.set('limit', String(params.limit));
+
+    const res = await fetch(`${API_BASE_URL}/teacher/students?${query.toString()}`, {
+      headers: this.getAuthHeader(),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to fetch parish students: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async getTeacherStudentProgress(studentId: string): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/teacher/students/${studentId}/progress`, {
+      headers: this.getAuthHeader(),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to fetch student progress: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async submitTeacherReference(chapterId: string, data: any): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/teacher/chapters/${chapterId}/references`, {
+      method: 'POST',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to submit reference: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async submitTeacherPracticeQuestion(data: any): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/teacher/practice-questions`, {
+      method: 'POST',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to submit practice question: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async getTeacherSubmissions(): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/teacher/submissions`, {
+      headers: this.getAuthHeader(),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to fetch submissions: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // ==========================================
+  // ADMIN MODERATION DESK & PARISH ASSIGNMENT
+  // ==========================================
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async getPendingModeration(): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/admin/moderation/pending`, {
+      headers: this.getAuthHeader(),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to fetch pending moderation: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async reviewModerationReference(referenceId: string, action: 'APPROVE' | 'DECLINE', rejectionReason?: string): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/admin/moderation/references/${referenceId}/review`, {
+      method: 'PATCH',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify({ action, rejectionReason }),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to review reference: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async reviewModerationPracticeQuestion(questionId: string, action: 'APPROVE' | 'DECLINE', rejectionReason?: string): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/admin/moderation/practice-questions/${questionId}/review`, {
+      method: 'PATCH',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify({ action, rejectionReason }),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to review practice question: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async assignTeacherParish(userId: string, churchParish: string): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/parish`, {
+      method: 'PATCH',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify({ churchParish }),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to assign parish: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // ==========================================
+  // PRACTICE QUESTIONS (STUDENT SELF-STUDY)
+  // ==========================================
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async getChapterPracticeQuestions(chapterId: string): Promise<any[]> {
+    const res = await fetch(`${API_BASE_URL}/curriculum/chapters/${chapterId}/practice-questions`);
+    if (!res.ok) {
+      return [];
+    }
+    const json = await res.json();
+    return json.data || [];
+  }
 }
 
 export const api = new ApiClient();

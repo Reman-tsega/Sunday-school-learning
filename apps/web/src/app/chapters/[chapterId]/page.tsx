@@ -29,11 +29,12 @@ import {
 } from '@/lib/offline-db';
 import { PdfViewer } from '@/components/PdfViewer';
 import { PracticeQuizPlayer } from '@/components/PracticeQuizPlayer';
+import { PracticeQuestionList } from '@/components/PracticeQuestionList';
 import { OfflineBadge } from '@/components/OfflineBadge';
 import { useLanguage } from '@/lib/language-context';
-import type { LearningPackageManifest } from '@eotc/shared';
+import type { LearningPackageManifest, PracticeQuestionDto } from '@eotc/shared';
 
-type ActiveTab = 'textbook' | 'quiz' | 'references';
+type ActiveTab = 'textbook' | 'drills' | 'quiz' | 'references';
 
 export default function ChapterStudyPage() {
   const params = useParams();
@@ -56,6 +57,10 @@ export default function ChapterStudyPage() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(false);
 
+  // Formative Practice Questions (Drills)
+  const [practiceQuestions, setPracticeQuestions] = useState<PracticeQuestionDto[]>([]);
+  const [loadingDrills, setLoadingDrills] = useState<boolean>(false);
+
   // Enrollment barrier state
   const [isRegistrationRequired, setIsRegistrationRequired] = useState(false);
   const [isEnrollmentRequired, setIsEnrollmentRequired] = useState(false);
@@ -64,7 +69,12 @@ export default function ChapterStudyPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const tabParam = new URLSearchParams(window.location.search).get('tab');
-      if (tabParam === 'quiz' || tabParam === 'references' || tabParam === 'textbook') {
+      if (
+        tabParam === 'quiz' ||
+        tabParam === 'references' ||
+        tabParam === 'textbook' ||
+        tabParam === 'drills'
+      ) {
         setActiveTab(tabParam as ActiveTab);
       }
     }
@@ -175,6 +185,17 @@ export default function ChapterStudyPage() {
         if (!isEnrolled) {
           setIsEnrollmentRequired(true);
         }
+      }
+
+      // 4. Fetch approved practice drill questions for self-study
+      setLoadingDrills(true);
+      try {
+        const drills = await api.getChapterPracticeQuestions(chapterId);
+        setPracticeQuestions(drills || []);
+      } catch (drillErr) {
+        console.error('Failed to load practice questions:', drillErr);
+      } finally {
+        setLoadingDrills(false);
       }
     } catch (err) {
       console.error('Failed to load chapter manifest:', err);
@@ -574,7 +595,7 @@ export default function ChapterStudyPage() {
       </div>
 
       {/* Responsive Segmented Tabs Bar */}
-      <div className="grid grid-cols-3 sm:flex sm:space-x-2 border-b border-stone-200 bg-stone-100/70 p-1 rounded-xl gap-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 sm:flex sm:space-x-2 border-b border-stone-200 bg-stone-100/70 p-1 rounded-xl gap-1">
         <button
           onClick={() => setActiveTab('textbook')}
           className={`flex items-center justify-center space-x-1.5 py-2 px-1.5 sm:px-4 font-bold text-xs sm:text-sm rounded-lg transition min-h-[42px] cursor-pointer ${
@@ -588,6 +609,23 @@ export default function ChapterStudyPage() {
         </button>
 
         <button
+          onClick={() => setActiveTab('drills')}
+          className={`flex items-center justify-center space-x-1.5 py-2 px-1.5 sm:px-4 font-bold text-xs sm:text-sm rounded-lg transition min-h-[42px] cursor-pointer ${
+            activeTab === 'drills'
+              ? 'bg-white text-amber-900 shadow-xs border border-amber-200/60'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-600" />
+          <span className="truncate">{lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Drills'}</span>
+          {practiceQuestions.length > 0 && (
+            <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded-full font-bold">
+              {practiceQuestions.length}
+            </span>
+          )}
+        </button>
+
+        <button
           onClick={() => setActiveTab('quiz')}
           className={`flex items-center justify-center space-x-1.5 py-2 px-1.5 sm:px-4 font-bold text-xs sm:text-sm rounded-lg transition min-h-[42px] cursor-pointer ${
             activeTab === 'quiz'
@@ -596,7 +634,7 @@ export default function ChapterStudyPage() {
           }`}
         >
           <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-700" />
-          <span className="truncate">{lang === 'am' ? 'ፈተና' : 'Quiz'}</span>
+          <span className="truncate">{lang === 'am' ? 'ፈተና' : 'Graded Quiz'}</span>
           {manifest.quizzes.length > 0 && (
             <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded-full font-bold">
               {manifest.quizzes.length}
@@ -624,6 +662,13 @@ export default function ChapterStudyPage() {
 
       {/* Tab Panels */}
       <div>
+        {activeTab === 'drills' && (
+          <PracticeQuestionList
+            chapterId={manifest.chapterId}
+            questions={practiceQuestions}
+            loading={loadingDrills}
+          />
+        )}
         {activeTab === 'textbook' && (
           <PdfViewer
             chapterId={manifest.chapterId}

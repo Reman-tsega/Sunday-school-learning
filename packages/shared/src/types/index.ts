@@ -249,4 +249,94 @@ export interface AdminStudentDetails extends AdminStudentListItem {
   quizAttempts: AdminStudentQuizAttempt[];
 }
 
+export type ModerationStatus = 'APPROVED' | 'PENDING_REVIEW' | 'REJECTED';
+export type QuestionType = 'MULTIPLE_CHOICE' | 'TRUE_FALSE' | 'SHORT_ANSWER';
+
+export interface PracticeChoiceDto {
+  id?: string;
+  text: string;
+  amharicText?: string | null;
+  orderIndex: number;
+  isCorrect?: boolean;
+}
+
+export interface PracticeQuestionDto {
+  id: string;
+  chapterId: string;
+  questionType: QuestionType;
+  prompt: string;
+  amharicPrompt?: string | null;
+  orderIndex: number;
+  hasAnswer: boolean;
+  answerText?: string | null;
+  amharicAnswerText?: string | null;
+  correctChoiceId?: string | null;
+  explanation?: string | null;
+  amharicExplanation?: string | null;
+  status: ModerationStatus;
+  rejectionReason?: string | null;
+  createdById: string;
+  creatorName?: string;
+  churchParish?: string | null;
+  reviewedById?: string | null;
+  reviewedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  choices?: PracticeChoiceDto[];
+  chapter?: {
+    id?: string;
+    title?: string;
+    amharicTitle?: string | null;
+    chapterNumber?: number;
+  };
+  createdBy?: {
+    id?: string;
+    fullName?: string;
+    email?: string;
+    churchParish?: string | null;
+  };
+}
+
+export interface ModeratedReferenceDto {
+  id: string;
+  chapterId: string;
+  chapterTitle?: string;
+  gradeLevel?: number;
+  title: string;
+  amharicTitle?: string | null;
+  url: string;
+  isDownloadable: boolean;
+  downloadableDocUrl?: string | null;
+  downloadableDocSize?: number | null;
+  status: ModerationStatus;
+  createdById?: string | null;
+  creatorName?: string;
+  churchParish?: string | null;
+  rejectionReason?: string | null;
+  reviewedAt?: string | null;
+  createdAt: string;
+  chapter?: {
+    id?: string;
+    title?: string;
+    amharicTitle?: string | null;
+    chapterNumber?: number;
+  };
+  createdBy?: {
+    id?: string;
+    fullName?: string;
+    email?: string;
+    churchParish?: string | null;
+  };
+}
+
+export interface TeacherParishOverviewDto {
+  churchParish: string;
+  totalStudents: number;
+  activeStudents: number;
+  completedChaptersCount: number;
+  pendingSubmissionsCount: number;
+  approvedSubmissionsCount: number;
+  recentStudents: AdminStudentListItem[];
+}
+
 

@@ -275,7 +275,10 @@ export class CurriculumService {
             },
           },
         },
-        references: { orderBy: { orderIndex: 'asc' } },
+        references: {
+          where: { status: 'APPROVED' },
+          orderBy: { orderIndex: 'asc' },
+        },
         packages: {
           orderBy: { version: 'desc' },
           take: 1,
@@ -928,6 +931,43 @@ export class CurriculumService {
       totalPages: expectedCount,
       checksumSha256,
     };
+  }
+
+  async getApprovedChapterPracticeQuestions(chapterId: string) {
+    const questions = await prisma.practiceQuestion.findMany({
+      where: {
+        chapterId,
+        status: 'APPROVED',
+      },
+      orderBy: { orderIndex: 'asc' },
+      include: {
+        choices: {
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    });
+
+    return questions.map((q) => ({
+      id: q.id,
+      chapterId: q.chapterId,
+      questionType: q.questionType,
+      prompt: q.prompt,
+      amharicPrompt: q.amharicPrompt,
+      orderIndex: q.orderIndex,
+      hasAnswer: q.hasAnswer,
+      answerText: q.answerText,
+      amharicAnswerText: q.amharicAnswerText,
+      explanation: q.explanation,
+      amharicExplanation: q.amharicExplanation,
+      status: q.status,
+      choices: q.choices.map((c) => ({
+        id: c.id,
+        text: c.text,
+        amharicText: c.amharicText,
+        orderIndex: c.orderIndex,
+        isCorrect: c.isCorrect,
+      })),
+    }));
   }
 }
 

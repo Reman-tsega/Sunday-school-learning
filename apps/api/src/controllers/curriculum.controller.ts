@@ -344,3 +344,19 @@ export async function getChapterPdf(req: Request, res: Response, next: NextFunct
     next(err);
   }
 }
+
+export async function getChapterPracticeQuestions(req: Request, res: Response<ApiResponse<unknown>>, next: NextFunction): Promise<void> {
+  try {
+    const chapterId = req.params.chapterId as string;
+    const questions = await curriculumService.getApprovedChapterPracticeQuestions(chapterId);
+
+    res.status(200).json({
+      success: true,
+      data: questions,
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+

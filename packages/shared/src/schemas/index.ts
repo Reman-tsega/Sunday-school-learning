@@ -327,4 +327,41 @@ export type CreateSupportTicketInput = z.input<typeof CreateSupportTicketSchema>
 export type CreateTicketMessageInput = z.input<typeof CreateTicketMessageSchema>;
 export type UpdateTicketStatusInput = z.input<typeof UpdateTicketStatusSchema>;
 
+export const ModerationStatusSchema = z.enum(['APPROVED', 'PENDING_REVIEW', 'REJECTED']);
+export const QuestionTypeSchema = z.enum(['MULTIPLE_CHOICE', 'TRUE_FALSE', 'SHORT_ANSWER']);
+
+export const CreatePracticeChoiceSchema = z.object({
+  text: z.string().min(1, 'Choice text is required'),
+  amharicText: z.string().nullable().optional(),
+  orderIndex: z.number().int().default(0),
+  isCorrect: z.boolean().default(false),
+});
+
+export const CreatePracticeQuestionSchema = z.object({
+  chapterId: z.string().uuid(),
+  questionType: QuestionTypeSchema.default('MULTIPLE_CHOICE'),
+  prompt: z.string().min(3, 'Question prompt is required'),
+  amharicPrompt: z.string().nullable().optional(),
+  orderIndex: z.number().int().default(0),
+  hasAnswer: z.boolean().default(true),
+  answerText: z.string().nullable().optional(),
+  amharicAnswerText: z.string().nullable().optional(),
+  explanation: z.string().nullable().optional(),
+  amharicExplanation: z.string().nullable().optional(),
+  choices: z.array(CreatePracticeChoiceSchema).optional(),
+});
+
+export const ReviewMaterialSchema = z.object({
+  action: z.enum(['APPROVE', 'DECLINE']),
+  rejectionReason: z.string().optional(),
+});
+
+export const AssignTeacherParishSchema = z.object({
+  churchParish: z.string().min(2, 'Sunday School parish name is required'),
+});
+
+export type CreatePracticeQuestionInput = z.infer<typeof CreatePracticeQuestionSchema>;
+export type ReviewMaterialInput = z.infer<typeof ReviewMaterialSchema>;
+export type AssignTeacherParishInput = z.infer<typeof AssignTeacherParishSchema>;
+
 

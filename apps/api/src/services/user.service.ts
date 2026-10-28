@@ -59,6 +59,7 @@ export class UserService {
         passwordHash,
         fullName: data.fullName.trim(),
         role: data.role as Role,
+        churchParish: (data as any).churchParish ? String((data as any).churchParish).trim() : null,
         isActive: true,
       },
     });
@@ -221,6 +222,32 @@ export class UserService {
         },
       });
     }
+  }
+
+  async updateUserParish(id: string, churchParish: string | null, adminUserId?: string): Promise<UserProfile> {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new AppError(404, 'USER_NOT_FOUND', 'User not found');
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: { churchParish: churchParish ? churchParish.trim() : null },
+    });
+
+    if (adminUserId) {
+      await prisma.auditLog.create({
+        data: {
+          userId: adminUserId,
+          action: 'USER_PARISH_ASSIGNED',
+          entity: 'USER',
+          entityId: id,
+          details: { previousParish: user.churchParish, newParish: churchParish },
+        },
+      });
+    }
+
+    return toUserProfile(updated);
   }
 }
 

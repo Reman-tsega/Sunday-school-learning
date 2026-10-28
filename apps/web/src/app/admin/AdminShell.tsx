@@ -17,6 +17,7 @@ import {
   GraduationCap,
   MessageSquare,
   Bell,
+  ShieldCheck,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
@@ -179,6 +180,12 @@ export default function AdminShell({
       href: '/admin/support',
       icon: MessageSquare,
       active: pathname.startsWith('/admin/support'),
+    },
+    {
+      name: lang === 'am' ? 'የይዘት ማጣሪያ' : 'Moderation Desk',
+      href: '/admin/moderation',
+      icon: ShieldCheck,
+      active: pathname.startsWith('/admin/moderation'),
     },
     {
       name: lang === 'am' ? 'አይአይ ረዳት' : 'AI Studio',

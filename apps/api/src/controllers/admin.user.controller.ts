@@ -5,6 +5,7 @@ import {
   UpdateUserRoleSchema,
   ResetPasswordSchema,
   UserQuerySchema,
+  AssignTeacherParishSchema,
 } from '@eotc/shared';
 import { userService } from '../services/user.service.js';
 import type { ApiResponse, UserProfile } from '@eotc/shared';
@@ -147,3 +148,29 @@ export async function resetPassword(
     next(error);
   }
 }
+
+export async function updateUserParish(
+  req: Request,
+  res: Response<ApiResponse<UserProfile>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const validated = AssignTeacherParishSchema.parse(req.body);
+    const updated = await userService.updateUserParish(
+      req.params.id as string,
+      validated.churchParish,
+      req.user?.id
+    );
+
+    res.status(200).json({
+      success: true,
+      data: updated,
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+

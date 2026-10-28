@@ -12,6 +12,8 @@ import { adminNotificationRouter, notificationRouter } from './notification.rout
 import { enrollmentRouter } from './enrollment.route.js';
 import { adminStudentRouter } from './admin.student.route.js';
 import { supportRouter, adminSupportRouter } from './support.route.js';
+import { teacherRouter } from './teacher.route.js';
+import { moderationRouter } from './moderation.route.js';
 
 export const apiRouter: Router = Router();
 
@@ -22,6 +24,8 @@ apiRouter.use('/admin/students', adminStudentRouter);
 apiRouter.use('/admin/curriculum', adminCurriculumRouter);
 apiRouter.use('/admin/notifications', adminNotificationRouter);
 apiRouter.use('/admin/support', adminSupportRouter);
+apiRouter.use('/admin/moderation', moderationRouter);
+apiRouter.use('/teacher', teacherRouter);
 apiRouter.use('/notifications', notificationRouter);
 apiRouter.use('/support', supportRouter);
 apiRouter.use('/curriculum', curriculumRouter);
