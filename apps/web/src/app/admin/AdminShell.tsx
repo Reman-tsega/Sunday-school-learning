@@ -22,6 +22,7 @@ import {
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import { NotificationBell } from '@/components/NotificationBell';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function AdminShell({
   children,
@@ -213,7 +214,8 @@ export default function AdminShell({
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1.5">
+          <ThemeToggle variant="compact" />
           <NotificationBell />
 
           <button
@@ -293,7 +295,8 @@ export default function AdminShell({
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5">
+            <ThemeToggle variant="compact" />
             <NotificationBell />
             <button
               onClick={toggleLang}

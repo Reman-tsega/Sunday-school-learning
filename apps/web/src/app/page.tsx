@@ -476,8 +476,8 @@ export default function CurriculumPage() {
       </div>
 
       {/* Advanced Real-time Search & Filter Bar */}
-      <div className="bg-white p-3.5 rounded-2xl border border-stone-200 shadow-sm flex items-center space-x-3">
-        <Search className="w-5 h-5 text-stone-400 shrink-0" />
+      <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-stone-200 dark:border-slate-800 shadow-sm flex items-center space-x-3">
+        <Search className="w-5 h-5 text-stone-400 dark:text-slate-500 shrink-0" />
         <input
           type="text"
           value={searchQuery}
@@ -487,12 +487,12 @@ export default function CurriculumPage() {
               ? 'በርዕሰ ጉዳይ፣ በምዕራፍ ርዕስ ወይም በኮድ ይፈልጉ... (ለምሳሌ፡ Church History ወይም HIST)'
               : 'Search by subject topic, chapter title, or code... (e.g. Church History or HIST)'
           }
-          className="w-full bg-transparent text-sm text-stone-800 placeholder-stone-400 focus:outline-none"
+          className="w-full bg-transparent text-sm text-stone-800 dark:text-slate-100 placeholder-stone-400 dark:placeholder-slate-500 focus:outline-none"
         />
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
-            className="text-xs text-stone-500 hover:text-stone-800 px-2.5 py-1 bg-stone-100 rounded-lg transition"
+            className="text-xs text-stone-500 hover:text-stone-800 dark:text-slate-400 dark:hover:text-white px-2.5 py-1 bg-stone-100 dark:bg-slate-800 rounded-lg transition"
           >
             {lang === 'am' ? 'አጥፋ' : 'Clear'}
           </button>
@@ -530,22 +530,22 @@ export default function CurriculumPage() {
       )}
 
       {/* Grade Selector Navigation Tabs */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2 border-b border-stone-200">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2 border-b border-stone-200 dark:border-slate-800">
         <div className="flex items-center space-x-2 shrink-0">
-          <BookOpen className="w-5 h-5 text-amber-600 shrink-0" />
-          <h2 className="text-lg sm:text-xl font-bold text-stone-900">
+          <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+          <h2 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-white">
             {lang === 'am' ? 'የትምህርት ክፍሎች' : 'Curriculum Grades'}
           </h2>
         </div>
 
         {/* Grade Pills (Ascending 1, 2, 3... horizontally scrollable on mobile, never wrapping) */}
-        <div className="w-full sm:w-auto flex items-center gap-1.5 bg-stone-100 p-1.5 rounded-xl border border-stone-200 text-xs font-semibold overflow-x-auto scrollbar-none py-1.5 max-w-full">
+        <div className="w-full sm:w-auto flex items-center gap-1.5 bg-stone-100 dark:bg-slate-900 p-1.5 rounded-xl border border-stone-200 dark:border-slate-800 text-xs font-semibold overflow-x-auto scrollbar-none py-1.5 max-w-full">
           <button
             onClick={() => setSelectedGrade('all')}
             className={`px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0 transition ${
               selectedGrade === 'all'
-                ? 'bg-eotc-navy text-white shadow'
-                : 'text-stone-600 hover:bg-stone-200'
+                ? 'bg-eotc-navy dark:bg-amber-500 text-white dark:text-slate-950 font-bold shadow'
+                : 'text-stone-600 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-slate-800'
             }`}
           >
             {lang === 'am' ? 'ሁሉም' : 'All'}
@@ -556,8 +556,8 @@ export default function CurriculumPage() {
               onClick={() => setSelectedGrade(g.level)}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0 transition ${
                 selectedGrade === g.level
-                  ? 'bg-eotc-navy text-white shadow'
-                  : 'text-stone-600 hover:bg-stone-200'
+                  ? 'bg-eotc-navy dark:bg-amber-500 text-white dark:text-slate-950 font-bold shadow'
+                  : 'text-stone-600 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-slate-800'
               }`}
             >
               {lang === 'am' ? (g.amharicName || `ክፍል ${g.level}`) : (g.name || `Grade ${g.level}`)}
@@ -567,16 +567,16 @@ export default function CurriculumPage() {
           <button
             onClick={() => handleToggleAll(!areAllExpanded)}
             title={areAllExpanded ? (lang === 'am' ? 'ሁሉንም ዝጋ' : 'Collapse All') : (lang === 'am' ? 'ሁሉንም ክፈት' : 'Expand All')}
-            className="px-2.5 py-1.5 text-stone-600 hover:text-amber-800 hover:bg-stone-200 rounded-lg shrink-0 transition flex items-center space-x-1"
+            className="px-2.5 py-1.5 text-stone-600 dark:text-slate-400 hover:text-amber-800 dark:hover:text-amber-300 hover:bg-stone-200 dark:hover:bg-slate-800 rounded-lg shrink-0 transition flex items-center space-x-1"
           >
             {areAllExpanded ? (
               <>
-                <ChevronDown className="w-3.5 h-3.5 text-stone-500" />
+                <ChevronDown className="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" />
                 <span className="hidden md:inline">{lang === 'am' ? 'ዝጋ' : 'Collapse'}</span>
               </>
             ) : (
               <>
-                <ChevronRight className="w-3.5 h-3.5 text-stone-500" />
+                <ChevronRight className="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" />
                 <span className="hidden md:inline">{lang === 'am' ? 'ክፈት' : 'Expand'}</span>
               </>
             )}
@@ -585,7 +585,7 @@ export default function CurriculumPage() {
           <button
             onClick={loadCurriculum}
             title={lang === 'am' ? 'አድስ' : 'Refresh'}
-            className="p-1.5 text-stone-500 hover:text-amber-700 hover:bg-stone-200 rounded-lg shrink-0 transition"
+            className="p-1.5 text-stone-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-stone-200 dark:hover:bg-slate-800 rounded-lg shrink-0 transition"
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
@@ -638,7 +638,7 @@ export default function CurriculumPage() {
             const isGradeExpanded = searchQuery ? true : (expandedGrades[grade.level] ?? true);
 
             return (
-              <div key={grade.level} className="bg-white rounded-2xl shadow-sm border border-stone-200 p-5 sm:p-6 space-y-4 transition">
+              <div key={grade.level} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800 p-5 sm:p-6 space-y-4 transition">
                 {/* Grade Header (Collapsible) */}
                 <div
                   onClick={() => toggleGrade(grade.level)}
@@ -653,22 +653,22 @@ export default function CurriculumPage() {
                   }}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 text-amber-900 border border-amber-200 flex items-center justify-center font-black text-sm sm:text-base shadow-sm group-hover:bg-amber-200 transition shrink-0">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center justify-center font-black text-sm sm:text-base shadow-sm group-hover:bg-amber-200 dark:group-hover:bg-amber-900 transition shrink-0">
                       {grade.level}
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold text-amber-600 uppercase tracking-wider block">
+                        <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
                           {lang === 'am' ? `ክፍል ${grade.level}` : `Grade ${grade.level}`}
                         </span>
                         {isGradeEnrolled(grade) && (
-                          <span className="inline-flex items-center text-[10px] font-bold text-amber-900 bg-amber-200/90 px-2 py-0.5 rounded-full border border-amber-300">
-                            <GraduationCap className="w-3 h-3 mr-1 text-amber-700" />
+                          <span className="inline-flex items-center text-[10px] font-bold text-amber-900 dark:text-amber-300 bg-amber-200/90 dark:bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-700">
+                            <GraduationCap className="w-3 h-3 mr-1 text-amber-700 dark:text-amber-400" />
                             <span>{lang === 'am' ? 'የተመዘገቡበት' : 'Enrolled'}</span>
                           </span>
                         )}
                       </div>
-                      <h3 className="text-lg sm:text-xl font-extrabold text-stone-900 group-hover:text-amber-800 transition">
+                      <h3 className="text-lg sm:text-xl font-extrabold text-stone-900 dark:text-white group-hover:text-amber-800 dark:group-hover:text-amber-400 transition">
                         {pick(grade.amharicName, grade.name)}
                       </h3>
                     </div>
@@ -676,15 +676,15 @@ export default function CurriculumPage() {
 
                   <div className="flex items-center space-x-2 sm:space-x-3">
                     {isGradeCompleted && (
-                      <span className="hidden sm:inline-flex items-center text-xs font-bold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-full border border-amber-300">
-                        <Award className="w-3.5 h-3.5 mr-1 text-amber-600" />
+                      <span className="hidden sm:inline-flex items-center text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2.5 py-1 rounded-full border border-amber-300 dark:border-amber-700">
+                        <Award className="w-3.5 h-3.5 mr-1 text-amber-600 dark:text-amber-400" />
                         <span>100% {lang === 'am' ? 'ተጠናቋል' : 'Completed'}</span>
                       </span>
                     )}
-                    <span className="text-xs bg-stone-100 text-stone-600 px-2.5 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-slate-300 px-2.5 py-1 rounded-full font-medium border border-stone-200/60 dark:border-slate-700">
                       {grade.subjects?.length || 0} {lang === 'am' ? 'ትምህርቶች' : 'Subjects'}
                     </span>
-                    <div className="p-1 rounded-lg text-stone-400 group-hover:text-stone-700 group-hover:bg-stone-100 transition">
+                    <div className="p-1 rounded-lg text-stone-400 dark:text-slate-500 group-hover:text-stone-700 dark:group-hover:text-slate-200 group-hover:bg-stone-100 dark:group-hover:bg-slate-800 transition">
                       {isGradeExpanded ? (
                         <ChevronDown className="w-5 h-5 text-stone-600" />
                       ) : (
@@ -727,7 +727,7 @@ export default function CurriculumPage() {
                         const isSubjectExpanded = searchQuery ? true : (expandedSubjects[subject.id] ?? true);
 
                         return (
-                          <div key={subject.id} className="bg-stone-50/80 rounded-xl p-4 sm:p-5 border border-stone-200 space-y-3.5 transition">
+                          <div key={subject.id} className="bg-stone-50/80 dark:bg-slate-950/70 rounded-xl p-4 sm:p-5 border border-stone-200 dark:border-slate-800 space-y-3.5 transition">
                             {/* Subject Header (Collapsible) */}
                             <div
                               onClick={() => toggleSubject(subject.id)}
@@ -743,10 +743,10 @@ export default function CurriculumPage() {
                             >
                               <div>
                                 <div className="flex items-center space-x-2">
-                                  <span className="font-mono text-xs px-2 py-0.5 rounded bg-stone-200 text-stone-800 font-bold">
+                                  <span className="font-mono text-xs px-2 py-0.5 rounded bg-stone-200 dark:bg-slate-800 text-stone-800 dark:text-slate-200 font-bold">
                                     {subject.code}
                                   </span>
-                                  <h4 className="font-bold text-stone-900 text-base group-hover:text-amber-800 transition">
+                                  <h4 className="font-bold text-stone-900 dark:text-white text-base group-hover:text-amber-800 dark:group-hover:text-amber-400 transition">
                                     {pick(subject.amharicName, subject.name)}
                                   </h4>
                                   {isSubjectCompleted && (
@@ -756,21 +756,21 @@ export default function CurriculumPage() {
                                     </span>
                                   )}
                                 </div>
-                                <span className="text-xs text-stone-500 font-mono mt-0.5 block">
+                                <span className="text-xs text-stone-500 dark:text-slate-400 font-mono mt-0.5 block">
                                   {totalChapters} {lang === 'am' ? 'ምዕራፎች' : 'Chapters'}
                                 </span>
                               </div>
 
                               {/* Progress Text & Chevron */}
                               <div className="flex items-center space-x-2 sm:space-x-3 sm:justify-end">
-                                <span className="text-xs font-semibold text-stone-600">
+                                <span className="text-xs font-semibold text-stone-600 dark:text-slate-400">
                                   {completedChapters} / {totalChapters} {lang === 'am' ? 'የተጠናቀቁ' : 'Completed'} ({subjectProgressPercent}%)
                                 </span>
-                                <div className="p-1 rounded-md text-stone-400 group-hover:text-stone-700 group-hover:bg-stone-200/60 transition">
+                                <div className="p-1 rounded-md text-stone-400 dark:text-slate-500 group-hover:text-stone-700 dark:group-hover:text-slate-200 group-hover:bg-stone-200/60 dark:group-hover:bg-slate-800 transition">
                                   {isSubjectExpanded ? (
-                                    <ChevronDown className="w-4 h-4 text-stone-600" />
+                                    <ChevronDown className="w-4 h-4 text-stone-600 dark:text-slate-400" />
                                   ) : (
-                                    <ChevronRight className="w-4 h-4 text-stone-600" />
+                                    <ChevronRight className="w-4 h-4 text-stone-600 dark:text-slate-400" />
                                   )}
                                 </div>
                               </div>
@@ -780,7 +780,7 @@ export default function CurriculumPage() {
                             {isSubjectExpanded && (
                               <div className="space-y-4 pt-1">
                                 {/* Subject Progress Bar */}
-                                <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden shadow-inner">
+                                <div className="w-full bg-stone-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden shadow-inner">
                                   <div
                                     className={`h-full transition-all duration-500 rounded-full ${
                                       isSubjectCompleted ? 'bg-emerald-600' : 'bg-amber-500'
@@ -800,16 +800,16 @@ export default function CurriculumPage() {
                                       return (
                                         <div
                                           key={chapter.id}
-                                          className={`bg-white p-5 rounded-xl border transition flex flex-col justify-between ${
+                                          className={`p-5 rounded-xl border transition flex flex-col justify-between ${
                                             isChapterDone
-                                              ? 'border-emerald-300/80 shadow-sm bg-gradient-to-b from-emerald-50/20 to-white'
-                                              : 'border-stone-200 hover:border-amber-400 hover:shadow-md'
+                                              ? 'border-emerald-300/80 dark:border-emerald-800 shadow-sm bg-gradient-to-b from-emerald-50/20 to-white dark:from-emerald-950/20 dark:to-slate-900'
+                                              : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 hover:shadow-md'
                                           }`}
                                         >
                                           <div>
                                             <div className="flex items-center justify-between mb-2.5">
                                               <div className="flex items-center space-x-2">
-                                                <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                                                <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300">
                                                   {lang === 'am' ? `ምዕራፍ ${chapter.chapterNumber}` : `Chapter ${chapter.chapterNumber}`}
                                                 </span>
                                                 {isChapterDone && (
@@ -823,18 +823,18 @@ export default function CurriculumPage() {
                                             </div>
                                             <h5
                                               onClick={(e) => handleStudyClick(chapter, e)}
-                                              className="font-bold text-stone-900 text-base mb-1 hover:text-amber-800 transition cursor-pointer"
+                                              className="font-bold text-stone-900 dark:text-slate-100 text-base mb-1 hover:text-amber-800 dark:hover:text-amber-400 transition cursor-pointer"
                                             >
                                               {pick(chapter.amharicTitle, chapter.title)}
                                             </h5>
                                           </div>
 
-                                          <div className="mt-5 pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2">
+                                          <div className="mt-5 pt-3 border-t border-stone-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
                                             <div className="flex items-center space-x-2">
                                               <button
                                                 type="button"
                                                 onClick={(e) => handleStudyClick(chapter, e)}
-                                                className="inline-flex items-center text-xs font-bold text-white bg-eotc-navy hover:bg-slate-800 px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer"
+                                                className="inline-flex items-center text-xs font-bold text-white dark:text-slate-950 bg-eotc-navy dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer"
                                               >
                                                 <span>{lang === 'am' ? 'ተማር' : 'Study'}</span>
                                                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -843,9 +843,9 @@ export default function CurriculumPage() {
                                               <button
                                                 type="button"
                                                 onClick={(e) => handleQuizClick(chapter, e)}
-                                                className="inline-flex items-center text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+                                                className="inline-flex items-center text-xs font-semibold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900/80 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-transparent dark:border-amber-800/60"
                                               >
-                                                <HelpCircle className="w-3.5 h-3.5 mr-1 text-amber-700" />
+                                                <HelpCircle className="w-3.5 h-3.5 mr-1 text-amber-700 dark:text-amber-400" />
                                                 <span>{lang === 'am' ? 'ፈተና' : 'Quiz'}</span>
                                               </button>
                                             </div>

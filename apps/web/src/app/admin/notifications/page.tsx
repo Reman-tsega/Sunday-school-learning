@@ -161,338 +161,340 @@ export default function AdminNotificationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Navigation & Title Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
-          <div>
-            <div className="flex items-center space-x-2 text-xs font-semibold text-amber-700 mb-1">
-              <Link href="/admin" className="hover:underline flex items-center space-x-1">
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>{lang === 'am' ? 'ወደ አስተዳዳሪ ስቱዲዮ' : 'Admin Studio'}</span>
-              </Link>
-              <span>/</span>
-              <span>{lang === 'am' ? 'ማስታወቂያዎች' : 'Notifications & Announcements'}</span>
-            </div>
-            <h1 className="text-2xl font-bold text-stone-900 flex items-center space-x-2">
-              <Bell className="w-6 h-6 text-amber-600" />
-              <span>{lang === 'am' ? 'የማስታወቂያ መላኪያ እና መከታተያ' : 'Broadcast & Notifications Center'}</span>
-            </h1>
-            <p className="text-xs text-stone-500 mt-1">
-              {lang === 'am'
-                ? 'ለተማሪዎች እና መምህራን ማስታወቂያዎችን በጠቅላላ ወይም በክፍል ለይተው ይላኩ'
-                : 'Send targeted broadcasts to all students, specific grades, or teacher roles'}
-            </p>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Link
-              href="/admin/curriculum"
-              className="px-3.5 py-2 text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl transition flex items-center space-x-1.5"
-            >
-              <Layers className="w-4 h-4" />
-              <span>{lang === 'am' ? 'ሥርዓተ ትምህርት' : 'Curriculum Studio'}</span>
+    <div className="space-y-6">
+      {/* Navigation & Title Header */}
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+        <div>
+          <div className="flex items-center space-x-2 text-xs font-semibold text-amber-400 mb-1.5">
+            <Link href="/admin" className="hover:underline flex items-center space-x-1">
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>{lang === 'am' ? 'ወደ አስተዳዳሪ ስቱዲዮ' : 'Admin Studio'}</span>
             </Link>
+            <span className="text-slate-600">/</span>
+            <span className="text-slate-400">{lang === 'am' ? 'ማስታወቂያዎች' : 'Notifications & Announcements'}</span>
           </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center space-x-2.5">
+            <Bell className="w-6 h-6 text-amber-400" />
+            <span>{lang === 'am' ? 'የማስታወቂያ መላኪያ እና መከታተያ' : 'Broadcast & Notifications Center'}</span>
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">
+            {lang === 'am'
+              ? 'ለተማሪዎች እና መምህራን ማስታወቂያዎችን በጠቅላላ ወይም በክፍል ለይተው ይላኩ'
+              : 'Send targeted broadcasts to all students, specific grades, or teacher roles'}
+          </p>
         </div>
 
-        {/* Status Toast */}
-        {statusMessage && (
-          <div
-            className={`p-4 rounded-xl text-xs font-semibold flex items-center justify-between border ${
-              statusMessage.type === 'success'
-                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                : 'bg-rose-50 text-rose-800 border-rose-200'
-            }`}
+        <div className="flex items-center space-x-2">
+          <Link
+            href="/admin/curriculum"
+            className="px-3.5 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center space-x-1.5 shadow-sm"
           >
-            <div className="flex items-center space-x-2">
-              {statusMessage.type === 'success' ? (
-                <CheckCircle className="w-4 h-4 text-emerald-600" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-rose-600" />
-              )}
-              <span>{statusMessage.text}</span>
-            </div>
-            <button
-              onClick={() => setStatusMessage(null)}
-              className="text-stone-400 hover:text-stone-600"
-            >
-              ✕
-            </button>
-          </div>
-        )}
+            <Layers className="w-4 h-4 text-amber-400" />
+            <span>{lang === 'am' ? 'ሥርዓተ ትምህርት' : 'Curriculum Studio'}</span>
+          </Link>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Compose Form (Left 5 Cols) */}
-          <div className="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-stone-200 h-fit">
-            <h2 className="text-base font-bold text-stone-900 mb-4 flex items-center space-x-2">
-              <Megaphone className="w-5 h-5 text-amber-600" />
-              <span>{lang === 'am' ? 'አዲስ ማስታወቂያ ላክ' : 'Compose Announcement'}</span>
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Target Type Selector */}
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                  {lang === 'am' ? 'የመልእክቱ ተቀባይ (Target Audience) *' : 'Target Audience *'}
-                </label>
-                <div className="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 rounded-xl text-xs font-bold text-center">
-                  <button
-                    type="button"
-                    onClick={() => setTargetType('BROADCAST')}
-                    className={`py-2 rounded-lg transition ${
-                      targetType === 'BROADCAST'
-                        ? 'bg-white text-purple-900 shadow-sm'
-                        : 'text-stone-500 hover:text-stone-800'
-                    }`}
-                  >
-                    {lang === 'am' ? 'ለሁሉም' : 'All'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTargetType('BY_GRADE')}
-                    className={`py-2 rounded-lg transition ${
-                      targetType === 'BY_GRADE'
-                        ? 'bg-white text-blue-900 shadow-sm'
-                        : 'text-stone-500 hover:text-stone-800'
-                    }`}
-                  >
-                    {lang === 'am' ? 'በክፍል' : 'By Grade'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTargetType('BY_ROLE')}
-                    className={`py-2 rounded-lg transition ${
-                      targetType === 'BY_ROLE'
-                        ? 'bg-white text-amber-900 shadow-sm'
-                        : 'text-stone-500 hover:text-stone-800'
-                    }`}
-                  >
-                    {lang === 'am' ? 'በሚና' : 'By Role'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Conditional Grade Picker */}
-              {targetType === 'BY_GRADE' && (
-                <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl space-y-1">
-                  <label className="block text-xs font-bold text-blue-900">
-                    {lang === 'am' ? 'የሚላክበት ክፍል ይምረጡ *' : 'Select Target Grade *'}
-                  </label>
-                  <select
-                    value={targetGradeId}
-                    onChange={(e) => setTargetGradeId(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-blue-300 rounded-lg text-xs text-stone-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {grades.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {pick(g.name, g.amharicName)} (Grade {g.level})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Conditional Role Picker */}
-              {targetType === 'BY_ROLE' && (
-                <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl space-y-1">
-                  <label className="block text-xs font-bold text-amber-900">
-                    {lang === 'am' ? 'የሚላክበት ሚና ይምረጡ *' : 'Select Target Role *'}
-                  </label>
-                  <select
-                    value={targetRole}
-                    onChange={(e) => setTargetRole(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-white border border-amber-300 rounded-lg text-xs text-stone-900 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  >
-                    <option value="STUDENT">{lang === 'am' ? 'ተማሪዎች ብቻ (All Students)' : 'All Students'}</option>
-                    <option value="TEACHER">{lang === 'am' ? 'መምህራን ብቻ (All Teachers)' : 'All Teachers'}</option>
-                  </select>
-                </div>
-              )}
-
-              {/* Title Inputs */}
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  {lang === 'am' ? 'ርዕስ (እንግሊዝኛ) *' : 'Title (English) *'}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Midterm Quiz Schedule Announced"
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  {lang === 'am' ? 'ርዕስ (በአማርኛ)' : 'Title (Amharic)'}
-                </label>
-                <input
-                  type="text"
-                  value={amharicTitle}
-                  onChange={(e) => setAmharicTitle(e.target.value)}
-                  placeholder="ምሳሌ፡ የፈተና መርሐግብር ማስታወቂያ"
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-
-              {/* Content Inputs */}
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  {lang === 'am' ? 'የመልእክቱ ዝርዝር (እንግሊዝኛ) *' : 'Content (English) *'}
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Enter the full announcement details here..."
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  {lang === 'am' ? 'የመልእክቱ ዝርዝር (በአማርኛ)' : 'Content (Amharic)'}
-                </label>
-                <textarea
-                  rows={3}
-                  value={amharicContent}
-                  onChange={(e) => setAmharicContent(e.target.value)}
-                  placeholder="የማስታወቂያውን ሙሉ ዝርዝር እዚህ ያስገቡ..."
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs shadow transition flex items-center justify-center space-x-2 disabled:opacity-50"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>{lang === 'am' ? 'በመላክ ላይ...' : 'Dispatching...'}</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    <span>{lang === 'am' ? 'ማስታወቂያውን ላክ' : 'Send Announcement'}</span>
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-
-          {/* Sent Notifications History (Right 7 Cols) */}
-          <div className="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-stone-900 flex items-center space-x-2">
-                <Bell className="w-5 h-5 text-amber-600" />
-                <span>{lang === 'am' ? 'የተላኩ ማስታወቂያዎች' : 'Dispatched Announcements'}</span>
-              </h2>
-              <span className="text-xs text-stone-400 font-semibold">
-                {notifications.length} {lang === 'am' ? 'ማስታወቂያዎች' : 'items'}
-              </span>
-            </div>
-
-            {loading ? (
-              <div className="py-16 text-center text-stone-400">
-                <Loader2 className="w-6 h-6 animate-spin mx-auto text-amber-500 mb-2" />
-                <span className="text-xs">{lang === 'am' ? 'በመጫን ላይ...' : 'Loading announcements...'}</span>
-              </div>
-            ) : notifications.length === 0 ? (
-              <div className="py-16 text-center text-stone-400 space-y-2">
-                <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto text-stone-400">
-                  <Megaphone className="w-6 h-6" />
-                </div>
-                <p className="text-xs font-semibold text-stone-600">
-                  {lang === 'am' ? 'ምንም የተላከ ማስታወቂያ የለም' : 'No announcements dispatched yet'}
-                </p>
-                <p className="text-[11px] text-stone-400">
-                  {lang === 'am'
-                    ? 'ከግራ በኩል ያለውን ቅጽ በመጠቀም የመጀመሪያውን ማስታወቂያ ይላኩ።'
-                    : 'Use the form on the left to broadcast your first message.'}
-                </p>
-              </div>
+      {/* Status Toast */}
+      {statusMessage && (
+        <div
+          className={`p-4 rounded-xl text-xs font-semibold flex items-center justify-between border ${
+            statusMessage.type === 'success'
+              ? 'bg-emerald-950/80 border-emerald-800 text-emerald-200'
+              : 'bg-red-950/80 border-red-800 text-red-200'
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            {statusMessage.type === 'success' ? (
+              <CheckCircle className="w-4 h-4 text-emerald-400" />
             ) : (
-              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                {notifications.map((n) => {
-                  const displayTitle = pick(n.title, n.amharicTitle);
-                  const displayContent = pick(n.content, n.amharicContent);
-                  const readCount = n._count?.recipients || 0;
+              <AlertCircle className="w-4 h-4 text-red-400" />
+            )}
+            <span>{statusMessage.text}</span>
+          </div>
+          <button
+            onClick={() => setStatusMessage(null)}
+            className="text-slate-400 hover:text-white"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
-                  return (
-                    <div
-                      key={n.id}
-                      className="p-4 bg-stone-50 hover:bg-stone-100/80 rounded-xl border border-stone-200 transition space-y-2"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center space-x-2 flex-wrap gap-1">
-                          {n.targetType === 'BROADCAST' && (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
-                              <Megaphone className="w-3 h-3 text-purple-600" />
-                              <span>{lang === 'am' ? 'ለሁሉም' : 'Broadcast'}</span>
-                            </span>
-                          )}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Compose Form (Left 5 Cols) */}
+        <div className="lg:col-span-5 bg-slate-900 p-5 sm:p-6 rounded-xl shadow-sm border border-slate-800 h-fit space-y-4">
+          <div className="flex items-center space-x-2 pb-2 border-b border-slate-800">
+            <Megaphone className="w-4 h-4 text-amber-400" />
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              {lang === 'am' ? 'አዲስ ማስታወቂያ ላክ' : 'Compose Announcement'}
+            </h2>
+          </div>
 
-                          {n.targetType === 'BY_GRADE' && (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                              <GraduationCap className="w-3 h-3 text-blue-600" />
-                              <span>
-                                {n.targetGrade?.name
-                                  ? pick(n.targetGrade.name, n.targetGrade.amharicName)
-                                  : (lang === 'am' ? 'የተወሰነ ክፍል' : 'Grade Specific')}
-                              </span>
-                            </span>
-                          )}
+          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+            {/* Target Type Selector */}
+            <div>
+              <label className="block text-slate-300 font-semibold mb-1.5">
+                {lang === 'am' ? 'የመልእክቱ ተቀባይ (Target Audience) *' : 'Target Audience *'}
+              </label>
+              <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-lg text-xs font-bold text-center border border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setTargetType('BROADCAST')}
+                  className={`py-2 rounded-lg transition ${
+                    targetType === 'BROADCAST'
+                      ? 'bg-amber-500 text-slate-950 font-bold shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {lang === 'am' ? 'ለሁሉም' : 'All'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTargetType('BY_GRADE')}
+                  className={`py-2 rounded-lg transition ${
+                    targetType === 'BY_GRADE'
+                      ? 'bg-amber-500 text-slate-950 font-bold shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {lang === 'am' ? 'በክፍል' : 'By Grade'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTargetType('BY_ROLE')}
+                  className={`py-2 rounded-lg transition ${
+                    targetType === 'BY_ROLE'
+                      ? 'bg-amber-500 text-slate-950 font-bold shadow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {lang === 'am' ? 'በሚና' : 'By Role'}
+                </button>
+              </div>
+            </div>
 
-                          {n.targetType === 'BY_ROLE' && (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                              <Users className="w-3 h-3 text-amber-600" />
-                              <span>{n.targetRole}</span>
-                            </span>
-                          )}
-
-                          <span className="text-[10px] text-stone-500 font-medium">
-                            {readCount} {lang === 'am' ? 'ተጠቃሚዎች አንብበውታል' : 'readers'}
-                          </span>
-                        </div>
-
-                        <button
-                          onClick={() => handleDelete(n.id)}
-                          className="p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                          title={lang === 'am' ? 'አጥፋ' : 'Delete'}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <h3 className="font-bold text-xs text-stone-900 leading-snug">
-                        {displayTitle}
-                      </h3>
-
-                      <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed whitespace-pre-line">
-                        {displayContent}
-                      </p>
-
-                      <div className="flex items-center justify-between pt-2 border-t border-stone-200/60 text-[10px] text-stone-400">
-                        <span>
-                          {lang === 'am' ? 'ከላኪ፡' : 'Sender:'} <span className="font-semibold text-stone-600">{n.sender?.fullName || 'Admin'}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>{new Date(n.createdAt).toLocaleDateString()}</span>
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+            {/* Conditional Grade Picker */}
+            {targetType === 'BY_GRADE' && (
+              <div className="p-3 bg-slate-950/80 border border-slate-800 rounded-lg space-y-1.5">
+                <label className="block font-semibold text-amber-300">
+                  {lang === 'am' ? 'የሚላክበት ክፍል ይምረጡ *' : 'Select Target Grade *'}
+                </label>
+                <select
+                  value={targetGradeId}
+                  onChange={(e) => setTargetGradeId(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white font-semibold focus:outline-none focus:border-amber-500"
+                >
+                  {grades.map((g) => (
+                    <option key={g.id} value={g.id} className="bg-slate-900 text-white">
+                      {pick(g.name, g.amharicName)} (Grade {g.level})
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
+
+            {/* Conditional Role Picker */}
+            {targetType === 'BY_ROLE' && (
+              <div className="p-3 bg-slate-950/80 border border-slate-800 rounded-lg space-y-1.5">
+                <label className="block font-semibold text-amber-300">
+                  {lang === 'am' ? 'የሚላክበት ሚና ይምረጡ *' : 'Select Target Role *'}
+                </label>
+                <select
+                  value={targetRole}
+                  onChange={(e) => setTargetRole(e.target.value as any)}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white font-semibold focus:outline-none focus:border-amber-500"
+                >
+                  <option value="STUDENT" className="bg-slate-900 text-white">{lang === 'am' ? 'ተማሪዎች ብቻ (All Students)' : 'All Students'}</option>
+                  <option value="TEACHER" className="bg-slate-900 text-white">{lang === 'am' ? 'መምህራን ብቻ (All Teachers)' : 'All Teachers'}</option>
+                </select>
+              </div>
+            )}
+
+            {/* Title Inputs */}
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1">
+                {lang === 'am' ? 'ርዕስ (እንግሊዝኛ) *' : 'Title (English) *'}
+              </label>
+              <input
+                type="text"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Midterm Quiz Schedule Announced"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500 placeholder-slate-600"
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1">
+                {lang === 'am' ? 'ርዕስ (በአማርኛ)' : 'Title (Amharic)'}
+              </label>
+              <input
+                type="text"
+                value={amharicTitle}
+                onChange={(e) => setAmharicTitle(e.target.value)}
+                placeholder="ምሳሌ፡ የፈተና መርሐግብር ማስታወቂያ"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500 placeholder-slate-600"
+              />
+            </div>
+
+            {/* Content Inputs */}
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1">
+                {lang === 'am' ? 'የመልእክቱ ዝርዝር (እንግሊዝኛ) *' : 'Content (English) *'}
+              </label>
+              <textarea
+                required
+                rows={3}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Enter the full announcement details here..."
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500 placeholder-slate-600 resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-300 mb-1">
+                {lang === 'am' ? 'የመልእክቱ ዝርዝር (በአማርኛ)' : 'Content (Amharic)'}
+              </label>
+              <textarea
+                rows={3}
+                value={amharicContent}
+                onChange={(e) => setAmharicContent(e.target.value)}
+                placeholder="የማስታወቂያውን ሙሉ ዝርዝር እዚህ ያስገቡ..."
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500 placeholder-slate-600 resize-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg transition flex items-center justify-center space-x-2 disabled:opacity-50"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>{lang === 'am' ? 'በመላክ ላይ...' : 'Dispatching...'}</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>{lang === 'am' ? 'ማስታወቂያውን ላክ' : 'Send Announcement'}</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+
+        {/* Sent Notifications History (Right 7 Cols) */}
+        <div className="lg:col-span-7 bg-slate-900 p-5 sm:p-6 rounded-xl shadow-sm border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="flex items-center space-x-2">
+              <Bell className="w-4 h-4 text-amber-400" />
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                {lang === 'am' ? 'የተላኩ ማስታወቂያዎች' : 'Dispatched Announcements'}
+              </h2>
+            </div>
+            <span className="text-xs text-amber-400 font-mono font-semibold">
+              {notifications.length} {lang === 'am' ? 'ማስታወቂያዎች' : 'items'}
+            </span>
           </div>
+
+          {loading ? (
+            <div className="py-16 text-center text-slate-500">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto text-amber-400 mb-2" />
+              <span className="text-xs">{lang === 'am' ? 'በመጫን ላይ...' : 'Loading announcements...'}</span>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="py-16 text-center text-slate-500 space-y-2 bg-slate-950/50 rounded-xl border border-slate-800/80 p-6">
+              <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-amber-400">
+                <Megaphone className="w-6 h-6" />
+              </div>
+              <p className="text-xs font-semibold text-slate-300">
+                {lang === 'am' ? 'ምንም የተላከ ማስታወቂያ የለም' : 'No announcements dispatched yet'}
+              </p>
+              <p className="text-[11px] text-slate-400">
+                {lang === 'am'
+                  ? 'ከግራ በኩል ያለውን ቅጽ በመጠቀም የመጀመሪያውን ማስታወቂያ ይላኩ።'
+                  : 'Use the form on the left to broadcast your first message.'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+              {notifications.map((n) => {
+                const displayTitle = pick(n.title, n.amharicTitle);
+                const displayContent = pick(n.content, n.amharicContent);
+                const readCount = n._count?.recipients || 0;
+
+                return (
+                  <div
+                    key={n.id}
+                    className="p-4 bg-slate-950/80 hover:bg-slate-950 rounded-xl border border-slate-800/80 transition space-y-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center space-x-2 flex-wrap gap-1">
+                        {n.targetType === 'BROADCAST' && (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-950/80 text-purple-300 border border-purple-800">
+                            <Megaphone className="w-3 h-3 text-purple-400" />
+                            <span>{lang === 'am' ? 'ለሁሉም' : 'Broadcast'}</span>
+                          </span>
+                        )}
+
+                        {n.targetType === 'BY_GRADE' && (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-950/80 text-blue-300 border border-blue-800">
+                            <GraduationCap className="w-3 h-3 text-blue-400" />
+                            <span>
+                              {n.targetGrade?.name
+                                ? pick(n.targetGrade.name, n.targetGrade.amharicName)
+                                : (lang === 'am' ? 'የተወሰነ ክፍል' : 'Grade Specific')}
+                            </span>
+                          </span>
+                        )}
+
+                        {n.targetType === 'BY_ROLE' && (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800">
+                            <Users className="w-3 h-3 text-amber-400" />
+                            <span>{n.targetRole}</span>
+                          </span>
+                        )}
+
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {readCount} {lang === 'am' ? 'ተጠቃሚዎች አንብበውታል' : 'readers'}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => handleDelete(n.id)}
+                        className="p-1 text-slate-500 hover:text-red-400 hover:bg-red-950/40 rounded-lg transition"
+                        title={lang === 'am' ? 'አጥፋ' : 'Delete'}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <h3 className="font-bold text-xs text-slate-100 leading-snug">
+                      {displayTitle}
+                    </h3>
+
+                    <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed whitespace-pre-line">
+                      {displayContent}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[10px] text-slate-500">
+                      <span>
+                        {lang === 'am' ? 'ከላኪ፡' : 'Sender:'} <span className="font-semibold text-slate-300">{n.sender?.fullName || 'Admin'}</span>
+                      </span>
+                      <span className="flex items-center space-x-1 text-slate-500">
+                        <Calendar className="w-3 h-3" />
+                        <span>{new Date(n.createdAt).toLocaleDateString()}</span>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

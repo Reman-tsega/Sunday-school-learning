@@ -7,6 +7,11 @@
   --foreground: #1A1A1A;
 }
 
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
@@ -22,7 +27,13 @@ body {
 ::-webkit-scrollbar-track {
   background: #F1EFEA;
 }
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
 ::-webkit-scrollbar-thumb {
   background: #C59B27;
   border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #d97706;
 }

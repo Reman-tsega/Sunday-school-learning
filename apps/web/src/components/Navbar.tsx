@@ -28,6 +28,7 @@ import { api } from '@/lib/api';
 import { syncManager, type SyncState } from '@/lib/sync-manager';
 import { useLanguage } from '@/lib/language-context';
 import { NotificationBell } from './NotificationBell';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Navbar() {
   const router = useRouter();
@@ -328,16 +329,19 @@ export function Navbar() {
               </div>
             )}
 
-            {/* 3. Language Switcher - Elegantly placed in the right utility area */}
-            <button
-              onClick={toggleLang}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800/90 hover:bg-slate-750 text-amber-300 border border-amber-500/30 hover:border-amber-400/60 shadow-xs transition cursor-pointer"
-              title={lang === 'am' ? 'Switch to English' : 'ወደ አማርኛ ቀይር'}
-              aria-label="Toggle language"
-            >
-              <Globe className="w-3.5 h-3.5 text-amber-400" />
-              <span className="font-bold">{lang === 'am' ? 'English' : 'አማርኛ'}</span>
-            </button>
+            {/* 3. Utility Group: Day/Night Mode & Language Switchers */}
+            <div className="flex items-center space-x-1.5">
+              <ThemeToggle />
+              <button
+                onClick={toggleLang}
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800/90 hover:bg-slate-750 text-amber-300 border border-amber-500/30 hover:border-amber-400/60 shadow-xs transition cursor-pointer"
+                title={lang === 'am' ? 'Switch to English' : 'ወደ አማርኛ ቀይር'}
+                aria-label="Toggle language"
+              >
+                <Globe className="w-3.5 h-3.5 text-amber-400" />
+                <span className="font-bold">{lang === 'am' ? 'English' : 'አማርኛ'}</span>
+              </button>
+            </div>
 
             {/* 4. Auth Actions: Profile / Logout vs Public Sign In / Register */}
             {isAuthenticated ? (
@@ -435,7 +439,8 @@ export function Navbar() {
               </Link>
             )}
 
-            {/* Mobile Language Button (Compact & standard) */}
+            {/* Mobile Theme & Language Buttons */}
+            <ThemeToggle variant="compact" />
             <button
               onClick={toggleLang}
               className="px-2 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 transition flex items-center space-x-1"
