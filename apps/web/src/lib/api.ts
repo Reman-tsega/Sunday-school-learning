@@ -26,6 +26,29 @@ import type {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
+export class ApiError extends Error {
+  status: number;
+  code?: string | undefined;
+  amharicMessage?: string | undefined;
+  retryAfterSeconds?: number | undefined;
+
+  constructor(
+    message: string,
+    status: number,
+    data?: { code?: string | undefined; amharicMessage?: string | undefined; retryAfterSeconds?: number | string | undefined }
+  ) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = data?.code;
+    this.amharicMessage = data?.amharicMessage;
+    if (data?.retryAfterSeconds != null) {
+      const parsed = parseInt(String(data.retryAfterSeconds), 10);
+      this.retryAfterSeconds = !isNaN(parsed) && parsed > 0 ? parsed : 60;
+    }
+  }
+}
+
 export class ApiClient {
   private token: string | null = null;
   private user: UserProfile | null = null;
@@ -218,7 +241,17 @@ export class ApiClient {
     if (!res.ok) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const errData: any = await res.json().catch(() => ({}));
-      throw new Error(errData.error?.message || 'Login failed');
+      const retryHeader = res.headers.get('retry-after');
+      const retryAfterSeconds = errData.error?.retryAfterSeconds || (retryHeader ? parseInt(retryHeader, 10) : undefined);
+      throw new ApiError(
+        errData.error?.message || 'Login failed',
+        res.status,
+        {
+          code: errData.error?.code,
+          amharicMessage: errData.error?.amharicMessage,
+          retryAfterSeconds,
+        }
+      );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -257,7 +290,17 @@ export class ApiClient {
     if (!res.ok) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const errData: any = await res.json().catch(() => ({}));
-      throw new Error(errData.error?.message || 'Registration failed');
+      const retryHeader = res.headers.get('retry-after');
+      const retryAfterSeconds = errData.error?.retryAfterSeconds || (retryHeader ? parseInt(retryHeader, 10) : undefined);
+      throw new ApiError(
+        errData.error?.message || 'Registration failed',
+        res.status,
+        {
+          code: errData.error?.code,
+          amharicMessage: errData.error?.amharicMessage,
+          retryAfterSeconds,
+        }
+      );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

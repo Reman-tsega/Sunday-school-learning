@@ -12,7 +12,7 @@ import {
   CheckCircle,
   Clock,
 } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api, ApiError } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import type { UserProfile } from '@eotc/shared';
 import ParishCombobox from '@/components/ParishCombobox';
@@ -57,7 +57,30 @@ function LoginContent() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rateLimitSeconds, setRateLimitSeconds] = useState<number | null>(null);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+
+  // Active rate-limit countdown interval
+  useEffect(() => {
+    if (rateLimitSeconds === null || rateLimitSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setRateLimitSeconds((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(timer);
+          setError(null);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [rateLimitSeconds]);
+
+  const formatCountdown = (totalSecs: number) => {
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   useEffect(() => {
     api.init().then((user) => {
@@ -95,6 +118,7 @@ function LoginContent() {
   }, []);
 
   const handleLoginSubmit = async (loginEmail: string, loginPass: string) => {
+    if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
     setLoading(true);
     setError(null);
 
@@ -106,7 +130,17 @@ function LoginContent() {
         router.push(redirectParam || '/');
       }
     } catch (err) {
-      setError((err as Error).message || (lang === 'am' ? 'መግባት አልተቻለም' : 'Login failed'));
+      if (err instanceof ApiError && (err.status === 429 || err.code === 'RATE_LIMIT_EXCEEDED')) {
+        const remaining = err.retryAfterSeconds || 900;
+        setRateLimitSeconds(remaining);
+        setError(
+          lang === 'am'
+            ? (err.amharicMessage || 'ከተፈቀደው በላይ የመግቢያ ሙከራ ተደርጓል፤ እባክዎ ጥቂት ቆይተው እንደገና ይሞክሩ።')
+            : err.message
+        );
+      } else {
+        setError((err as Error).message || (lang === 'am' ? 'መግባት አልተቻለም' : 'Login failed'));
+      }
     } finally {
       setLoading(false);
     }
@@ -114,6 +148,7 @@ function LoginContent() {
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
     setLoading(true);
     setError(null);
 
@@ -151,19 +186,31 @@ function LoginContent() {
         router.push(redirectParam || '/');
       }
     } catch (err) {
-      setError((err as Error).message || (lang === 'am' ? 'ምዝገባ አልተሳካም' : 'Registration failed'));
+      if (err instanceof ApiError && (err.status === 429 || err.code === 'RATE_LIMIT_EXCEEDED')) {
+        const remaining = err.retryAfterSeconds || 3600;
+        setRateLimitSeconds(remaining);
+        setError(
+          lang === 'am'
+            ? (err.amharicMessage || 'የመመዝገቢያ ገደብ ላይ ደርሰዋል፤ እባክዎ ጥቂት ቆይተው እንደገና ይሞክሩ።')
+            : err.message
+        );
+      } else {
+        setError((err as Error).message || (lang === 'am' ? 'ምዝገባ አልተሳካም' : 'Registration failed'));
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleQuickAdmin = () => {
+    if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
     setEmail('admin@eotc-andnet.org');
     setPassword('AdminSecurePassword2026!');
     handleLoginSubmit('admin@eotc-andnet.org', 'AdminSecurePassword2026!');
   };
 
   const handleQuickStudent = () => {
+    if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
     setEmail('student@eotc-andnet.org');
     setPassword('StudentPassword2026!');
     handleLoginSubmit('student@eotc-andnet.org', 'StudentPassword2026!');
@@ -292,12 +339,32 @@ function LoginContent() {
         </div>
       )}
 
-      {error && (
+      {rateLimitSeconds !== null && rateLimitSeconds > 0 ? (
+        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/60 border-2 border-amber-500/70 dark:border-amber-500/80 rounded-xl shadow-sm text-xs space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 font-bold text-amber-950 dark:text-amber-200">
+              <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="text-sm">
+                {lang === 'am' ? 'የደህንነት ገደብ ተጥሏል' : 'Security Rate Limit Active'}
+              </span>
+            </div>
+            <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-amber-200/80 dark:bg-amber-900/80 text-amber-950 dark:text-amber-100 font-mono font-bold text-sm rounded-lg border border-amber-400 dark:border-amber-600">
+              <Clock className="w-4 h-4 text-amber-700 dark:text-amber-300 animate-spin" style={{ animationDuration: '3s' }} />
+              <span>{formatCountdown(rateLimitSeconds)}</span>
+            </div>
+          </div>
+          <p className="text-amber-900 dark:text-amber-200 leading-relaxed pl-7">
+            {lang === 'am'
+              ? 'ከተፈቀደው በላይ የመግቢያ ሙከራ ተደርጓል፤ ያልተፈቀደ መዳረሻን ለመከላከል መድረኩ ለጊዜው ተቆልፏል። ቆጣሪው 0:00 ሲደርስ እንደገና መሞከር ይችላሉ።'
+              : 'Too many attempts from this IP address. To protect account security, access is temporarily locked. You may retry when the countdown reaches 0:00.'}
+          </p>
+        </div>
+      ) : error ? (
         <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800/60 text-red-700 dark:text-red-300 text-xs rounded-lg flex items-center space-x-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
-      )}
+      ) : null}
 
       {/* LOGIN TAB */}
       {tab === 'login' ? (
@@ -311,8 +378,8 @@ function LoginContent() {
               <button
                 type="button"
                 onClick={handleQuickAdmin}
-                disabled={loading}
-                className="p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-900 dark:text-amber-300 rounded-lg text-xs font-bold transition flex flex-col items-center justify-center space-y-1 cursor-pointer"
+                disabled={loading || (rateLimitSeconds !== null && rateLimitSeconds > 0)}
+                className="p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-900 dark:text-amber-300 rounded-lg text-xs font-bold transition flex flex-col items-center justify-center space-y-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Shield className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>{lang === 'am' ? 'አስተዳዳሪ (Admin)' : 'Admin Test'}</span>
@@ -322,8 +389,8 @@ function LoginContent() {
               <button
                 type="button"
                 onClick={handleQuickStudent}
-                disabled={loading}
-                className="p-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/40 text-blue-900 dark:text-blue-300 rounded-lg text-xs font-bold transition flex flex-col items-center justify-center space-y-1 cursor-pointer"
+                disabled={loading || (rateLimitSeconds !== null && rateLimitSeconds > 0)}
+                className="p-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/40 text-blue-900 dark:text-blue-300 rounded-lg text-xs font-bold transition flex flex-col items-center justify-center space-y-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span>{lang === 'am' ? 'ተማሪ (Student)' : 'Student Test'}</span>
@@ -374,13 +441,22 @@ function LoginContent() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold rounded-lg text-sm shadow transition flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+              disabled={loading || (rateLimitSeconds !== null && rateLimitSeconds > 0)}
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold rounded-lg text-sm shadow transition flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>{lang === 'am' ? 'በመግባት ላይ...' : 'Signing in...'}</span>
+                </>
+              ) : rateLimitSeconds !== null && rateLimitSeconds > 0 ? (
+                <>
+                  <Clock className="w-4 h-4 animate-pulse text-amber-400 dark:text-amber-900" />
+                  <span>
+                    {lang === 'am'
+                      ? `እባክዎ ይጠብቁ (${formatCountdown(rateLimitSeconds)})`
+                      : `Please wait (${formatCountdown(rateLimitSeconds)})`}
+                  </span>
                 </>
               ) : (
                 <>
@@ -577,13 +653,22 @@ function LoginContent() {
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full mt-4 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-sm shadow transition flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+            disabled={loading || (rateLimitSeconds !== null && rateLimitSeconds > 0)}
+            className="w-full mt-4 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-sm shadow transition flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>{lang === 'am' ? 'በመመዝገብ ላይ...' : 'Registering...'}</span>
+              </>
+            ) : rateLimitSeconds !== null && rateLimitSeconds > 0 ? (
+              <>
+                <Clock className="w-4 h-4 animate-pulse text-amber-200" />
+                <span>
+                  {lang === 'am'
+                    ? `እባክዎ ይጠብቁ (${formatCountdown(rateLimitSeconds)})`
+                    : `Please wait (${formatCountdown(rateLimitSeconds)})`}
+                </span>
               </>
             ) : (
               <>
