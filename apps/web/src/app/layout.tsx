@@ -10,10 +10,28 @@ export const metadata: Metadata = {
   title: 'የሰንበት ትምህርት ቤት አንድነት የመማሪያ መድረክ',
   description: 'Lean offline-first learning platform for Sunday School students',
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'ሰንበት ት/ቤት',
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: '#0C2340',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({

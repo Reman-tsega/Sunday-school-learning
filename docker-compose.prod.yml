@@ -31,7 +31,9 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-StrongProductionPassword2026!}@postgres:5432/${POSTGRES_DB:-eotc_learning}?schema=public
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-eotc-access-secret-prod-2026-very-secure-key}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-eotc-refresh-secret-prod-2026-very-secure-key}
-      CORS_ORIGIN: "*"
+      CORS_ORIGIN: "${CORS_ORIGIN:-*}"
+    volumes:
+      - uploads_prod_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,6 +72,7 @@ services:
 
 volumes:
   postgres_prod_data:
+  uploads_prod_data:
 
 networks:
   eotc_network:
