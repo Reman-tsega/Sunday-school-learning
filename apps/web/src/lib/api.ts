@@ -1303,6 +1303,12 @@ export class ApiClient {
     totalPages: number;
     dioceses: string[];
     subCities: { subCity: string; diocese: string }[];
+    stats?: {
+      totalSundaySchools: number;
+      verifiedCount: number;
+      totalStudents: number;
+      totalTeachers: number;
+    } | undefined;
   }> {
     const query = new URLSearchParams();
     if (params?.search) query.append('search', params.search);

@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import Pagination from '@/components/Pagination';
 import type { ParishDto, CreateParishInput } from '@eotc/shared';
 
 export default function SundaySchoolsManagementPage() {
@@ -38,6 +39,18 @@ export default function SundaySchoolsManagementPage() {
 
   // View mode: 'table' or 'grid' (cards)
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+
+  // Pagination states (Default 10 per page as requested)
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [stats, setStats] = useState({
+    totalSundaySchools: 0,
+    verifiedCount: 0,
+    totalStudents: 0,
+    totalTeachers: 0,
+  });
 
   // Filter states
   const [search, setSearch] = useState('');
@@ -82,7 +95,8 @@ export default function SundaySchoolsManagementPage() {
 
     try {
       const data = await api.getParishes({
-        limit: 200,
+        page,
+        limit: pageSize,
         search: search.trim() || undefined,
         diocese: selectedDiocese || undefined,
         subCity: selectedSubCity || undefined,
@@ -95,6 +109,11 @@ export default function SundaySchoolsManagementPage() {
       });
 
       setParishes(data.parishes || []);
+      setTotalItems(data.total || 0);
+      setTotalPages(data.totalPages || 1);
+      if (data.stats) {
+        setStats(data.stats);
+      }
       if (data.dioceses && data.dioceses.length > 0) {
         setDioceses(data.dioceses);
       }
@@ -107,18 +126,18 @@ export default function SundaySchoolsManagementPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [search, selectedDiocese, selectedSubCity, verificationFilter]);
+  }, [page, pageSize, search, selectedDiocese, selectedSubCity, verificationFilter]);
 
   useEffect(() => {
     fetchSundaySchools();
   }, [fetchSundaySchools]);
 
   // Aggregate metrics
-  const totalSundaySchools = parishes.length;
-  const verifiedCount = parishes.filter((p) => p.isVerified).length;
-  const pendingCount = totalSundaySchools - verifiedCount;
-  const totalStudents = parishes.reduce((sum, p) => sum + (p.studentCount || 0), 0);
-  const totalTeachers = parishes.reduce((sum, p) => sum + (p.teacherCount || 0), 0);
+  const totalSundaySchools = stats.totalSundaySchools || totalItems;
+  const verifiedCount = stats.verifiedCount;
+  const pendingCount = Math.max(0, totalSundaySchools - verifiedCount);
+  const totalStudents = stats.totalStudents;
+  const totalTeachers = stats.totalTeachers;
 
   const hasActiveFilters = Boolean(
     search.trim() || selectedDiocese || selectedSubCity || verificationFilter !== 'ALL'
@@ -129,6 +148,7 @@ export default function SundaySchoolsManagementPage() {
     setSelectedDiocese('');
     setSelectedSubCity('');
     setVerificationFilter('ALL');
+    setPage(1);
   };
 
   const handleOpenAddModal = () => {
@@ -475,13 +495,19 @@ export default function SundaySchoolsManagementPage() {
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 placeholder={lang === 'am' ? 'ሰንበት ት/ቤት ወይም ደብር ፈልግ...' : 'Search Sunday School or church...'}
                 className="w-full pl-9 pr-8 py-2.5 border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-white rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
               {search && (
                 <button
-                  onClick={() => setSearch('')}
+                  onClick={() => {
+                    setSearch('');
+                    setPage(1);
+                  }}
                   className="absolute right-2.5 top-3 text-stone-400 hover:text-stone-600 dark:hover:text-slate-200"
                 >
                   <X className="w-4 h-4" />
@@ -496,6 +522,7 @@ export default function SundaySchoolsManagementPage() {
                 onChange={(e) => {
                   setSelectedDiocese(e.target.value);
                   setSelectedSubCity('');
+                  setPage(1);
                 }}
                 className="w-full px-3 py-2.5 border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-white rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
               >
@@ -512,7 +539,10 @@ export default function SundaySchoolsManagementPage() {
             <div>
               <select
                 value={selectedSubCity}
-                onChange={(e) => setSelectedSubCity(e.target.value)}
+                onChange={(e) => {
+                  setSelectedSubCity(e.target.value);
+                  setPage(1);
+                }}
                 className="w-full px-3 py-2.5 border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-white rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
               >
                 <option value="">{lang === 'am' ? 'ሁሉም ክፍለ ከተሞች / ዞኖች' : 'All Sub-Cities / Zones'}</option>
@@ -528,7 +558,10 @@ export default function SundaySchoolsManagementPage() {
             <div>
               <select
                 value={verificationFilter}
-                onChange={(e) => setVerificationFilter(e.target.value as any)}
+                onChange={(e) => {
+                  setVerificationFilter(e.target.value as any);
+                  setPage(1);
+                }}
                 className="w-full px-3 py-2.5 border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-white rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
               >
                 <option value="ALL">{lang === 'am' ? 'ሁሉም የማረጋገጫ ሁኔታ' : 'All Verification States'}</option>
@@ -865,6 +898,23 @@ export default function SundaySchoolsManagementPage() {
                   </table>
                 </div>
               </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalItems > 0 && (
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                pageSize={pageSize}
+                pageSizeOptions={[10, 25, 50]}
+                onPageChange={(p) => setPage(p)}
+                onPageSizeChange={(s) => {
+                  setPageSize(s);
+                  setPage(1);
+                }}
+                itemName={lang === 'am' ? 'ሰንበት ት/ቤቶች' : 'Sunday Schools'}
+              />
             )}
           </>
         )}

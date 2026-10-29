@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import Pagination from '@/components/Pagination';
 import type {
   QuestionType,
   ModeratedReferenceDto,
@@ -48,6 +49,8 @@ export default function TeacherPortalPage() {
   // Students & Progress Data
   const [students, setStudents] = useState<any[]>([]);
   const [studentSearch, setStudentSearch] = useState('');
+  const [studentsPage, setStudentsPage] = useState(1);
+  const [studentsPageSize, setStudentsPageSize] = useState(10);
   const [selectedStudentProgress, setSelectedStudentProgress] = useState<any | null>(null);
   const [loadingStudentProgress, setLoadingStudentProgress] = useState(false);
 
@@ -341,6 +344,11 @@ export default function TeacherPortalPage() {
     );
   });
 
+  const paginatedStudents = React.useMemo(() => {
+    const start = (studentsPage - 1) * studentsPageSize;
+    return filteredStudents.slice(start, start + studentsPageSize);
+  }, [filteredStudents, studentsPage, studentsPageSize]);
+
   // Selected Grade / Subject / Chapter cascading objects
   const activeGrade = curriculum.find((g) => g.id === selectedGradeId);
   const activeSubject = activeGrade?.subjects?.find((s: any) => s.id === selectedSubjectId);
@@ -608,7 +616,10 @@ export default function TeacherPortalPage() {
                 type="text"
                 placeholder={lang === 'am' ? 'ተማሪ በስም ወይም በስልክ ይፈልጉ...' : 'Search student by name or phone...'}
                 value={studentSearch}
-                onChange={(e) => setStudentSearch(e.target.value)}
+                onChange={(e) => {
+                  setStudentSearch(e.target.value);
+                  setStudentsPage(1);
+                }}
                 className="w-full pl-9 pr-4 py-2 rounded-xl border border-stone-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
@@ -632,46 +643,65 @@ export default function TeacherPortalPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {filteredStudents.map((st) => (
-                <div
-                  key={st.id}
-                  className="bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 p-4 shadow-xs hover:border-amber-300 dark:hover:border-amber-500/50 transition space-y-3 flex flex-col justify-between"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-extrabold text-sm text-stone-900 dark:text-white">
-                        {st.fullName}
-                      </h4>
-                      <span className="text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800/60">
-                        {st.churchParish || 'Sunday School'}
-                      </span>
-                    </div>
-                    {st.christianName && (
-                      <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
-                        {lang === 'am' ? 'የክርስትና ስም: ' : 'Christian Name: '}
-                        <span className="font-semibold">{st.christianName}</span>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {paginatedStudents.map((st) => (
+                  <div
+                    key={st.id}
+                    className="bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 p-4 shadow-xs hover:border-amber-300 dark:hover:border-amber-500/50 transition space-y-3 flex flex-col justify-between"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-extrabold text-sm text-stone-900 dark:text-white">
+                          {st.fullName}
+                        </h4>
+                        <span className="text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800/60">
+                          {st.churchParish || 'Sunday School'}
+                        </span>
+                      </div>
+                      {st.christianName && (
+                        <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                          {lang === 'am' ? 'የክርስትና ስም: ' : 'Christian Name: '}
+                          <span className="font-semibold">{st.christianName}</span>
+                        </p>
+                      )}
+                      <p className="text-[11px] text-stone-500 dark:text-slate-400">
+                        {st.phoneNumber || st.email || (lang === 'am' ? 'ስልክ አልተመዘገበም' : 'No phone recorded')}
                       </p>
-                    )}
-                    <p className="text-[11px] text-stone-500 dark:text-slate-400">
-                      {st.phoneNumber || st.email || (lang === 'am' ? 'ስልክ አልተመዘገበም' : 'No phone recorded')}
-                    </p>
-                  </div>
+                    </div>
 
-                  <div className="pt-2 border-t border-stone-100 dark:border-slate-800 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-stone-600 dark:text-slate-400">
-                      {lang === 'am' ? 'የትምህርት ሂደት' : 'Study Progress'}
-                    </span>
-                    <button
-                      onClick={() => handleOpenStudentProgress(st)}
-                      className="px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
-                    >
-                      <span>{lang === 'am' ? 'ዝርዝር እይ' : 'View Details'}</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="pt-2 border-t border-stone-100 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-xs font-semibold text-stone-600 dark:text-slate-400">
+                        {lang === 'am' ? 'የትምህርት ሂደት' : 'Study Progress'}
+                      </span>
+                      <button
+                        onClick={() => handleOpenStudentProgress(st)}
+                        className="px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+                      >
+                        <span>{lang === 'am' ? 'ዝርዝር እይ' : 'View Details'}</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {filteredStudents.length > 0 && (
+                <Pagination
+                  currentPage={studentsPage}
+                  totalPages={Math.ceil(filteredStudents.length / studentsPageSize) || 1}
+                  totalItems={filteredStudents.length}
+                  pageSize={studentsPageSize}
+                  pageSizeOptions={[10, 25, 50]}
+                  onPageChange={(p) => setStudentsPage(p)}
+                  onPageSizeChange={(s) => {
+                    setStudentsPageSize(s);
+                    setStudentsPage(1);
+                  }}
+                  itemName={lang === 'am' ? 'ተማሪዎች' : 'Students'}
+                />
+              )}
             </div>
           )}
         </div>

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import Pagination from '@/components/Pagination';
 import type {
   AdminStudentListItem,
   AdminStudentDetails,
@@ -37,6 +38,12 @@ export default function AdminStudentsPage() {
   const [sundaySchools, setSundaySchools] = useState<string[]>([]);
   const [grades, setGrades] = useState<GradeOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Pagination states (Default 10 per page)
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Filters
   const [selectedDiocese, setSelectedDiocese] = useState<string>('');
@@ -93,9 +100,14 @@ export default function AdminStudentsPage() {
         subCity: selectedSubCity || undefined,
         gradeId: selectedGradeId || undefined,
         search: searchQuery || undefined,
-        limit: 100,
+        page,
+        limit: pageSize,
       });
       setStudents(res.students || []);
+      if (res.pagination) {
+        setTotalCount(res.pagination.total);
+        setTotalPages(res.pagination.totalPages);
+      }
     } catch (err: any) {
       setErrorMessage(
         err.message ||
@@ -112,10 +124,11 @@ export default function AdminStudentsPage() {
 
   useEffect(() => {
     loadStudents();
-  }, [selectedSundaySchool, selectedGradeId, selectedDiocese, selectedSubCity]);
+  }, [selectedSundaySchool, selectedGradeId, selectedDiocese, selectedSubCity, page, pageSize]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setPage(1);
     loadStudents();
   };
 
@@ -138,7 +151,7 @@ export default function AdminStudentsPage() {
   };
 
   // Aggregated Stats
-  const totalStudents = students.length;
+  const totalStudents = totalCount || students.length;
   const uniqueParishesCount = new Set(
     students.map((s) => s.churchParish).filter(Boolean)
   ).size;
@@ -524,6 +537,25 @@ export default function AdminStudentsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalStudents > 0 && (
+            <div className="p-3 sm:p-4 border-t border-stone-200 dark:border-slate-800">
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalItems={totalStudents}
+                pageSize={pageSize}
+                pageSizeOptions={[10, 25, 50]}
+                onPageChange={(p) => setPage(p)}
+                onPageSizeChange={(s) => {
+                  setPageSize(s);
+                  setPage(1);
+                }}
+                itemName={lang === 'am' ? 'ተማሪዎች' : 'Students'}
+              />
+            </div>
+          )}
         </div>
       )}
 

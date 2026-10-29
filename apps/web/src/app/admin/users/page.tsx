@@ -16,11 +16,19 @@ import {
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import ParishCombobox from '@/components/ParishCombobox';
+import Pagination from '@/components/Pagination';
 
 export default function AdminUsersPage() {
   const { lang } = useLanguage();
   const [users, setUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Pagination states (Default 10 per page)
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [roleFilter, setRoleFilter] = useState<string>('');
   const [dioceseFilter, setDioceseFilter] = useState('');
   const [subCityFilter, setSubCityFilter] = useState('');
@@ -66,9 +74,14 @@ export default function AdminUsersPage() {
         search: searchQuery || undefined,
         diocese: dioceseFilter || undefined,
         subCity: subCityFilter || undefined,
-        limit: 100,
+        page,
+        limit: pageSize,
       });
       setUsers(data.users || []);
+      if (data.pagination) {
+        setTotalUsers(data.pagination.total);
+        setTotalPages(data.pagination.totalPages);
+      }
     } catch (err: any) {
       setActionMessage({
         type: 'error',
@@ -81,10 +94,11 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     loadUsers();
-  }, [roleFilter, dioceseFilter, subCityFilter]);
+  }, [roleFilter, dioceseFilter, subCityFilter, page, pageSize]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setPage(1);
     loadUsers();
   };
 
@@ -345,7 +359,8 @@ export default function AdminUsersPage() {
             <p>{lang === 'am' ? 'ምንም ተጠቃሚ አልተገኘም።' : 'No users found.'}</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="bg-stone-50 dark:bg-slate-950 border-b border-stone-200 dark:border-slate-800 text-xs uppercase text-stone-600 dark:text-slate-400 tracking-wider">
                 <tr>
@@ -474,8 +489,28 @@ export default function AdminUsersPage() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+
+          {/* Pagination Controls */}
+          {totalUsers > 0 && (
+            <div className="p-3 sm:p-4 border-t border-stone-200 dark:border-slate-800">
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalItems={totalUsers}
+                pageSize={pageSize}
+                pageSizeOptions={[10, 25, 50]}
+                onPageChange={(p) => setPage(p)}
+                onPageSizeChange={(s) => {
+                  setPageSize(s);
+                  setPage(1);
+                }}
+                itemName={lang === 'am' ? 'ተጠቃሚዎች' : 'Users'}
+              />
+            </div>
+          )}
+        </>
+      )}
+    </div>
 
       {/* CREATE USER MODAL */}
       {showCreateModal && (

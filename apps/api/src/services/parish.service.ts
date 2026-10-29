@@ -379,7 +379,15 @@ export class ParishService {
       ];
     }
 
-    const [total, parishes, distinctDioceses, distinctSubCities] = await Promise.all([
+    const [
+      total,
+      parishes,
+      distinctDioceses,
+      distinctSubCities,
+      overallTotal,
+      overallVerified,
+      assignedUsers,
+    ] = await Promise.all([
       prisma.parish.count({ where }),
       prisma.parish.findMany({
         where,
@@ -411,6 +419,12 @@ export class ParishService {
         distinct: ['subCity'],
         orderBy: { subCity: 'asc' },
       }),
+      prisma.parish.count(),
+      prisma.parish.count({ where: { isVerified: true } }),
+      prisma.user.findMany({
+        where: { parishId: { not: null } },
+        select: { role: true },
+      }),
     ]);
 
     const formattedParishes: ParishDto[] = parishes.map((p) => {
@@ -433,6 +447,9 @@ export class ParishService {
       };
     });
 
+    const totalStudents = assignedUsers.filter((u) => u.role === 'STUDENT').length;
+    const totalTeachers = assignedUsers.filter((u) => u.role === 'TEACHER').length;
+
     return {
       parishes: formattedParishes,
       total,
@@ -443,6 +460,12 @@ export class ParishService {
       subCities: distinctSubCities
         .map((s) => ({ subCity: s.subCity as string, diocese: s.diocese }))
         .filter((s) => s.subCity !== null),
+      stats: {
+        totalSundaySchools: overallTotal,
+        verifiedCount: overallVerified,
+        totalStudents,
+        totalTeachers,
+      },
     };
   }
 
