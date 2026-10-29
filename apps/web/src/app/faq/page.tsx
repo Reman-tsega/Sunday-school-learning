@@ -129,17 +129,17 @@ export default function FAQPage() {
   });
 
   return (
-    <div className="min-h-screen bg-stone-50 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-stone-50 dark:bg-slate-950 py-10 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 bg-amber-100 text-amber-800 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-12 h-12 bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
             <HelpCircle className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 dark:text-white">
             {lang === 'am' ? 'ተደጋጋሚ ጥያቄዎች እና መልሶች' : 'Frequently Asked Questions'}
           </h1>
-          <p className="text-xs sm:text-sm text-stone-500 max-w-lg mx-auto">
+          <p className="text-xs sm:text-sm text-stone-500 dark:text-slate-400 max-w-lg mx-auto">
             {lang === 'am'
               ? 'ስለ ሰንበት ት/ቤት መማሪያ መድረክ፣ ከመስመር ውጭ አጠቃቀም እና ምዝገባ የተለመዱ ጥያቄዎች'
               : 'Answers to common questions regarding offline study, downloads, quizzes, and curriculum'}
@@ -148,7 +148,7 @@ export default function FAQPage() {
 
         {/* Search Bar */}
         <div className="relative max-w-xl mx-auto">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-stone-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
@@ -158,7 +158,7 @@ export default function FAQPage() {
                 ? 'ጥያቄዎችን እዚህ ይፈልጉ (ምሳሌ፡ ከመስመር ውጭ፣ መጽሐፍ፣ ውጤት)...'
                 : 'Search questions (e.g. offline, download, quizzes, sync)...'
             }
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
           />
         </div>
 
@@ -178,7 +178,7 @@ export default function FAQPage() {
               className={`px-3 py-1.5 rounded-full text-xs font-semibold transition ${
                 selectedCategory === cat.id
                   ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                  : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-100'
+                  : 'bg-white dark:bg-slate-900 text-stone-600 dark:text-slate-300 border border-stone-200 dark:border-slate-800 hover:bg-stone-100 dark:hover:bg-slate-800'
               }`}
             >
               {lang === 'am' ? cat.labelAm : cat.labelEn}
@@ -189,14 +189,14 @@ export default function FAQPage() {
         {/* FAQ Accordion List */}
         <div className="space-y-3">
           {filteredItems.length === 0 ? (
-            <div className="py-12 text-center text-stone-400 bg-white rounded-2xl border border-stone-200 space-y-2">
-              <HelpCircle className="w-8 h-8 mx-auto text-stone-300" />
-              <p className="text-xs font-semibold text-stone-600">
+            <div className="py-12 text-center text-stone-400 bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 space-y-2">
+              <HelpCircle className="w-8 h-8 mx-auto text-stone-300 dark:text-slate-600" />
+              <p className="text-xs font-semibold text-stone-600 dark:text-slate-300">
                 {lang === 'am' ? 'የተፈለገው ጥያቄ አልተገኘም' : 'No matching questions found'}
               </p>
               <button
                 onClick={() => { setSearch(''); setSelectedCategory('all'); }}
-                className="text-xs text-amber-600 hover:underline"
+                className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
               >
                 {lang === 'am' ? 'ሁሉንም አሳይ' : 'Clear filters'}
               </button>
@@ -210,23 +210,23 @@ export default function FAQPage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden transition"
+                  className="bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 shadow-sm overflow-hidden transition"
                 >
                   <button
                     type="button"
                     onClick={() => toggleItem(item.id)}
-                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 hover:bg-stone-50 transition"
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 hover:bg-stone-50 dark:hover:bg-slate-800/60 transition"
                   >
-                    <span className="font-bold text-xs sm:text-sm text-stone-900 leading-snug">
+                    <span className="font-bold text-xs sm:text-sm text-stone-900 dark:text-white leading-snug">
                       {question}
                     </span>
-                    <div className="p-1 rounded-full bg-stone-100 text-stone-500 shrink-0">
+                    <div className="p-1 rounded-full bg-stone-100 dark:bg-slate-800 text-stone-500 dark:text-slate-400 shrink-0">
                       {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </div>
                   </button>
 
                   {isOpen && (
-                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs text-stone-600 leading-relaxed border-t border-stone-100 bg-stone-50/50">
+                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-2 text-xs text-stone-600 dark:text-slate-300 leading-relaxed border-t border-stone-100 dark:border-slate-850 bg-stone-50/50 dark:bg-slate-950/50">
                       {answer}
                     </div>
                   )}
@@ -237,16 +237,16 @@ export default function FAQPage() {
         </div>
 
         {/* Need More Help Box */}
-        <div className="p-6 bg-white rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
               <MessageCircle className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-xs sm:text-sm font-bold text-stone-900">
+              <h3 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-white">
                 {lang === 'am' ? 'ሌላ ተጨማሪ ጥያቄ አለዎት?' : 'Have more questions?'}
               </h3>
-              <p className="text-[11px] text-stone-500">
+              <p className="text-[11px] text-stone-500 dark:text-slate-400">
                 {lang === 'am'
                   ? 'ስለ መድረኩ የበለጠ ለመረዳት የመድረኩን መረጃ ገጽ ይመልከቱ'
                   : 'Learn more about the platform architecture and ecclesiastical mission'}
@@ -256,7 +256,7 @@ export default function FAQPage() {
 
           <Link
             href="/about"
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition shrink-0"
+            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold rounded-xl text-xs transition shrink-0"
           >
             {lang === 'am' ? 'ስለ መድረኩ ይመልከቱ' : 'View About Page'}
           </Link>

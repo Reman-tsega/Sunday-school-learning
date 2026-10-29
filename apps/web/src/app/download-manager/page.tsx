@@ -144,16 +144,16 @@ export default function DownloadManagerPage() {
         <div>
           <Link
             href="/"
-            className="text-xs text-stone-500 hover:text-amber-700 flex items-center space-x-1 mb-2 transition"
+            className="text-xs text-stone-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-400 flex items-center space-x-1 mb-2 transition"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>{lang === 'am' ? 'ወደ ማውጫ ተመለስ' : 'Back to Curriculum'}</span>
           </Link>
-          <h1 className="text-2xl font-bold text-stone-900 flex items-center space-x-2">
-            <Download className="w-6 h-6 text-amber-600" />
+          <h1 className="text-2xl font-bold text-stone-900 dark:text-white flex items-center space-x-2">
+            <Download className="w-6 h-6 text-amber-600 dark:text-amber-400" />
             <span>{lang === 'am' ? 'የወረዱ መጻሕፍት ማኔጀር' : 'Download Manager'}</span>
           </h1>
-          <p className="text-xs text-stone-500 mt-0.5">
+          <p className="text-xs text-stone-500 dark:text-slate-400 mt-0.5">
             {lang === 'am'
               ? 'ያለ ኢንተርኔት ከመስመር ውጭ የሚገኙ የትምህርት ክፍሎች'
               : 'Lessons available offline without an internet connection'}
@@ -162,13 +162,13 @@ export default function DownloadManagerPage() {
 
         {/* Total Storage Badge & Clear All */}
         <div className="flex items-center space-x-2.5">
-          <div className="bg-white p-3 rounded-xl border border-stone-200 shadow-xs flex items-center space-x-3">
-            <HardDrive className="w-5 h-5 text-amber-600" />
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-stone-200 dark:border-slate-800 shadow-xs flex items-center space-x-3">
+            <HardDrive className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             <div>
-              <span className="text-[10px] text-stone-400 block uppercase font-bold">
+              <span className="text-[10px] text-stone-400 dark:text-slate-500 block uppercase font-bold">
                 {lang === 'am' ? 'የተያዘ ቦታ' : 'Used Storage'}
               </span>
-              <span className="font-bold text-stone-800 text-sm">
+              <span className="font-bold text-stone-800 dark:text-white text-sm">
                 {totalMB} MB ({packages.length} {lang === 'am' ? 'ምዕራፎች' : 'chapters'})
               </span>
             </div>
@@ -177,10 +177,10 @@ export default function DownloadManagerPage() {
           {packages.length > 0 && (
             <button
               onClick={handleDeleteAll}
-              className="p-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold flex items-center space-x-1.5 transition"
+              className="p-3 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer"
               title={lang === 'am' ? 'ሁሉንም የወረዱ ሰርዝ' : 'Delete all downloads'}
             >
-              <Trash2 className="w-4 h-4 text-rose-600" />
+              <Trash2 className="w-4 h-4 text-rose-600 dark:text-rose-400" />
               <span className="hidden sm:inline">{lang === 'am' ? 'ሁሉንም አፅዳ' : 'Clear All'}</span>
             </button>
           )}
@@ -189,11 +189,11 @@ export default function DownloadManagerPage() {
 
       {/* Filter and Search Bar */}
       {packages.length > 0 && (
-        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs space-y-3">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-stone-200 dark:border-slate-800 shadow-xs space-y-3">
           <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
             {/* Search Input */}
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-stone-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder={
@@ -203,12 +203,12 @@ export default function DownloadManagerPage() {
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:bg-white transition"
+                className="w-full pl-9 pr-8 py-2 bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-700 rounded-lg text-xs text-stone-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-amber-500 focus:bg-white dark:focus:bg-slate-900 transition placeholder:text-stone-400 dark:placeholder:text-slate-500"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-slate-500 hover:text-stone-600 dark:hover:text-slate-300"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -216,26 +216,26 @@ export default function DownloadManagerPage() {
             </div>
 
             {/* Sort Selector */}
-            <div className="flex items-center space-x-1.5 bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs shrink-0">
-              <ArrowUpDown className="w-3.5 h-3.5 text-stone-500 shrink-0" />
+            <div className="flex items-center space-x-1.5 bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs shrink-0">
+              <ArrowUpDown className="w-3.5 h-3.5 text-stone-500 dark:text-slate-400 shrink-0" />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-transparent text-stone-700 font-semibold focus:outline-none cursor-pointer"
+                className="bg-transparent text-stone-700 dark:text-slate-200 font-semibold focus:outline-none cursor-pointer"
               >
-                <option value="recent">{lang === 'am' ? 'በቅርቡ የወረዱ' : 'Recently Downloaded'}</option>
-                <option value="oldest">{lang === 'am' ? 'ቀደምት የወረዱ' : 'Oldest First'}</option>
-                <option value="size_desc">{lang === 'am' ? 'መጠን (ከከፍተኛ)' : 'Size: Largest'}</option>
-                <option value="size_asc">{lang === 'am' ? 'መጠን (ከዝቅተኛ)' : 'Size: Smallest'}</option>
-                <option value="title">{lang === 'am' ? 'ርዕስ (ፊደል ቅደም ተከተል)' : 'Title (A-Z)'}</option>
+                <option value="recent" className="dark:bg-slate-900">{lang === 'am' ? 'በቅርቡ የወረዱ' : 'Recently Downloaded'}</option>
+                <option value="oldest" className="dark:bg-slate-900">{lang === 'am' ? 'ቀደምት የወረዱ' : 'Oldest First'}</option>
+                <option value="size_desc" className="dark:bg-slate-900">{lang === 'am' ? 'መጠን (ከከፍተኛ)' : 'Size: Largest'}</option>
+                <option value="size_asc" className="dark:bg-slate-900">{lang === 'am' ? 'መጠን (ከዝቅተኛ)' : 'Size: Smallest'}</option>
+                <option value="title" className="dark:bg-slate-900">{lang === 'am' ? 'ርዕስ (ፊደል ቅደም ተከተል)' : 'Title (A-Z)'}</option>
               </select>
             </div>
           </div>
 
           {/* Grade Filter Pills */}
           {availableGrades.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-stone-100">
-              <span className="text-[11px] font-bold text-stone-400 mr-1 flex items-center">
+            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-stone-100 dark:border-slate-800">
+              <span className="text-[11px] font-bold text-stone-400 dark:text-slate-500 mr-1 flex items-center">
                 <Filter className="w-3 h-3 mr-1" />
                 {lang === 'am' ? 'ክፍል:' : 'Grade:'}
               </span>
@@ -245,7 +245,7 @@ export default function DownloadManagerPage() {
                 className={`px-2.5 py-1 rounded-full text-xs font-semibold transition cursor-pointer ${
                   selectedGrade === 'all'
                     ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                    : 'bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-slate-300 hover:bg-stone-200 dark:hover:bg-slate-700'
                 }`}
               >
                 {lang === 'am' ? 'ሁሉም ክፍሎች' : 'All Grades'} ({packages.length})
@@ -261,7 +261,7 @@ export default function DownloadManagerPage() {
                     className={`px-2.5 py-1 rounded-full text-xs font-semibold transition cursor-pointer ${
                       isSelected
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                        : 'bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-slate-300 hover:bg-stone-200 dark:hover:bg-slate-700'
                     }`}
                   >
                     {lang === 'am' ? `ክፍል ${grade}` : `Grade ${grade}`} ({count})
@@ -275,34 +275,34 @@ export default function DownloadManagerPage() {
 
       {/* Main Content Area */}
       {loading ? (
-        <div className="bg-white p-8 rounded-xl text-center text-stone-500 border border-stone-200">
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center text-stone-500 dark:text-slate-400 border border-stone-200 dark:border-slate-800">
           {lang === 'am' ? 'በመጫን ላይ...' : 'Loading...'}
         </div>
       ) : packages.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl text-center border border-stone-200 space-y-4">
-          <Download className="w-12 h-12 text-stone-300 mx-auto" />
-          <h3 className="font-bold text-stone-700 text-lg">
+        <div className="bg-white dark:bg-slate-900 p-12 rounded-2xl text-center border border-stone-200 dark:border-slate-800 space-y-4">
+          <Download className="w-12 h-12 text-stone-300 dark:text-slate-600 mx-auto" />
+          <h3 className="font-bold text-stone-700 dark:text-white text-lg">
             {lang === 'am' ? 'ምንም የወረደ ትምህርት የለም' : 'No Downloaded Lessons'}
           </h3>
-          <p className="text-sm text-stone-500 max-w-sm mx-auto">
+          <p className="text-sm text-stone-500 dark:text-slate-400 max-w-sm mx-auto">
             {lang === 'am'
               ? 'የትምህርት ክፍሎችን በማውረድ ያለ ኢንተርኔት በየትኛውም ቦታ መማር ይችላሉ።'
               : 'Download lessons to study anywhere without an internet connection.'}
           </p>
           <Link
             href="/"
-            className="inline-flex items-center px-4 py-2 bg-eotc-navy text-white text-sm font-semibold rounded-lg shadow hover:bg-slate-800 transition"
+            className="inline-flex items-center px-4 py-2 bg-eotc-navy dark:bg-amber-500 dark:text-slate-950 text-white text-sm font-semibold rounded-lg shadow hover:bg-slate-800 dark:hover:bg-amber-400 transition"
           >
             {lang === 'am' ? 'ትምህርቶችን እይ' : 'Browse Curriculum'}
           </Link>
         </div>
       ) : filteredPackages.length === 0 ? (
-        <div className="bg-white p-10 rounded-2xl text-center border border-stone-200 space-y-3">
-          <FileCheck2 className="w-10 h-10 text-stone-400 mx-auto" />
-          <h3 className="font-bold text-stone-700 text-base">
+        <div className="bg-white dark:bg-slate-900 p-10 rounded-2xl text-center border border-stone-200 dark:border-slate-800 space-y-3">
+          <FileCheck2 className="w-10 h-10 text-stone-400 dark:text-slate-500 mx-auto" />
+          <h3 className="font-bold text-stone-700 dark:text-white text-base">
             {lang === 'am' ? 'ከፍለጋዎ ጋር የሚዛመድ የወረደ ትምህርት አልተገኘም' : 'No matching downloaded lessons'}
           </h3>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-stone-500 dark:text-slate-400">
             {lang === 'am'
               ? 'እባክዎ የፍለጋ ቃላትን ወይም የክፍል ምርጫውን ያስተካክሉ።'
               : 'Try adjusting your search terms or grade filter.'}
@@ -312,14 +312,14 @@ export default function DownloadManagerPage() {
               setSearchQuery('');
               setSelectedGrade('all');
             }}
-            className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition"
+            className="px-3 py-1.5 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 text-xs font-semibold rounded-lg transition cursor-pointer"
           >
             {lang === 'am' ? 'ማጣሪያዎችን አፅዳ' : 'Clear Filters'}
           </button>
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="text-xs text-stone-500 px-1 font-medium">
+          <div className="text-xs text-stone-500 dark:text-slate-400 px-1 font-medium">
             {lang === 'am'
               ? `${filteredPackages.length} የወረዱ ትምህርቶች ተገኝተዋል`
               : `Showing ${filteredPackages.length} of ${packages.length} downloaded lessons`}
@@ -331,31 +331,31 @@ export default function DownloadManagerPage() {
             return (
               <div
                 key={pkg.chapterId}
-                className="bg-white p-4 sm:p-5 rounded-xl border border-stone-200 shadow-xs flex flex-wrap items-center justify-between gap-4 transition hover:border-amber-300"
+                className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-xl border border-stone-200 dark:border-slate-800 shadow-xs flex flex-wrap items-center justify-between gap-4 transition hover:border-amber-300 dark:hover:border-amber-500"
               >
                 <div className="flex items-start space-x-3 min-w-0 max-w-full sm:max-w-[70%]">
-                  <div className="w-10 h-10 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 text-amber-700 mt-0.5">
+                  <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 flex items-center justify-center shrink-0 text-amber-700 dark:text-amber-300 mt-0.5">
                     <BookOpen className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="text-xs font-bold text-amber-700">
+                      <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
                         {lang === 'am' ? `ክፍል ${manifest.gradeLevel}` : `Grade ${manifest.gradeLevel}`} ·{' '}
                         {pick(manifest.amharicSubjectName, manifest.subjectName)}
                       </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold">
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800">
                         v{manifest.version}
                       </span>
                       {manifest.quizzes && manifest.quizzes.length > 0 && (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-semibold border border-amber-200 dark:border-amber-800">
                           {manifest.quizzes.length} {lang === 'am' ? 'ፈተናዎች' : 'Quizzes'}
                         </span>
                       )}
                     </div>
-                    <h3 className="font-bold text-stone-900 text-sm sm:text-base mt-0.5 truncate">
+                    <h3 className="font-bold text-stone-900 dark:text-white text-sm sm:text-base mt-0.5 truncate">
                       {pick(manifest.amharicChapterTitle, manifest.chapterTitle)}
                     </h3>
-                    <p className="text-xs text-stone-500 mt-1">
+                    <p className="text-xs text-stone-500 dark:text-slate-400 mt-1">
                       {lang === 'am' ? 'መጠን:' : 'Size:'} {Math.round((manifest.totalSizeBytes || 0) / 1024)} KB ·{' '}
                       {lang === 'am' ? 'የወረደው:' : 'Downloaded:'}{' '}
                       {new Date(pkg.downloadedAt).toLocaleDateString()}
@@ -366,14 +366,14 @@ export default function DownloadManagerPage() {
                 <div className="flex items-center space-x-2 shrink-0">
                   <Link
                     href={`/chapters/${pkg.chapterId}`}
-                    className="px-4 py-2 bg-eotc-gold hover:bg-amber-400 text-eotc-navy font-bold text-xs rounded-lg transition shadow-xs"
+                    className="px-4 py-2 bg-eotc-gold dark:bg-amber-500 hover:bg-amber-400 text-eotc-navy dark:text-slate-950 font-bold text-xs rounded-lg transition shadow-xs"
                   >
                     {lang === 'am' ? 'ክፈት' : 'Study'}
                   </Link>
 
                   <button
                     onClick={() => handleDelete(pkg.chapterId)}
-                    className="p-2 text-stone-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition"
+                    className="p-2 text-stone-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/50 transition cursor-pointer"
                     title={lang === 'am' ? 'አስወግድ' : 'Delete'}
                   >
                     <Trash2 className="w-4 h-4" />
