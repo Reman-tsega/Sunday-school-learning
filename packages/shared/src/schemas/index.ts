@@ -390,7 +390,7 @@ export const ParishQuerySchema = z.object({
     return val;
   }, z.boolean().optional()),
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(200).default(50),
+  limit: z.coerce.number().int().positive().max(500).default(50),
 });
 
 export const UpdateParishSchema = CreateParishSchema.partial();

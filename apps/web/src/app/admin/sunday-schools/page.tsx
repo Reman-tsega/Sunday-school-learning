@@ -82,7 +82,7 @@ export default function SundaySchoolsManagementPage() {
 
     try {
       const data = await api.getParishes({
-        limit: 250,
+        limit: 200,
         search: search.trim() || undefined,
         diocese: selectedDiocese || undefined,
         subCity: selectedSubCity || undefined,
