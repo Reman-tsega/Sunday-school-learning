@@ -2,10 +2,13 @@ import { Request, Response } from 'express';
 import { studentService } from '../services/student.service.js';
 
 export async function listStudents(req: Request, res: Response): Promise<void> {
-  const { churchParish, gradeId, search, page, limit } = req.query;
+  const { churchParish, parishId, diocese, subCity, gradeId, search, page, limit } = req.query;
 
   const result = await studentService.listStudents({
     churchParish: churchParish ? String(churchParish) : undefined,
+    parishId: parishId ? String(parishId) : undefined,
+    diocese: diocese ? String(diocese) : undefined,
+    subCity: subCity ? String(subCity) : undefined,
     gradeId: gradeId ? String(gradeId) : undefined,
     search: search ? String(search) : undefined,
     page: page ? parseInt(String(page), 10) : undefined,

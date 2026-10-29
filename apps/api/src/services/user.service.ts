@@ -4,21 +4,20 @@ import { prisma } from '../config/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import type { UserProfile, UserRole } from '@eotc/shared';
 
-function toUserProfile(user: {
-  id: string;
-  email: string;
-  fullName: string;
-  role: Role;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}): UserProfile {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toUserProfile(user: any): UserProfile {
   return {
     id: user.id,
     email: user.email,
     fullName: user.fullName,
     role: user.role,
     isActive: user.isActive,
+    age: user.age ?? null,
+    address: user.address ?? null,
+    baptismalName: user.baptismalName ?? null,
+    phoneNumber: user.phoneNumber ?? null,
+    churchParish: user.churchParish ?? null,
+    parishId: user.parishId ?? null,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
   };
@@ -37,6 +36,10 @@ export interface UserQueryParams {
   page?: number | undefined;
   limit?: number | undefined;
   search?: string | undefined;
+  churchParish?: string | undefined;
+  parishId?: string | undefined;
+  diocese?: string | undefined;
+  subCity?: string | undefined;
 }
 
 export class UserService {
@@ -97,7 +100,28 @@ export class UserService {
       where.OR = [
         { email: { contains: params.search, mode: 'insensitive' } },
         { fullName: { contains: params.search, mode: 'insensitive' } },
+        { churchParish: { contains: params.search, mode: 'insensitive' } },
       ];
+    }
+    if (params.parishId && params.parishId.trim() !== '') {
+      where.parishId = params.parishId.trim();
+    }
+    if (params.churchParish && params.churchParish.trim() !== '') {
+      where.churchParish = {
+        equals: params.churchParish.trim(),
+        mode: 'insensitive',
+      };
+    }
+    if (params.diocese && params.diocese.trim() !== '') {
+      where.parish = {
+        diocese: { equals: params.diocese.trim(), mode: 'insensitive' },
+      };
+    }
+    if (params.subCity && params.subCity.trim() !== '') {
+      where.parish = {
+        ...(where.parish || {}),
+        subCity: { equals: params.subCity.trim(), mode: 'insensitive' },
+      };
     }
 
     const [total, users] = await Promise.all([
@@ -224,15 +248,47 @@ export class UserService {
     }
   }
 
-  async updateUserParish(id: string, churchParish: string | null, adminUserId?: string): Promise<UserProfile> {
+  async updateUserParish(
+    id: string,
+    churchParish: string | null,
+    parishId?: string | null,
+    adminUserId?: string
+  ): Promise<UserProfile> {
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {
       throw new AppError(404, 'USER_NOT_FOUND', 'User not found');
     }
 
+    let resolvedParishId: string | null = parishId ?? null;
+    let resolvedChurchParish: string | null = churchParish ? churchParish.trim() : null;
+
+    if (resolvedParishId) {
+      const p = await prisma.parish.findUnique({ where: { id: resolvedParishId } });
+      if (p) {
+        resolvedChurchParish = p.amharicName || p.name;
+      }
+    } else if (resolvedChurchParish) {
+      const matched = await prisma.parish.findFirst({
+        where: {
+          OR: [
+            { name: { equals: resolvedChurchParish, mode: 'insensitive' } },
+            { amharicName: { equals: resolvedChurchParish, mode: 'insensitive' } },
+            { sundaySchoolName: { equals: resolvedChurchParish, mode: 'insensitive' } },
+          ],
+        },
+      });
+      if (matched) {
+        resolvedParishId = matched.id;
+        resolvedChurchParish = matched.amharicName || matched.name;
+      }
+    }
+
     const updated = await prisma.user.update({
       where: { id },
-      data: { churchParish: churchParish ? churchParish.trim() : null },
+      data: {
+        churchParish: resolvedChurchParish,
+        parishId: resolvedParishId,
+      },
     });
 
     if (adminUserId) {
@@ -242,7 +298,11 @@ export class UserService {
           action: 'USER_PARISH_ASSIGNED',
           entity: 'USER',
           entityId: id,
-          details: { previousParish: user.churchParish, newParish: churchParish },
+          details: {
+            previousParish: user.churchParish,
+            newParish: resolvedChurchParish,
+            parishId: resolvedParishId,
+          },
         },
       });
     }

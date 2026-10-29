@@ -15,7 +15,6 @@ import {
   X,
   Loader2,
   AlertCircle,
-  Filter,
   TrendingUp,
 } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -40,6 +39,10 @@ export default function AdminStudentsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Filters
+  const [selectedDiocese, setSelectedDiocese] = useState<string>('');
+  const [selectedSubCity, setSelectedSubCity] = useState<string>('');
+  const [diocesesList, setDiocesesList] = useState<string[]>([]);
+  const [subCitiesList, setSubCitiesList] = useState<{ subCity: string; diocese: string }[]>([]);
   const [selectedSundaySchool, setSelectedSundaySchool] = useState<string>('');
   const [selectedGradeId, setSelectedGradeId] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,11 +55,24 @@ export default function AdminStudentsPage() {
 
   const loadInitialData = async () => {
     try {
-      const [schools, currData] = await Promise.all([
+      const [schools, currData, parishData] = await Promise.all([
         api.adminGetSundaySchools().catch(() => []),
         api.getAdminCurriculum().catch(() => []),
+        api.getParishes({ limit: 150 }).catch(() => null),
       ]);
-      setSundaySchools(schools);
+      if (parishData) {
+        setDiocesesList(parishData.dioceses || []);
+        setSubCitiesList(parishData.subCities || []);
+        const parishNames = Array.from(
+          new Set([
+            ...schools,
+            ...parishData.parishes.map((p) => p.amharicName || p.name),
+          ])
+        ).sort();
+        setSundaySchools(parishNames);
+      } else {
+        setSundaySchools(schools);
+      }
       if (Array.isArray(currData)) {
         setGrades(currData);
       } else if (currData?.grades && Array.isArray(currData.grades)) {
@@ -73,6 +89,8 @@ export default function AdminStudentsPage() {
       setErrorMessage(null);
       const res = await api.adminListStudents({
         churchParish: selectedSundaySchool || undefined,
+        diocese: selectedDiocese || undefined,
+        subCity: selectedSubCity || undefined,
         gradeId: selectedGradeId || undefined,
         search: searchQuery || undefined,
         limit: 100,
@@ -94,7 +112,7 @@ export default function AdminStudentsPage() {
 
   useEffect(() => {
     loadStudents();
-  }, [selectedSundaySchool, selectedGradeId]);
+  }, [selectedSundaySchool, selectedGradeId, selectedDiocese, selectedSubCity]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,7 +217,7 @@ export default function AdminStudentsPage() {
           className="grid grid-cols-1 md:grid-cols-12 gap-3"
         >
           {/* Search Box */}
-          <div className="md:col-span-5 relative">
+          <div className="md:col-span-10 relative">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-slate-400" />
             <input
               type="text"
@@ -214,13 +232,62 @@ export default function AdminStudentsPage() {
             />
           </div>
 
-          {/* Sunday School Filter */}
-          <div className="md:col-span-4 relative">
-            <Church className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-slate-400" />
+          {/* Submit Search Button */}
+          <div className="md:col-span-2">
+            <button
+              type="submit"
+              className="w-full h-full min-h-[42px] px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center justify-center shadow-xs cursor-pointer"
+            >
+              {lang === 'am' ? 'ፈልግ' : 'Search'}
+            </button>
+          </div>
+        </form>
+
+        {/* Hierarchical Hierarchy Filters (Diocese -> Sub-City/Zone -> Sunday School -> Grade) */}
+        <div className="pt-1 border-t border-stone-100 dark:border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          {/* Diocese Filter */}
+          <div className="relative">
+            <select
+              value={selectedDiocese}
+              onChange={(e) => {
+                setSelectedDiocese(e.target.value);
+                setSelectedSubCity('');
+              }}
+              className="w-full px-3 py-2 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-xs text-stone-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 transition cursor-pointer"
+            >
+              <option value="">{lang === 'am' ? 'ሁሉም ሀገረ ስብከት (All Dioceses)' : 'All Dioceses'}</option>
+              {diocesesList.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sub-City Filter */}
+          <div className="relative">
+            <select
+              value={selectedSubCity}
+              onChange={(e) => setSelectedSubCity(e.target.value)}
+              className="w-full px-3 py-2 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-xs text-stone-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 transition cursor-pointer"
+            >
+              <option value="">{lang === 'am' ? 'ሁሉም ክፍለ ከተማ / ዞን' : 'All Sub-Cities / Zones'}</option>
+              {subCitiesList
+                .filter((s) => !selectedDiocese || s.diocese === selectedDiocese)
+                .map((s) => (
+                  <option key={s.subCity} value={s.subCity}>
+                    {s.subCity}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          {/* Sunday School / Parish Filter */}
+          <div className="relative">
             <select
               value={selectedSundaySchool}
               onChange={(e) => setSelectedSundaySchool(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-sm text-stone-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-amber-500 transition appearance-none cursor-pointer"
+              className="w-full px-3 py-2 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-xs text-stone-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 transition cursor-pointer"
             >
               <option value="">
                 {lang === 'am'
@@ -235,16 +302,15 @@ export default function AdminStudentsPage() {
             </select>
           </div>
 
-          {/* Grade Filter */}
-          <div className="md:col-span-2 relative">
-            <Filter className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-slate-400" />
+          {/* Grade Level Filter */}
+          <div className="relative">
             <select
               value={selectedGradeId}
               onChange={(e) => setSelectedGradeId(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-sm text-stone-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-amber-500 transition appearance-none cursor-pointer"
+              className="w-full px-3 py-2 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-xs text-stone-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 transition cursor-pointer"
             >
               <option value="">
-                {lang === 'am' ? 'ሁሉም ክፍሎች' : 'All Grades'}
+                {lang === 'am' ? 'ሁሉም ክፍሎች (All Grades)' : 'All Grades'}
               </option>
               {grades.map((g) => (
                 <option key={g.id} value={g.id}>
@@ -253,17 +319,7 @@ export default function AdminStudentsPage() {
               ))}
             </select>
           </div>
-
-          {/* Submit Search Button */}
-          <div className="md:col-span-1">
-            <button
-              type="submit"
-              className="w-full h-full min-h-[42px] px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center justify-center shadow-xs"
-            >
-              {lang === 'am' ? 'ፈልግ' : 'Search'}
-            </button>
-          </div>
-        </form>
+        </div>
 
         {(selectedSundaySchool || selectedGradeId || searchQuery) && (
           <div className="flex items-center space-x-2 text-xs text-amber-700 dark:text-amber-300 pt-1">

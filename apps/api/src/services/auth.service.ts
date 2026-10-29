@@ -22,6 +22,7 @@ function toUserProfile(user: any): UserProfile {
     baptismalName: user.baptismalName ?? null,
     phoneNumber: user.phoneNumber ?? null,
     churchParish: user.churchParish ?? null,
+    parishId: user.parishId ?? null,
     enrolledGradeIds: user.enrolledGrades?.map((eg: any) => eg.gradeId) || [],
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
@@ -40,6 +41,7 @@ export class AuthService {
       baptismalName?: string | null | undefined;
       phoneNumber?: string | null | undefined;
       churchParish?: string | null | undefined;
+      parishId?: string | null | undefined;
       gradeIds?: string[] | undefined;
     },
     userAgent?: string,
@@ -50,6 +52,49 @@ export class AuthService {
     });
     if (existing) {
       throw new AppError(409, 'EMAIL_EXISTS', 'An account with this email already exists');
+    }
+
+    let resolvedParishId: string | null = data.parishId ?? null;
+    let resolvedChurchParish: string | null = data.churchParish?.trim() ?? null;
+
+    if (resolvedParishId) {
+      const existingParish = await prisma.parish.findUnique({
+        where: { id: resolvedParishId },
+      });
+      if (existingParish) {
+        resolvedChurchParish = existingParish.amharicName || existingParish.name;
+      }
+    } else if (resolvedChurchParish) {
+      // Find matching parish or auto-create custom parish
+      const matched = await prisma.parish.findFirst({
+        where: {
+          OR: [
+            { name: { equals: resolvedChurchParish, mode: 'insensitive' } },
+            { amharicName: { equals: resolvedChurchParish, mode: 'insensitive' } },
+            { sundaySchoolName: { equals: resolvedChurchParish, mode: 'insensitive' } },
+          ],
+        },
+      });
+      if (matched) {
+        resolvedParishId = matched.id;
+        resolvedChurchParish = matched.amharicName || matched.name;
+      } else {
+        try {
+          const customParish = await prisma.parish.create({
+            data: {
+              name: resolvedChurchParish,
+              amharicName: resolvedChurchParish,
+              diocese: 'Addis Ababa (አዲስ አበባ)',
+              city: 'Addis Ababa',
+              isVerified: false,
+              suggestedBy: data.email.toLowerCase().trim(),
+            },
+          });
+          resolvedParishId = customParish.id;
+        } catch {
+          // Ignore unique collision
+        }
+      }
     }
 
     const salt = await bcrypt.genSalt(12);
@@ -66,7 +111,8 @@ export class AuthService {
         address: data.address?.trim() ?? null,
         baptismalName: data.baptismalName?.trim() ?? null,
         phoneNumber: data.phoneNumber?.trim() ?? null,
-        churchParish: data.churchParish?.trim() ?? null,
+        churchParish: resolvedChurchParish,
+        parishId: resolvedParishId,
         ...(data.gradeIds && data.gradeIds.length > 0
           ? {
               enrolledGrades: {

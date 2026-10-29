@@ -15,9 +15,25 @@ export interface UserProfile {
   baptismalName?: string | null;
   phoneNumber?: string | null;
   churchParish?: string | null;
+  parishId?: string | null;
   enrolledGradeIds?: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ParishDto {
+  id: string;
+  name: string;
+  amharicName: string;
+  diocese: string;
+  subCity?: string | null;
+  woreda?: string | null;
+  city?: string;
+  sundaySchoolName?: string | null;
+  parishType?: string;
+  isVerified: boolean;
+  studentCount?: number;
+  teacherCount?: number;
 }
 
 export type PackageDownloadStatus =
@@ -236,6 +252,8 @@ export interface AdminStudentListItem {
   baptismalName?: string | null;
   phoneNumber?: string | null;
   churchParish?: string | null;
+  parishId?: string | null;
+  parish?: ParishDto | null;
   enrolledGrades: { id: string; gradeLevel: number; gradeName: string; amharicName?: string | null }[];
   totalChaptersCompleted: number;
   totalChaptersAvailable: number;

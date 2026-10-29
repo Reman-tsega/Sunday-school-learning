@@ -10,6 +10,9 @@ import type {
 
 export interface StudentQueryParams {
   churchParish?: string | undefined;
+  parishId?: string | undefined;
+  diocese?: string | undefined;
+  subCity?: string | undefined;
   gradeId?: string | undefined;
   search?: string | undefined;
   page?: number | undefined;
@@ -31,10 +34,27 @@ export class StudentService {
       role: Role.STUDENT,
     };
 
+    if (params.parishId && params.parishId.trim() !== '') {
+      where.parishId = params.parishId.trim();
+    }
+
     if (params.churchParish && params.churchParish.trim() !== '') {
       where.churchParish = {
         equals: params.churchParish.trim(),
         mode: 'insensitive',
+      };
+    }
+
+    if (params.diocese && params.diocese.trim() !== '') {
+      where.parish = {
+        diocese: { equals: params.diocese.trim(), mode: 'insensitive' },
+      };
+    }
+
+    if (params.subCity && params.subCity.trim() !== '') {
+      where.parish = {
+        ...(where.parish || {}),
+        subCity: { equals: params.subCity.trim(), mode: 'insensitive' },
       };
     }
 
@@ -65,6 +85,7 @@ export class StudentService {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
+          parish: true,
           enrolledGrades: {
             include: {
               grade: {
@@ -119,6 +140,21 @@ export class StudentService {
         baptismalName: s.baptismalName,
         phoneNumber: s.phoneNumber,
         churchParish: s.churchParish,
+        parishId: s.parishId,
+        parish: s.parish
+          ? {
+              id: s.parish.id,
+              name: s.parish.name,
+              amharicName: s.parish.amharicName,
+              diocese: s.parish.diocese,
+              subCity: s.parish.subCity,
+              woreda: s.parish.woreda,
+              city: s.parish.city,
+              sundaySchoolName: s.parish.sundaySchoolName,
+              parishType: s.parish.parishType,
+              isVerified: s.parish.isVerified,
+            }
+          : null,
         enrolledGrades: s.enrolledGrades.map((eg) => ({
           id: eg.grade.id,
           gradeLevel: eg.grade.level,

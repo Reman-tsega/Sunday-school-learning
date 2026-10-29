@@ -20,6 +20,8 @@ import type {
   CreateSupportTicketInput,
   TicketStatus,
   TicketCategory,
+  ParishDto,
+  CreateParishInput,
 } from '@eotc/shared';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -500,12 +502,25 @@ export class ApiClient {
     return json.data;
   }
 
-  async getUsers(params?: { role?: string | undefined; page?: number | undefined; limit?: number | undefined; search?: string | undefined }) {
+  async getUsers(params?: {
+    role?: string | undefined;
+    page?: number | undefined;
+    limit?: number | undefined;
+    search?: string | undefined;
+    churchParish?: string | undefined;
+    parishId?: string | undefined;
+    diocese?: string | undefined;
+    subCity?: string | undefined;
+  }) {
     const q = new URLSearchParams();
     if (params?.role) q.append('role', params.role);
     if (params?.page) q.append('page', String(params.page));
     if (params?.limit) q.append('limit', String(params.limit));
     if (params?.search) q.append('search', params.search);
+    if (params?.churchParish) q.append('churchParish', params.churchParish);
+    if (params?.parishId) q.append('parishId', params.parishId);
+    if (params?.diocese) q.append('diocese', params.diocese);
+    if (params?.subCity) q.append('subCity', params.subCity);
 
     const res = await fetch(`${API_BASE_URL}/admin/users?${q.toString()}`, {
       headers: this.getAuthHeader(),
@@ -922,6 +937,9 @@ export class ApiClient {
   // --- Admin Student Directory & Progress ---
   async adminListStudents(params?: {
     churchParish?: string | undefined;
+    parishId?: string | undefined;
+    diocese?: string | undefined;
+    subCity?: string | undefined;
     gradeId?: string | undefined;
     search?: string | undefined;
     page?: number | undefined;
@@ -929,6 +947,9 @@ export class ApiClient {
   }): Promise<{ students: AdminStudentListItem[]; pagination: { total: number; page: number; limit: number; totalPages: number } }> {
     const query = new URLSearchParams();
     if (params?.churchParish) query.set('churchParish', params.churchParish);
+    if (params?.parishId) query.set('parishId', params.parishId);
+    if (params?.diocese) query.set('diocese', params.diocese);
+    if (params?.subCity) query.set('subCity', params.subCity);
     if (params?.gradeId) query.set('gradeId', params.gradeId);
     if (params?.search) query.set('search', params.search);
     if (params?.page) query.set('page', String(params.page));
@@ -1204,16 +1225,73 @@ export class ApiClient {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async assignTeacherParish(userId: string, churchParish: string): Promise<any> {
+  async assignTeacherParish(userId: string, churchParish: string, parishId?: string | null): Promise<any> {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/parish`, {
       method: 'PATCH',
       headers: this.getAuthHeader(),
-      body: JSON.stringify({ churchParish }),
+      body: JSON.stringify({ churchParish, parishId }),
     });
     if (!res.ok) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const err: any = await res.json().catch(() => ({}));
       throw new Error(err.error?.message || `Failed to assign parish: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // ==========================================
+  // PARISH & SUNDAY SCHOOL MANAGEMENT
+  // ==========================================
+
+  async getParishes(params?: {
+    search?: string;
+    diocese?: string;
+    subCity?: string;
+    isVerified?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    parishes: ParishDto[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    dioceses: string[];
+    subCities: { subCity: string; diocese: string }[];
+  }> {
+    const query = new URLSearchParams();
+    if (params?.search) query.append('search', params.search);
+    if (params?.diocese) query.append('diocese', params.diocese);
+    if (params?.subCity) query.append('subCity', params.subCity);
+    if (params?.isVerified !== undefined) query.append('isVerified', String(params.isVerified));
+    if (params?.page) query.append('page', String(params.page));
+    if (params?.limit) query.append('limit', String(params.limit));
+
+    const url = `${API_BASE_URL}/parishes${query.toString() ? `?${query.toString()}` : ''}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to fetch parishes: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  async createParish(data: CreateParishInput): Promise<ParishDto> {
+    const res = await fetch(`${API_BASE_URL}/parishes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to create parish: HTTP ${res.status}`);
     }
     const json = await res.json();
     return json.data;

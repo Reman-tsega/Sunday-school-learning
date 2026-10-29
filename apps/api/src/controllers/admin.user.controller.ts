@@ -159,6 +159,7 @@ export async function updateUserParish(
     const updated = await userService.updateUserParish(
       req.params.id as string,
       validated.churchParish,
+      validated.parishId,
       req.user?.id
     );
 

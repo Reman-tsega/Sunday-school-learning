@@ -15,12 +15,17 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import ParishCombobox from '@/components/ParishCombobox';
 
 export default function AdminUsersPage() {
   const { lang } = useLanguage();
   const [users, setUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState<string>('');
+  const [dioceseFilter, setDioceseFilter] = useState('');
+  const [subCityFilter, setSubCityFilter] = useState('');
+  const [diocesesList, setDiocesesList] = useState<string[]>([]);
+  const [subCitiesList, setSubCitiesList] = useState<{ subCity: string; diocese: string }[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -42,6 +47,16 @@ export default function AdminUsersPage() {
 
   const [parishModalUser, setParishModalUser] = useState<any | null>(null);
   const [parishInput, setParishInput] = useState('');
+  const [parishIdInput, setParishIdInput] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.getParishes().then((res) => {
+      if (res) {
+        setDiocesesList(res.dioceses || []);
+        setSubCitiesList(res.subCities || []);
+      }
+    }).catch(() => {});
+  }, []);
 
   const loadUsers = async () => {
     try {
@@ -49,6 +64,8 @@ export default function AdminUsersPage() {
       const data = await api.getUsers({
         role: roleFilter || undefined,
         search: searchQuery || undefined,
+        diocese: dioceseFilter || undefined,
+        subCity: subCityFilter || undefined,
         limit: 100,
       });
       setUsers(data.users || []);
@@ -64,7 +81,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     loadUsers();
-  }, [roleFilter]);
+  }, [roleFilter, dioceseFilter, subCityFilter]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,7 +178,7 @@ export default function AdminUsersPage() {
     if (!parishModalUser) return;
     try {
       setIsSubmitting(true);
-      await api.assignTeacherParish(parishModalUser.id, parishInput.trim());
+      await api.assignTeacherParish(parishModalUser.id, parishInput.trim(), parishIdInput);
       setParishModalUser(null);
       setActionMessage({
         type: 'success',
@@ -233,9 +250,9 @@ export default function AdminUsersPage() {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-4 flex flex-col md:flex-row gap-4 items-center justify-between shadow-xs">
+      <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-4 flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between shadow-xs">
         {/* Role Filters */}
-        <div className="flex items-center space-x-2 w-full md:w-auto overflow-x-auto">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 lg:pb-0">
           {[
             { label: lang === 'am' ? 'ሁሉም' : 'All', value: '' },
             { label: lang === 'am' ? 'ተማሪዎች' : 'Students', value: 'STUDENT' },
@@ -256,25 +273,63 @@ export default function AdminUsersPage() {
           ))}
         </div>
 
-        {/* Search Input */}
-        <form onSubmit={handleSearch} className="flex items-center space-x-2 w-full md:w-72">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-stone-400 dark:text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              placeholder={lang === 'am' ? 'በስም ወይም በኢሜይል ፈልግ...' : 'Search by name or email...'}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg border border-stone-300 dark:border-slate-700 transition cursor-pointer"
-          >
-            {lang === 'am' ? 'ፈልግ' : 'Search'}
-          </button>
-        </form>
+        {/* Hierarchical Hierarchy Filters (Diocese & SubCity) + Search */}
+        <div className="flex flex-wrap items-center gap-2">
+          {diocesesList.length > 0 && (
+            <select
+              value={dioceseFilter}
+              onChange={(e) => {
+                setDioceseFilter(e.target.value);
+                setSubCityFilter('');
+              }}
+              className="bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
+            >
+              <option value="">{lang === 'am' ? 'ሁሉም ሀገረ ስብከት' : 'All Dioceses'}</option>
+              {diocesesList.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {subCitiesList.length > 0 && (
+            <select
+              value={subCityFilter}
+              onChange={(e) => setSubCityFilter(e.target.value)}
+              className="bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
+            >
+              <option value="">{lang === 'am' ? 'ሁሉም ክፍለ ከተማ / ዞን' : 'All Sub-Cities / Zones'}</option>
+              {subCitiesList
+                .filter((s) => !dioceseFilter || s.diocese === dioceseFilter)
+                .map((s) => (
+                  <option key={s.subCity} value={s.subCity}>
+                    {s.subCity}
+                  </option>
+                ))}
+            </select>
+          )}
+
+          {/* Search Input */}
+          <form onSubmit={handleSearch} className="flex items-center space-x-2 w-full sm:w-64">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-stone-400 dark:text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder={lang === 'am' ? 'በስም ወይም በኢሜይል ፈልግ...' : 'Search by name or email...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg border border-stone-300 dark:border-slate-700 transition cursor-pointer"
+            >
+              {lang === 'am' ? 'ፈልግ' : 'Search'}
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* Users Table */}
@@ -363,6 +418,7 @@ export default function AdminUsersPage() {
                         onClick={() => {
                           setParishModalUser(u);
                           setParishInput(u.churchParish || '');
+                          setParishIdInput(u.parishId || null);
                         }}
                         title={lang === 'am' ? 'ደብር / ሰንበት ት/ቤት መድብ' : 'Assign Sunday School Parish'}
                         className="px-2.5 py-1 rounded text-xs font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 dark:text-amber-300 dark:border-amber-800 transition cursor-pointer"
@@ -605,7 +661,7 @@ export default function AdminUsersPage() {
       {/* ASSIGN SUNDAY SCHOOL PARISH MODAL */}
       {parishModalUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
               <Church className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               <span>{lang === 'am' ? 'ሰንበት ት/ቤት / ደብር መድብ' : 'Assign Sunday School Parish'}</span>
@@ -615,22 +671,22 @@ export default function AdminUsersPage() {
             </p>
             <form onSubmit={handleUpdateParish} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
-                  {lang === 'am' ? 'የሰንበት ትምህርት ቤት / የደብር ስም *' : 'Parish / Sunday School Name *'}
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder={lang === 'am' ? 'ምሳሌ፡ ደብረ ሲና እግዝእትነ ማርያም' : 'e.g. Debre Sina St. Mary'}
+                <ParishCombobox
                   value={parishInput}
-                  onChange={(e) => setParishInput(e.target.value)}
-                  className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
+                  parishId={parishIdInput}
+                  onChange={(churchParish, parishId) => {
+                    setParishInput(churchParish);
+                    setParishIdInput(parishId || null);
+                  }}
+                  label={lang === 'am' ? 'የሰንበት ትምህርት ቤት / የደብር ስም *' : 'Parish / Sunday School Name *'}
+                  placeholder={lang === 'am' ? 'ደብር ይምረጡ ወይም ይፃፉ...' : 'Select or type Sunday School / Parish...'}
+                  helperText={
+                    lang === 'am'
+                      ? 'መምህሩ በዚህ ደብር የተመዘገቡ ተማሪዎችን ብቻ ማየትና መከታተል ይችላል።'
+                      : 'The teacher will be scoped to access and monitor students in this Sunday School.'
+                  }
+                  required
                 />
-                <p className="text-[11px] text-stone-500 dark:text-slate-500 mt-1">
-                  {lang === 'am'
-                    ? 'መምህሩ በዚህ ደብር የተመዘገቡ ተማሪዎችን ብቻ ማየትና መከታተል ይችላል።'
-                    : 'The teacher will be scoped to access and monitor students in this Sunday School.'}
-                </p>
               </div>
               <div className="flex justify-end space-x-3">
                 <button

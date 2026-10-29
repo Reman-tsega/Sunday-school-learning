@@ -9,7 +9,6 @@ import {
   BookOpen,
   ShieldAlert,
   Loader2,
-  Globe,
   Sparkles,
   LogOut,
   Menu,
@@ -21,7 +20,6 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
-import { NotificationBell } from '@/components/NotificationBell';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function AdminShell({
@@ -31,7 +29,7 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { lang, toggleLang } = useLanguage();
+  const { lang } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

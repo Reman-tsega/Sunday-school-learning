@@ -63,9 +63,11 @@ model User {
   baptismalName String?
   phoneNumber  String?
   churchParish String?
+  parishId     String?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
+  parish               Parish?                 @relation(fields: [parishId], references: [id], onDelete: SetNull)
   sessions             RefreshSession[]
   quizAttempts         QuizAttempt[]
   progress             StudentProgress[]
@@ -503,6 +505,28 @@ model TicketMessage {
   @@index([ticketId])
   @@index([senderId])
   @@map("ticket_messages")
+}
+
+model Parish {
+  id               String       @id @default(uuid())
+  name             String
+  amharicName      String
+  diocese          String
+  subCity          String?
+  woreda           String?
+  city             String       @default("Addis Ababa")
+  sundaySchoolName String?
+  parishType       String       @default("DEBRE") // CATHEDRAL, DEBRE, GEDAM, ATBIYA
+  isVerified       Boolean      @default(true)
+  suggestedBy      String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  users            User[]
+
+  @@index([diocese, subCity])
+  @@index([isVerified])
+  @@map("parishes")
 }
 
 

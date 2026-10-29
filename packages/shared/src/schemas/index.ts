@@ -40,6 +40,10 @@ export const UserQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
   search: z.string().optional(),
+  churchParish: z.string().optional(),
+  parishId: z.string().optional(),
+  diocese: z.string().optional(),
+  subCity: z.string().optional(),
 });
 
 export const CreateGradeSchema = z.object({
@@ -265,6 +269,7 @@ export const RegisterRequestSchema = z.object({
   baptismalName: z.string().optional().nullable(),
   phoneNumber: z.string().optional().nullable(),
   churchParish: z.string().optional().nullable(),
+  parishId: z.string().uuid().optional().nullable(),
   gradeIds: z.array(z.string()).optional(),
 });
 
@@ -289,6 +294,7 @@ export const UpdateProfileSchema = z.object({
   baptismalName: z.string().optional().nullable(),
   phoneNumber: z.string().optional().nullable(),
   churchParish: z.string().optional().nullable(),
+  parishId: z.string().uuid().optional().nullable(),
 });
 
 export const TicketCategorySchema = z.enum([
@@ -358,10 +364,39 @@ export const ReviewMaterialSchema = z.object({
 
 export const AssignTeacherParishSchema = z.object({
   churchParish: z.string().min(2, 'Sunday School parish name is required'),
+  parishId: z.string().uuid().optional().nullable(),
+});
+
+export const CreateParishSchema = z.object({
+  name: z.string().min(2, 'Parish name is required'),
+  amharicName: z.string().min(2, 'Amharic name is required'),
+  diocese: z.string().min(2, 'Diocese is required'),
+  subCity: z.string().optional().nullable(),
+  woreda: z.string().optional().nullable(),
+  city: z.string().default('Addis Ababa'),
+  sundaySchoolName: z.string().optional().nullable(),
+  parishType: z.string().default('DEBRE'),
+  isVerified: z.boolean().default(true),
+  suggestedBy: z.string().optional().nullable(),
+});
+
+export const ParishQuerySchema = z.object({
+  search: z.string().optional(),
+  diocese: z.string().optional(),
+  subCity: z.string().optional(),
+  isVerified: z.preprocess((val) => {
+    if (val === 'true') return true;
+    if (val === 'false') return false;
+    return val;
+  }, z.boolean().optional()),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(200).default(50),
 });
 
 export type CreatePracticeQuestionInput = z.infer<typeof CreatePracticeQuestionSchema>;
 export type ReviewMaterialInput = z.infer<typeof ReviewMaterialSchema>;
 export type AssignTeacherParishInput = z.infer<typeof AssignTeacherParishSchema>;
+export type CreateParishInput = z.infer<typeof CreateParishSchema>;
+export type ParishQueryInput = z.infer<typeof ParishQuerySchema>;
 
 

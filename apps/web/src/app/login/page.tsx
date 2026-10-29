@@ -15,6 +15,7 @@ import {
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import type { UserProfile } from '@eotc/shared';
+import ParishCombobox from '@/components/ParishCombobox';
 
 interface AvailableGrade {
   id: string;
@@ -48,6 +49,7 @@ function LoginContent() {
   const [regBaptismalName, setRegBaptismalName] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regChurchParish, setRegChurchParish] = useState('');
+  const [regParishId, setRegParishId] = useState<string | null>(null);
   const [selectedGradeIds, setSelectedGradeIds] = useState<string[]>([]);
 
   const [availableGrades, setAvailableGrades] = useState<AvailableGrade[]>([]);
@@ -139,6 +141,7 @@ function LoginContent() {
         baptismalName: regBaptismalName || undefined,
         phoneNumber: regPhone || undefined,
         churchParish: regChurchParish || undefined,
+        parishId: regParishId || undefined,
         gradeIds: selectedGradeIds,
       });
 
@@ -483,17 +486,18 @@ function LoginContent() {
               />
             </div>
 
-            {/* Sunday School / Parish Church (Optional) */}
-            <div>
-              <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                {lang === 'am' ? 'ሰንበት ት/ቤት ወይም አጥቢያ ቤተክርስቲያን (አማራጭ)' : 'Sunday School / Parish Church (Optional)'}
-              </label>
-              <input
-                type="text"
+            {/* Sunday School / Parish Church */}
+            <div className="sm:col-span-2">
+              <ParishCombobox
                 value={regChurchParish}
-                onChange={(e) => setRegChurchParish(e.target.value)}
-                className="w-full px-3 py-2 border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-lg text-sm text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                placeholder={lang === 'am' ? 'ደብረ ሰላም መድኃኔዓለም' : 'Debre Selam Medhanealem'}
+                parishId={regParishId}
+                onChange={(churchParish, parishId) => {
+                  setRegChurchParish(churchParish);
+                  setRegParishId(parishId || null);
+                }}
+                label={lang === 'am' ? 'ሰንበት ት/ቤት ወይም አጥቢያ ቤተክርስቲያን (አማራጭ)' : 'Sunday School / Parish Church (Optional)'}
+                placeholder={lang === 'am' ? 'ደብር ወይም ሰንበት ትምህርት ቤት ይምረጡ ወይም ይፃፉ...' : 'Select or type Sunday School / Parish...'}
+                helperText={lang === 'am' ? 'የሚማሩበትን ሰንበት ትምህርት ቤት ከዝርዝሩ ይምረጡ ወይም ካልተገኘ ይፃፉ' : 'Select from list or type custom name'}
               />
             </div>
 
