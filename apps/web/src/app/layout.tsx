@@ -64,7 +64,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+      <body className="bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200 overflow-x-hidden">
         <LanguageProvider>
           <ThemeProvider>
             <Navbar />

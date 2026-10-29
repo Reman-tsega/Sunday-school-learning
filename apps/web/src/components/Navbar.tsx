@@ -157,12 +157,12 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex justify-between h-14 sm:h-16 items-center">
           {/* Brand Logo & Title */}
-          <Link href={brandHref} onClick={handleNavClick} className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-eotc-gold flex items-center justify-center text-eotc-navy font-bold text-lg sm:text-xl shadow shrink-0">
+          <Link href={brandHref} onClick={handleNavClick} className="flex items-center space-x-2 sm:space-x-3 shrink min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-eotc-gold flex items-center justify-center text-eotc-navy font-bold text-base sm:text-xl shadow shrink-0">
               ✞
             </div>
-            <div>
-              <span className="font-bold text-sm sm:text-base md:text-lg tracking-wide block truncate max-w-[150px] sm:max-w-none">
+            <div className="min-w-0">
+              <span className="font-bold text-xs sm:text-base md:text-lg tracking-wide block truncate max-w-[110px] min-[380px]:max-w-[150px] sm:max-w-none">
                 {lang === 'am' ? 'ሰንበት ት/ቤት' : 'EOTC Sunday School'}
               </span>
               <span className="hidden sm:block text-[10px] sm:text-xs text-amber-200 truncate">
@@ -415,11 +415,11 @@ export function Navbar() {
             {isAuthenticated ? (
               /* Authenticated Mobile Controls */
               <>
-                {/* Mobile Sync Button with Pending Badge Counter */}
+                {/* Mobile Sync Button (visible on sm+, available in drawer on smaller screens) */}
                 <button
                   onClick={handleSyncClick}
                   disabled={syncState.status === 'syncing' || !isOnline}
-                  className={`relative p-1.5 rounded-lg transition ${
+                  className={`hidden sm:inline-flex relative p-1.5 rounded-lg transition ${
                     syncState.status === 'syncing'
                       ? 'bg-amber-900 text-amber-200 border border-amber-700 animate-pulse'
                       : syncState.pendingCount > 0
@@ -446,7 +446,7 @@ export function Navbar() {
 
                 {/* Online Status Dot */}
                 <div
-                  className={`w-2.5 h-2.5 rounded-full ${
+                  className={`hidden sm:block w-2.5 h-2.5 rounded-full ${
                     isOnline ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-amber-400 animate-pulse'
                   }`}
                   title={isOnline ? (lang === 'am' ? 'መስመር ላይ' : 'Online') : (lang === 'am' ? 'ከመስመር ውጭ' : 'Offline')}

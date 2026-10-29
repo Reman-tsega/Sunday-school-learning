@@ -529,7 +529,7 @@ export default function CurriculumPage() {
         </div>
       )}
 
-      {/* Grade Selector Navigation Tabs */}
+      {/* Grade Selector Navigation: Mobile Dropdown & Desktop Pills */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2 border-b border-stone-200 dark:border-slate-800">
         <div className="flex items-center space-x-2 shrink-0">
           <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -538,8 +538,48 @@ export default function CurriculumPage() {
           </h2>
         </div>
 
-        {/* Grade Pills (Ascending 1, 2, 3... horizontally scrollable on mobile, never wrapping) */}
-        <div className="w-full sm:w-auto flex items-center gap-1.5 bg-stone-100 dark:bg-slate-900 p-1.5 rounded-xl border border-stone-200 dark:border-slate-800 text-xs font-semibold overflow-x-auto scrollbar-none py-1.5 max-w-full">
+        {/* 1. Mobile Dropdown (< sm screens) */}
+        <div className="sm:hidden w-full flex items-center gap-2">
+          <div className="relative flex-1">
+            <select
+              value={selectedGrade}
+              onChange={(e) => setSelectedGrade(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+              className="w-full appearance-none bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 text-stone-900 dark:text-white text-xs font-bold py-2.5 pl-3 pr-8 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+              aria-label={lang === 'am' ? 'ክፍል ይምረጡ' : 'Select Grade'}
+            >
+              <option value="all">
+                {lang === 'am' ? '📚 ሁሉም ክፍሎች (All Grades)' : '📚 All Grades'}
+              </option>
+              {baseCurriculum.map((g) => (
+                <option key={g.level} value={g.level}>
+                  {lang === 'am' ? (g.amharicName || `ክፍል ${g.level}`) : (g.name || `Grade ${g.level}`)}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-stone-400 dark:text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Quick Actions (Collapse/Expand All & Refresh) */}
+          <button
+            onClick={() => handleToggleAll(!areAllExpanded)}
+            title={areAllExpanded ? (lang === 'am' ? 'ሁሉንም ዝጋ' : 'Collapse All') : (lang === 'am' ? 'ሁሉንም ክፈት' : 'Expand All')}
+            className="p-2.5 bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-200 dark:hover:bg-slate-800 transition shrink-0"
+            aria-label="Toggle expand all"
+          >
+            {areAllExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={loadCurriculum}
+            title={lang === 'am' ? 'አድስ' : 'Refresh'}
+            className="p-2.5 bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-200 dark:hover:bg-slate-800 transition shrink-0"
+            aria-label="Refresh curriculum"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* 2. Desktop/Tablet Horizontal Pills (hidden on mobile, visible on sm+) */}
+        <div className="hidden sm:flex items-center gap-1.5 bg-stone-100 dark:bg-slate-900 p-1.5 rounded-xl border border-stone-200 dark:border-slate-800 text-xs font-semibold overflow-x-auto scrollbar-none py-1.5 max-w-full">
           <button
             onClick={() => setSelectedGrade('all')}
             className={`px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0 transition ${
@@ -638,11 +678,11 @@ export default function CurriculumPage() {
             const isGradeExpanded = searchQuery ? true : (expandedGrades[grade.level] ?? true);
 
             return (
-              <div key={grade.level} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800 p-5 sm:p-6 space-y-4 transition">
+              <div key={grade.level} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800 p-4 sm:p-6 space-y-4 transition">
                 {/* Grade Header (Collapsible) */}
                 <div
                   onClick={() => toggleGrade(grade.level)}
-                  className="pb-2 flex items-center justify-between cursor-pointer select-none group"
+                  className="pb-2 flex items-center justify-between gap-2 cursor-pointer select-none group"
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
@@ -652,43 +692,43 @@ export default function CurriculumPage() {
                     }
                   }}
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center justify-center font-black text-sm sm:text-base shadow-sm group-hover:bg-amber-200 dark:group-hover:bg-amber-900 transition shrink-0">
+                  <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0 flex-1">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center justify-center font-black text-xs sm:text-base shadow-sm group-hover:bg-amber-200 dark:group-hover:bg-amber-900 transition shrink-0">
                       {grade.level}
                     </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[11px] sm:text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
                           {lang === 'am' ? `ክፍል ${grade.level}` : `Grade ${grade.level}`}
                         </span>
                         {isGradeEnrolled(grade) && (
-                          <span className="inline-flex items-center text-[10px] font-bold text-amber-900 dark:text-amber-300 bg-amber-200/90 dark:bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-700">
-                            <GraduationCap className="w-3 h-3 mr-1 text-amber-700 dark:text-amber-400" />
+                          <span className="inline-flex items-center text-[10px] font-bold text-amber-900 dark:text-amber-300 bg-amber-200/90 dark:bg-amber-950/80 px-1.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700">
+                            <GraduationCap className="w-2.5 h-2.5 mr-0.5 text-amber-700 dark:text-amber-400" />
                             <span>{lang === 'am' ? 'የተመዘገቡበት' : 'Enrolled'}</span>
                           </span>
                         )}
                       </div>
-                      <h3 className="text-lg sm:text-xl font-extrabold text-stone-900 dark:text-white group-hover:text-amber-800 dark:group-hover:text-amber-400 transition">
+                      <h3 className="text-base sm:text-xl font-extrabold text-stone-900 dark:text-white group-hover:text-amber-800 dark:group-hover:text-amber-400 transition truncate">
                         {pick(grade.amharicName, grade.name)}
                       </h3>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
                     {isGradeCompleted && (
                       <span className="hidden sm:inline-flex items-center text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2.5 py-1 rounded-full border border-amber-300 dark:border-amber-700">
                         <Award className="w-3.5 h-3.5 mr-1 text-amber-600 dark:text-amber-400" />
                         <span>100% {lang === 'am' ? 'ተጠናቋል' : 'Completed'}</span>
                       </span>
                     )}
-                    <span className="text-xs bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-slate-300 px-2.5 py-1 rounded-full font-medium border border-stone-200/60 dark:border-slate-700">
+                    <span className="text-[11px] sm:text-xs bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-slate-300 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-medium border border-stone-200/60 dark:border-slate-700">
                       {grade.subjects?.length || 0} {lang === 'am' ? 'ትምህርቶች' : 'Subjects'}
                     </span>
                     <div className="p-1 rounded-lg text-stone-400 dark:text-slate-500 group-hover:text-stone-700 dark:group-hover:text-slate-200 group-hover:bg-stone-100 dark:group-hover:bg-slate-800 transition">
                       {isGradeExpanded ? (
-                        <ChevronDown className="w-5 h-5 text-stone-600 dark:text-slate-300" />
+                        <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-stone-600 dark:text-slate-300" />
                       ) : (
-                        <ChevronRight className="w-5 h-5 text-stone-600 dark:text-slate-300" />
+                        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-stone-600 dark:text-slate-300" />
                       )}
                     </div>
                   </div>
@@ -800,7 +840,7 @@ export default function CurriculumPage() {
                                       return (
                                         <div
                                           key={chapter.id}
-                                          className={`p-5 rounded-xl border transition flex flex-col justify-between ${
+                                          className={`p-3.5 sm:p-5 rounded-xl border transition flex flex-col justify-between ${
                                             isChapterDone
                                               ? 'border-emerald-300/80 dark:border-emerald-800 shadow-sm bg-gradient-to-b from-emerald-50/20 to-white dark:from-emerald-950/20 dark:to-slate-900'
                                               : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 hover:shadow-md'
@@ -823,18 +863,18 @@ export default function CurriculumPage() {
                                             </div>
                                             <h5
                                               onClick={(e) => handleStudyClick(chapter, e)}
-                                              className="font-bold text-stone-900 dark:text-slate-100 text-base mb-1 hover:text-amber-800 dark:hover:text-amber-400 transition cursor-pointer"
+                                              className="font-bold text-stone-900 dark:text-slate-100 text-sm sm:text-base mb-1 hover:text-amber-800 dark:hover:text-amber-400 transition cursor-pointer"
                                             >
                                               {pick(chapter.amharicTitle, chapter.title)}
                                             </h5>
                                           </div>
 
-                                          <div className="mt-5 pt-3 border-t border-stone-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
-                                            <div className="flex items-center space-x-2">
+                                          <div className="mt-4 pt-3 border-t border-stone-100 dark:border-slate-800 flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-2.5">
+                                            <div className="flex items-center space-x-2 w-full min-[380px]:w-auto">
                                               <button
                                                 type="button"
                                                 onClick={(e) => handleStudyClick(chapter, e)}
-                                                className="inline-flex items-center text-xs font-bold text-white dark:text-slate-950 bg-eotc-navy dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer"
+                                                className="flex-1 min-[380px]:flex-none justify-center inline-flex items-center text-xs font-bold text-white dark:text-slate-950 bg-eotc-navy dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer"
                                               >
                                                 <span>{lang === 'am' ? 'ተማር' : 'Study'}</span>
                                                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -843,7 +883,7 @@ export default function CurriculumPage() {
                                               <button
                                                 type="button"
                                                 onClick={(e) => handleQuizClick(chapter, e)}
-                                                className="inline-flex items-center text-xs font-semibold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900/80 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-transparent dark:border-amber-800/60"
+                                                className="flex-1 min-[380px]:flex-none justify-center inline-flex items-center text-xs font-semibold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900/80 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-transparent dark:border-amber-800/60"
                                               >
                                                 <HelpCircle className="w-3.5 h-3.5 mr-1 text-amber-700 dark:text-amber-400" />
                                                 <span>{lang === 'am' ? 'ፈተና' : 'Quiz'}</span>
@@ -851,12 +891,12 @@ export default function CurriculumPage() {
                                             </div>
 
                                             {user && (
-                                              <div>
+                                              <div className="w-full min-[380px]:w-auto flex justify-end">
                                                 {status !== 'AVAILABLE_OFFLINE' ? (
                                                   <button
                                                     onClick={(e) => handleDownload(chapter.id, e)}
                                                     disabled={isDownloading}
-                                                    className="inline-flex items-center space-x-1 text-xs font-medium px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border border-amber-600/30 disabled:opacity-50 transition shadow-sm"
+                                                    className="w-full min-[380px]:w-auto justify-center inline-flex items-center space-x-1 text-xs font-medium px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border border-amber-600/30 disabled:opacity-50 transition shadow-sm"
                                                   >
                                                     {isDownloading ? (
                                                       <>
