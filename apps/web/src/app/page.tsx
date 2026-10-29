@@ -595,18 +595,18 @@ export default function CurriculumPage() {
       {/* Curriculum by Grades */}
       <div className="space-y-8">
         {filteredCurriculum.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center text-stone-500 border border-stone-200 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 text-center text-stone-500 dark:text-slate-400 border border-stone-200 dark:border-slate-800 shadow-sm">
             {searchQuery ? (
               <p>{lang === 'am' ? `"${searchQuery}" የሚል የትምህርት ርዕስ አልተገኘም።` : `No matching topics found for "${searchQuery}".`}</p>
             ) : user && enrolledGradeIds.length === 0 ? (
               <div className="space-y-3 py-4 max-w-md mx-auto">
-                <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 rounded-full flex items-center justify-center mx-auto border border-amber-200 dark:border-amber-800">
                   <GraduationCap className="w-6 h-6" />
                 </div>
-                <h3 className="font-bold text-stone-900 text-base">
+                <h3 className="font-bold text-stone-900 dark:text-white text-base">
                   {lang === 'am' ? 'እስካሁን የተመዘገቡበት ክፍል የለም' : 'You are not enrolled in any grades yet'}
                 </h3>
-                <p className="text-xs text-stone-600 leading-relaxed">
+                <p className="text-xs text-stone-600 dark:text-slate-400 leading-relaxed">
                   {lang === 'am'
                     ? 'ትምህርቶችን ለመጀመር እባክዎ መማር የሚፈልጓቸውን ክፍሎች ይምረጡ።'
                     : 'To begin learning, please choose the grades you wish to attend.'}
@@ -686,9 +686,9 @@ export default function CurriculumPage() {
                     </span>
                     <div className="p-1 rounded-lg text-stone-400 dark:text-slate-500 group-hover:text-stone-700 dark:group-hover:text-slate-200 group-hover:bg-stone-100 dark:group-hover:bg-slate-800 transition">
                       {isGradeExpanded ? (
-                        <ChevronDown className="w-5 h-5 text-stone-600" />
+                        <ChevronDown className="w-5 h-5 text-stone-600 dark:text-slate-300" />
                       ) : (
-                        <ChevronRight className="w-5 h-5 text-stone-600" />
+                        <ChevronRight className="w-5 h-5 text-stone-600 dark:text-slate-300" />
                       )}
                     </div>
                   </div>
@@ -696,7 +696,7 @@ export default function CurriculumPage() {
 
                 {/* Grade Content (Subjects & Chapters) */}
                 {isGradeExpanded && (
-                  <div className="space-y-5 pt-1 border-t border-stone-100">
+                  <div className="space-y-5 pt-1 border-t border-stone-100 dark:border-slate-800">
                     {/* Grade Completed Golden Banner */}
                     {isGradeCompleted && (
                       <div className="p-3.5 bg-gradient-to-r from-amber-500/20 via-amber-400/10 to-emerald-500/20 border border-amber-400/60 rounded-xl flex items-center justify-between text-amber-950 font-bold text-xs sm:text-sm shadow-sm">
@@ -904,58 +904,58 @@ export default function CurriculumPage() {
       {/* Skippable Download Prompt Modal */}
       {studyPromptChapter && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-stone-200">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-              <div className="flex items-center space-x-2 text-amber-900 font-bold">
-                <Download className="w-5 h-5 text-amber-600" />
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-stone-200 dark:border-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-slate-800">
+              <div className="flex items-center space-x-2 text-amber-900 dark:text-amber-400 font-bold">
+                <Download className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 <span>{lang === 'am' ? 'መጀመሪያ ማውረድ ይፈልጋሉ?' : 'Download for Offline Study First?'}</span>
               </div>
               <button
                 onClick={() => setStudyPromptChapter(null)}
-                className="text-stone-400 hover:text-stone-700 p-1 rounded-lg"
+                className="text-stone-400 hover:text-stone-700 dark:hover:text-slate-200 p-1 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="py-4 space-y-3">
-              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-950">
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/60 rounded-xl border border-amber-200 dark:border-amber-800 text-xs text-amber-950 dark:text-amber-200">
                 <strong>{studyPromptChapter.title}</strong>
               </div>
-              <p className="text-sm text-stone-600 leading-relaxed">
+              <p className="text-sm text-stone-600 dark:text-slate-400 leading-relaxed">
                 {lang === 'am'
                   ? 'ይህንን ምዕራፍ ከመስመር ውጭ ለማጥናት መጀመሪያ ማውረድ ይመከራል። አንዴ ካወረዱት ያለ ኢንተርኔት በከፍተኛ ፍጥነት ማንበብ እና ፈተናዎችን መውሰድ ይችላሉ።'
                   : 'We recommend downloading this chapter first for an uninterrupted offline experience with instant page turns and offline quizzes.'}
               </p>
 
               {studyPromptDownloading && (
-                <div className="p-3 bg-stone-100 rounded-xl space-y-2">
-                  <div className="flex items-center space-x-2 text-xs font-semibold text-stone-800">
-                    <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+                <div className="p-3 bg-stone-100 dark:bg-slate-800 rounded-xl space-y-2">
+                  <div className="flex items-center space-x-2 text-xs font-semibold text-stone-800 dark:text-slate-200">
+                    <Loader2 className="w-4 h-4 animate-spin text-amber-600 dark:text-amber-400" />
                     <span>{studyPromptProgress}</span>
                   </div>
-                  <div className="w-full bg-stone-200 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-amber-600 h-full animate-pulse rounded-full w-2/3" />
+                  <div className="w-full bg-stone-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-amber-600 dark:bg-amber-500 h-full animate-pulse rounded-full w-2/3" />
                   </div>
                 </div>
               )}
 
-              <label className="flex items-center space-x-2 text-xs text-stone-600 pt-1 cursor-pointer select-none">
+              <label className="flex items-center space-x-2 text-xs text-stone-600 dark:text-slate-400 pt-1 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={dontAskDownloadAgain}
                   onChange={(e) => setDontAskDownloadAgain(e.target.checked)}
-                  className="rounded border-stone-300 text-amber-600 focus:ring-amber-500"
+                  className="rounded border-stone-300 dark:border-slate-700 dark:bg-slate-800 text-amber-600 focus:ring-amber-500"
                 />
                 <span>{lang === 'am' ? 'ዳግመኛ በዚህ መሣሪያ ላይ አትጠይቀኝ' : "Don't ask again on this device"}</span>
               </label>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-stone-100">
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-stone-100 dark:border-slate-800">
               <button
                 onClick={handlePromptSkipAndStudy}
                 disabled={studyPromptDownloading}
-                className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded-xl transition"
+                className="px-4 py-2 text-xs font-semibold text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 rounded-xl transition"
               >
                 {lang === 'am' ? 'በመስመር ላይ ቀጥል (ዝለል)' : 'Continue Online (Skip)'}
               </button>
@@ -984,36 +984,36 @@ export default function CurriculumPage() {
       {/* Student Multi-Grade Enrollment Modal */}
       {isEnrollModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-              <div className="flex items-center space-x-2 text-stone-900 font-bold">
-                <GraduationCap className="w-5 h-5 text-amber-600" />
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-slate-800">
+              <div className="flex items-center space-x-2 text-stone-900 dark:text-white font-bold">
+                <GraduationCap className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 <span>{lang === 'am' ? 'አዲስ ክፍል ይመዝገቡ' : 'Enroll in New Grades'}</span>
               </div>
               <button
                 onClick={() => setIsEnrollModalOpen(false)}
-                className="text-stone-400 hover:text-stone-700 p-1 rounded-lg"
+                className="text-stone-400 hover:text-stone-700 dark:hover:text-slate-200 p-1 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="py-3 space-y-4">
-              <p className="text-xs text-stone-600 leading-relaxed">
+              <p className="text-xs text-stone-600 dark:text-slate-400 leading-relaxed">
                 {lang === 'am'
                   ? 'እስካሁን ያልተመዘገቡባቸው ክፍሎች ከዚህ በታች ቀርበዋል። መማር የሚፈልጉትን ተጨማሪ ክፍል ይምረጡ።'
                   : 'Below are available grades you have not enrolled in yet. Select any you wish to add.'}
               </p>
 
               {unenrolledGrades.length === 0 ? (
-                <div className="py-8 text-center space-y-3 bg-stone-50 rounded-2xl border border-stone-200 p-6">
-                  <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                <div className="py-8 text-center space-y-3 bg-stone-50 dark:bg-slate-950/80 rounded-2xl border border-stone-200 dark:border-slate-800 p-6">
+                  <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-sm border border-emerald-200 dark:border-emerald-800">
                     <CheckCircle className="w-6 h-6" />
                   </div>
-                  <p className="font-bold text-stone-900 text-sm">
+                  <p className="font-bold text-stone-900 dark:text-white text-sm">
                     {lang === 'am' ? 'ሁሉንም የሚገኙ ክፍሎችን ተመዝግበዋል!' : 'You are enrolled in all available grades!'}
                   </p>
-                  <p className="text-xs text-stone-500 max-w-xs mx-auto leading-relaxed">
+                  <p className="text-xs text-stone-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
                     {lang === 'am'
                       ? 'የተመዘገቡባቸው ክፍሎች በሙሉ በትምህርት ገበታዎ ላይ ቀርበዋል።'
                       : 'All available grade levels have already been added to your study dashboard.'}
@@ -1032,14 +1032,14 @@ export default function CurriculumPage() {
                         className={`w-full text-left select-none p-2.5 rounded-xl border text-xs font-semibold flex items-center space-x-2.5 transition ${
                           isChecked
                             ? 'bg-amber-500 text-slate-900 border-amber-500 shadow-sm'
-                            : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-amber-400'
+                            : 'bg-stone-50 dark:bg-slate-950 text-stone-700 dark:text-slate-300 border-stone-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500'
                         }`}
                       >
                         <div
                           className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border transition ${
                             isChecked
                               ? 'bg-slate-900 border-slate-900 text-amber-400'
-                              : 'border-stone-400 bg-white'
+                              : 'border-stone-400 dark:border-slate-600 bg-white dark:bg-slate-900'
                           }`}
                         >
                           {isChecked && (
@@ -1058,7 +1058,7 @@ export default function CurriculumPage() {
               )}
 
               {unenrolledGrades.length > 0 && (
-                <div className="text-[11px] text-stone-500">
+                <div className="text-[11px] text-stone-500 dark:text-slate-400">
                   {lang === 'am'
                     ? `${tempEnrollmentIds.length} አዲስ ክፍሎች ተመርጠዋል`
                     : `${tempEnrollmentIds.length} new grade(s) selected`}
@@ -1066,12 +1066,12 @@ export default function CurriculumPage() {
               )}
             </div>
 
-            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-stone-100">
+            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-stone-100 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setIsEnrollModalOpen(false)}
                 disabled={enrollSaving}
-                className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded-xl transition"
+                className="px-4 py-2 text-xs font-semibold text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 rounded-xl transition"
               >
                 {lang === 'am' ? 'ዝጋ' : 'Close'}
               </button>
@@ -1103,18 +1103,18 @@ export default function CurriculumPage() {
       {/* Registration Required Barrier Modal for Public / Guest Users */}
       {isRegisterModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-amber-200 space-y-5 animate-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-stone-200 dark:border-slate-800 space-y-5 animate-in zoom-in-95 duration-150">
             {/* Modal Top Header */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-800 shrink-0 shadow-sm">
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-800 dark:text-amber-300 shrink-0 shadow-sm">
                   <GraduationCap className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block mb-0.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800 inline-block mb-0.5">
                     {lang === 'am' ? 'የተማሪ ምዝገባ' : 'Student Enrollment'}
                   </span>
-                  <h3 className="font-extrabold text-lg text-stone-900 leading-tight">
+                  <h3 className="font-extrabold text-lg text-stone-900 dark:text-white leading-tight">
                     {lang === 'am' ? 'እባክዎ መጀመሪያ ይመዝገቡ' : 'Please Register First'}
                   </h3>
                 </div>
@@ -1122,7 +1122,7 @@ export default function CurriculumPage() {
               <button
                 type="button"
                 onClick={() => setIsRegisterModalOpen(false)}
-                className="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg transition"
+                className="text-stone-400 hover:text-stone-700 dark:hover:text-slate-200 p-1.5 rounded-lg transition"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
@@ -1130,7 +1130,7 @@ export default function CurriculumPage() {
             </div>
 
             {/* Context Notice */}
-            <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-xs text-amber-950 space-y-1.5">
+            <div className="bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-2xl p-4 text-xs text-amber-950 dark:text-amber-200 space-y-1.5">
               <p className="font-bold">
                 {selectedChapterForGate
                   ? (lang === 'am'
@@ -1140,7 +1140,7 @@ export default function CurriculumPage() {
                       ? 'የትምህርት ክፍሎችን ለማጥናት፣ መጻሕፍትን ለማውረድ እና ፈተናዎችን ለመውሰድ እባክዎ እንደ ተማሪ ይመዝገቡ።'
                       : 'To access Sunday school textbooks, practice quizzes, and offline downloads, please register as a student.')}
               </p>
-              <p className="text-[11px] text-amber-800">
+              <p className="text-[11px] text-amber-800 dark:text-amber-300">
                 {lang === 'am'
                   ? 'ምዝገባው ሙሉ በሙሉ በነጻ የሚቀርብ ሲሆን ከ1 ደቂቃ በታች ይወስዳል።'
                   : 'Enrollment is 100% free for all students and takes under 1 minute.'}
@@ -1148,17 +1148,17 @@ export default function CurriculumPage() {
             </div>
 
             {/* Platform Features */}
-            <div className="space-y-2 text-xs text-stone-600">
+            <div className="space-y-2 text-xs text-stone-600 dark:text-slate-300">
               <div className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>{lang === 'am' ? 'ሙሉ በሙሉ በነጻ የሚቀርብ ኦርቶዶክሳዊ ትምህርት' : '100% Free Orthodox Christian curriculum'}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>{lang === 'am' ? 'ያለ ኢንተርኔት (Offline) መጻሕፍትን ማንበብና መፈተን' : 'Study clamped textbooks & quizzes completely offline'}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>{lang === 'am' ? 'የውጤት ክትትልና በበርካታ ክፍሎች መመዝገብ' : 'Track your progress & enroll in multiple grades'}</span>
               </div>
             </div>
@@ -1189,7 +1189,7 @@ export default function CurriculumPage() {
                   setIsRegisterModalOpen(false);
                   router.push(target);
                 }}
-                className="w-full py-2.5 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold rounded-xl text-xs transition cursor-pointer"
+                className="w-full py-2.5 px-4 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-800 dark:text-slate-200 font-semibold rounded-xl text-xs transition cursor-pointer"
               >
                 {lang === 'am' ? 'መለያ አለዎት? ይግቡ' : 'Already have an account? Sign In'}
               </button>
