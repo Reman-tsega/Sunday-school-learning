@@ -393,10 +393,13 @@ export const ParishQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(200).default(50),
 });
 
+export const UpdateParishSchema = CreateParishSchema.partial();
+
 export type CreatePracticeQuestionInput = z.infer<typeof CreatePracticeQuestionSchema>;
 export type ReviewMaterialInput = z.infer<typeof ReviewMaterialSchema>;
 export type AssignTeacherParishInput = z.infer<typeof AssignTeacherParishSchema>;
 export type CreateParishInput = z.infer<typeof CreateParishSchema>;
+export type UpdateParishInput = z.infer<typeof UpdateParishSchema>;
 export type ParishQueryInput = z.infer<typeof ParishQuerySchema>;
 
 

@@ -166,7 +166,7 @@ export default function AdminStudentsPage() {
           <p className="text-sm text-stone-500 dark:text-slate-400">
             {lang === 'am'
               ? 'ተማሪዎችን በሰንበት ት/ቤት ወይም በክፍል ለይተው ይመልከቱ፤ የመማርና የፈተና ሂደታቸውን ይከታተሉ።'
-              : 'Filter students by Sunday School parish or grade level, and monitor their learning completion.'}
+              : 'Filter students by Sunday School or grade level, and monitor their learning completion.'}
           </p>
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function AdminStudentsPage() {
         <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-5 flex items-center justify-between shadow-xs">
           <div>
             <p className="text-xs font-semibold text-stone-500 dark:text-slate-400 uppercase tracking-wider">
-              {lang === 'am' ? 'የተወከሉ ሰንበት ት/ቤቶች' : 'Sunday Schools / Parishes'}
+              {lang === 'am' ? 'የተወከሉ ሰንበት ት/ቤቶች' : 'Sunday Schools'}
             </p>
             <p className="text-2xl font-black text-stone-900 dark:text-white mt-1">{uniqueParishesCount}</p>
           </div>
@@ -291,8 +291,8 @@ export default function AdminStudentsPage() {
             >
               <option value="">
                 {lang === 'am'
-                  ? 'ሁሉም ሰንበት ት/ቤቶች (All Parishes)'
-                  : 'All Sunday Schools / Parishes'}
+                  ? 'ሁሉም ሰንበት ት/ቤቶች (All Sunday Schools)'
+                  : 'All Sunday Schools'}
               </option>
               {sundaySchools.map((school) => (
                 <option key={school} value={school}>
@@ -388,7 +388,7 @@ export default function AdminStudentsPage() {
               <thead>
                 <tr className="border-b border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/70 text-stone-600 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
                   <th className="py-3.5 px-4">{lang === 'am' ? 'ተማሪ' : 'Student'}</th>
-                  <th className="py-3.5 px-4">{lang === 'am' ? 'ሰንበት ት/ቤት / አጥቢያ' : 'Sunday School / Parish'}</th>
+                  <th className="py-3.5 px-4">{lang === 'am' ? 'ሰንበት ት/ቤት / አጥቢያ' : 'Sunday School'}</th>
                   <th className="py-3.5 px-4">{lang === 'am' ? 'የተመዘገቡ ክፍሎች' : 'Enrolled Grades'}</th>
                   <th className="py-3.5 px-4">{lang === 'am' ? 'የትምህርት ሂደት' : 'Progress'}</th>
                   <th className="py-3.5 px-4">{lang === 'am' ? 'የመጨረሻ እንቅስቃሴ' : 'Last Active'}</th>

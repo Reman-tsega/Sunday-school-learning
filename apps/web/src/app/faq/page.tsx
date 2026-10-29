@@ -87,7 +87,7 @@ const FAQ_ITEMS: FAQItem[] = [
     questionEn: 'What information is required during student registration?',
     questionAm: 'በምዝገባ ወቅት ምን ዓይነት መረጃዎች ይጠየቃሉ?',
     answerEn:
-      'We ask for your Full Name, Email, Password, Age, Residence Address, and desired Grades to enroll. You may optionally provide your Christian/Baptismal name, Phone number, and Sunday School / Parish church name.',
+      'We ask for your Full Name, Email, Password, Age, Residence Address, and desired Grades to enroll. You may optionally provide your Christian/Baptismal name, Phone number, and Sunday School name.',
     answerAm:
       'ሙሉ ስም፣ ኢሜይል፣ የይለፍ ቃል፣ ዕድሜ፣ የመኖሪያ አድራሻ እና የሚማሩባቸው ክፍሎች ይጠየቃሉ። በተጨማሪም የክርስትና ስም፣ ስልክ ቁጥር እና የሰንበት ት/ቤት ወይም የአጥቢያ ቤተክርስቲያን ስም እንደ አማራጭ ማስገባት ይችላሉ።',
   },

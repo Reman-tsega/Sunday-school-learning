@@ -283,7 +283,7 @@ export default function ProfilePage() {
                 {/* Sunday School / Parish */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                    {lang === 'am' ? 'ሰንበት ትምህርት ቤት ወይም አጥቢያ ቤተክርስቲያን' : 'Sunday School / Parish Church'}
+                    {lang === 'am' ? 'ሰንበት ትምህርት ቤት ወይም አጥቢያ ቤተክርስቲያን' : 'Sunday School'}
                   </label>
                   <input
                     type="text"

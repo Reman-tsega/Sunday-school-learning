@@ -5,6 +5,8 @@ import {
   getParishById,
   createParish,
   verifyParish,
+  updateParish,
+  deleteParish,
 } from '../controllers/parish.controller.js';
 import { authenticate, requireRole } from '../middlewares/auth.middleware.js';
 
@@ -17,5 +19,7 @@ parishRouter.get('/:id', getParishById);
 // Public or authenticated parish creation (allows creatable combobox during registration)
 parishRouter.post('/', createParish);
 
-// Admin-only verification of parishes
+// Admin-only management of Sunday schools / parishes
 parishRouter.patch('/:id/verify', authenticate, requireRole([Role.ADMIN]), verifyParish);
+parishRouter.put('/:id', authenticate, requireRole([Role.ADMIN]), updateParish);
+parishRouter.delete('/:id', authenticate, requireRole([Role.ADMIN]), deleteParish);

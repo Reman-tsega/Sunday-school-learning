@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { parishService } from '../services/parish.service.js';
-import { CreateParishSchema, ParishQuerySchema } from '@eotc/shared';
+import { CreateParishSchema, UpdateParishSchema, ParishQuerySchema } from '@eotc/shared';
 
 export async function getParishes(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -47,6 +47,31 @@ export async function verifyParish(req: Request, res: Response, next: NextFuncti
     res.json({
       status: 'success',
       data: parish,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateParish(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const body = UpdateParishSchema.parse(req.body);
+    const parish = await parishService.updateParish(req.params.id as string, body);
+    res.json({
+      status: 'success',
+      data: parish,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteParish(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    await parishService.deleteParish(req.params.id as string);
+    res.json({
+      status: 'success',
+      message: 'Sunday School deleted successfully',
     });
   } catch (error) {
     next(error);

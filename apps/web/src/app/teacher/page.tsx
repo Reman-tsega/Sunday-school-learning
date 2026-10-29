@@ -388,7 +388,7 @@ export default function TeacherPortalPage() {
                 <Church className="w-5 h-5 text-amber-400 shrink-0" />
                 <div>
                   <span className="text-[10px] text-amber-300 uppercase tracking-wider block font-bold">
-                    {lang === 'am' ? 'የተመደቡበት ደብር / ሰንበት ት/ቤት' : 'Assigned Parish / Sunday School'}
+                    {lang === 'am' ? 'የተመደቡበት ደብር / ሰንበት ት/ቤት' : 'Assigned Sunday School'}
                   </span>
                   <span className="font-extrabold text-sm text-white">
                     {currentUser.churchParish}
@@ -399,7 +399,7 @@ export default function TeacherPortalPage() {
               <div className="bg-rose-950/80 border border-rose-500/50 rounded-2xl p-3 px-4 flex items-center space-x-2 text-rose-200">
                 <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
                 <span className="text-xs font-bold">
-                  {lang === 'am' ? 'ደብር አልተመደበም (ያልተመደበ)' : 'No Parish Assigned'}
+                  {lang === 'am' ? 'ደብር አልተመደበም (ያልተመደበ)' : 'No Sunday School Assigned'}
                 </span>
               </div>
             )}
@@ -426,7 +426,7 @@ export default function TeacherPortalPage() {
             <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
               {lang === 'am'
                 ? 'የተማሪዎችን ዝርዝርና የትምህርት ሂደት ለመመልከት ዋናው አስተዳዳሪ (Admin) ወደ ደብርዎ መመደብ አለበት። እባክዎ የአስተዳዳሪውን ድጋፍ ይጠይቁ።'
-                : 'To view students and access your Sunday School cohort, an Admin must assign your church parish. Please reach out to your system administrator.'}
+                : 'To view students and access your Sunday School cohort, an Admin must assign your Sunday School. Please reach out to your system administrator.'}
             </p>
           </div>
         </div>
@@ -443,7 +443,7 @@ export default function TeacherPortalPage() {
           }`}
         >
           <Church className="w-4 h-4 text-amber-700 dark:text-amber-400" />
-          <span>{lang === 'am' ? 'አጠቃላይ እይታ' : 'Parish Overview'}</span>
+          <span>{lang === 'am' ? 'አጠቃላይ እይታ' : 'Sunday School Overview'}</span>
         </button>
 
         <button
@@ -455,7 +455,7 @@ export default function TeacherPortalPage() {
           }`}
         >
           <Users className="w-4 h-4 text-amber-700 dark:text-amber-400" />
-          <span>{lang === 'am' ? 'የሰንበት ት/ቤት ተማሪዎች' : 'Parish Students'}</span>
+          <span>{lang === 'am' ? 'የሰንበት ት/ቤት ተማሪዎች' : 'Sunday School Students'}</span>
           {students.length > 0 && (
             <span className="text-[10px] bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-200 dark:border-amber-800/50">
               {students.length}
@@ -504,7 +504,7 @@ export default function TeacherPortalPage() {
               </div>
               <div>
                 <span className="text-xs text-stone-500 dark:text-slate-400 font-medium block">
-                  {lang === 'am' ? 'የደብሩ ተማሪዎች' : 'Parish Students'}
+                  {lang === 'am' ? 'የደብሩ ተማሪዎች' : 'Sunday School Students'}
                 </span>
                 <span className="text-2xl font-black text-stone-900 dark:text-white">
                   {overview?.totalStudents ?? students.length}
@@ -571,10 +571,10 @@ export default function TeacherPortalPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
               <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-stone-200 dark:border-slate-800">
                 <span className="font-bold text-xs text-stone-900 dark:text-white block mb-1">
-                  {lang === 'am' ? '፩. የደብር ተማሪዎችን መከታተል' : '1. Monitor Parish Learners'}
+                  {lang === 'am' ? '፩. የደብር ተማሪዎችን መከታተል' : '1. Monitor Sunday School Learners'}
                 </span>
                 <p className="text-[11px] text-stone-500 dark:text-slate-400">
-                  {lang === 'am' ? 'የተማሪዎችን የፈተና ውጤትና ያነበቧቸውን ምዕራፎች በቀላሉ ይከታተሉ።' : 'Inspect chapter completion and quiz scores in your parish.'}
+                  {lang === 'am' ? 'የተማሪዎችን የፈተና ውጤትና ያነበቧቸውን ምዕራፎች በቀላሉ ይከታተሉ።' : 'Inspect chapter completion and quiz scores in your Sunday School.'}
                 </p>
               </div>
               <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-stone-200 dark:border-slate-800">
@@ -615,7 +615,7 @@ export default function TeacherPortalPage() {
             <span className="text-xs text-stone-500 dark:text-slate-400 font-medium">
               {lang === 'am'
                 ? `በደብሩ ውስጥ የተመዘገቡ ${filteredStudents.length} ተማሪዎች`
-                : `${filteredStudents.length} students enrolled in parish`}
+                : `${filteredStudents.length} students enrolled in Sunday School`}
             </span>
           </div>
 
@@ -623,12 +623,12 @@ export default function TeacherPortalPage() {
             <div className="bg-white dark:bg-slate-900 p-12 rounded-3xl border border-stone-200 dark:border-slate-800 text-center text-stone-500 dark:text-slate-400 space-y-2">
               <Users className="w-10 h-10 text-stone-300 dark:text-slate-600 mx-auto" />
               <p className="text-sm font-semibold text-stone-700 dark:text-slate-300">
-                {lang === 'am' ? 'ምንም ተማሪ አልተገኘም' : 'No students found in your parish'}
+                {lang === 'am' ? 'ምንም ተማሪ አልተገኘም' : 'No students found in your Sunday School'}
               </p>
               <p className="text-xs text-stone-400 dark:text-slate-500">
                 {lang === 'am'
                   ? 'ተማሪዎች ሲመዘገቡ ይህን ደብር ከመረጡ እዚህ ዝርዝራቸው ይታያል።'
-                  : 'Students registered with your parish will automatically appear here.'}
+                  : 'Students registered with your Sunday School will automatically appear here.'}
               </p>
             </div>
           ) : (
@@ -644,7 +644,7 @@ export default function TeacherPortalPage() {
                         {st.fullName}
                       </h4>
                       <span className="text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800/60">
-                        {st.churchParish || 'Parish'}
+                        {st.churchParish || 'Sunday School'}
                       </span>
                     </div>
                     {st.christianName && (

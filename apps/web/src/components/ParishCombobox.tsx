@@ -30,7 +30,7 @@ export default function ParishCombobox({
   parishId = null,
   onChange,
   placeholder = 'ደብር ወይም ሰንበት ትምህርት ቤት ይምረጡ / ፈልጉ...',
-  label = 'ደብር / ሰንበት ትምህርት ቤት (Parish / Sunday School)',
+  label = 'ደብርና ሰንበት ትምህርት ቤት (Sunday School)',
   helperText,
   required = false,
   disabled = false,
@@ -214,7 +214,7 @@ export default function ParishCombobox({
           <div className="max-h-64 overflow-y-auto divide-y divide-stone-100 dark:divide-slate-800/60 p-1">
             {isLoading && parishes.length === 0 ? (
               <div className="py-6 text-center text-xs text-stone-400 dark:text-slate-500">
-                ደብራትን በመጫን ላይ... / Loading parishes...
+                ደብራትን በመጫን ላይ... / Loading Sunday Schools...
               </div>
             ) : filteredParishes.length > 0 ? (
               filteredParishes.map((parish) => {
@@ -271,7 +271,7 @@ export default function ParishCombobox({
               })
             ) : (
               <div className="py-4 px-3 text-center text-xs text-stone-500 dark:text-slate-400">
-                የተፈለገው ደብር በዝርዝሩ ውስጥ አልተገኘም / Parish not found.
+                የተፈለገው ደብር በዝርዝሩ ውስጥ አልተገኘም / Sunday School not found.
               </div>
             )}
 

@@ -571,8 +571,8 @@ function LoginContent() {
                   setRegChurchParish(churchParish);
                   setRegParishId(parishId || null);
                 }}
-                label={lang === 'am' ? 'ሰንበት ት/ቤት ወይም አጥቢያ ቤተክርስቲያን (አማራጭ)' : 'Sunday School / Parish Church (Optional)'}
-                placeholder={lang === 'am' ? 'ደብር ወይም ሰንበት ትምህርት ቤት ይምረጡ ወይም ይፃፉ...' : 'Select or type Sunday School / Parish...'}
+                label={lang === 'am' ? 'ሰንበት ት/ቤት ወይም አጥቢያ ቤተክርስቲያን (አማራጭ)' : 'Sunday School (Optional)'}
+                placeholder={lang === 'am' ? 'ደብር ወይም ሰንበት ትምህርት ቤት ይምረጡ ወይም ይፃፉ...' : 'Select or type Sunday School...'}
                 helperText={lang === 'am' ? 'የሚማሩበትን ሰንበት ትምህርት ቤት ከዝርዝሩ ይምረጡ ወይም ካልተገኘ ይፃፉ' : 'Select from list or type custom name'}
               />
             </div>

@@ -185,13 +185,13 @@ export default function AdminUsersPage() {
         text:
           lang === 'am'
             ? `የተጠቃሚ ${parishModalUser.fullName} ደብር/ሰንበት ት/ቤት ተመድቧል!`
-            : `Sunday School Parish successfully assigned for ${parishModalUser.fullName}!`,
+            : `Sunday School successfully assigned for ${parishModalUser.fullName}!`,
       });
       loadUsers();
     } catch (err: any) {
       setActionMessage({
         type: 'error',
-        text: err.message || (lang === 'am' ? 'ደብር መመደብ አልተቻለም' : 'Failed to assign parish'),
+        text: err.message || (lang === 'am' ? 'ደብር መመደብ አልተቻለም' : 'Failed to assign Sunday School'),
       });
     } finally {
       setIsSubmitting(false);
@@ -352,7 +352,7 @@ export default function AdminUsersPage() {
                   <th className="px-5 py-3">{lang === 'am' ? 'ሙሉ ስም' : 'Full Name'}</th>
                   <th className="px-5 py-3">{lang === 'am' ? 'ኢሜይል' : 'Email'}</th>
                   <th className="px-5 py-3">{lang === 'am' ? 'ሚና' : 'Role'}</th>
-                  <th className="px-5 py-3">{lang === 'am' ? 'ደብር / ሰንበት ት/ቤት' : 'Parish / Sunday School'}</th>
+                  <th className="px-5 py-3">{lang === 'am' ? 'ደብር / ሰንበት ት/ቤት' : 'Sunday School'}</th>
                   <th className="px-5 py-3">{lang === 'am' ? 'ሁኔታ' : 'Status'}</th>
                   <th className="px-5 py-3 text-right">{lang === 'am' ? 'ተግባራት' : 'Actions'}</th>
                 </tr>
@@ -420,11 +420,11 @@ export default function AdminUsersPage() {
                           setParishInput(u.churchParish || '');
                           setParishIdInput(u.parishId || null);
                         }}
-                        title={lang === 'am' ? 'ደብር / ሰንበት ት/ቤት መድብ' : 'Assign Sunday School Parish'}
+                        title={lang === 'am' ? 'ደብር / ሰንበት ት/ቤት መድብ' : 'Assign Sunday School'}
                         className="px-2.5 py-1 rounded text-xs font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 dark:text-amber-300 dark:border-amber-800 transition cursor-pointer"
                       >
                         <Church className="w-3 h-3 inline mr-1" />
-                        <span>{lang === 'am' ? 'ደብር' : 'Parish'}</span>
+                        <span>{lang === 'am' ? 'ደብር' : 'Sunday School'}</span>
                       </button>
 
                       {/* Toggle status */}
@@ -664,7 +664,7 @@ export default function AdminUsersPage() {
           <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <h2 className="text-base font-bold text-stone-900 dark:text-white flex items-center space-x-2">
               <Church className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-              <span>{lang === 'am' ? 'ሰንበት ት/ቤት / ደብር መድብ' : 'Assign Sunday School Parish'}</span>
+              <span>{lang === 'am' ? 'ሰንበት ት/ቤት / ደብር መድብ' : 'Assign Sunday School'}</span>
             </h2>
             <p className="text-xs text-stone-500 dark:text-slate-400">
               {lang === 'am' ? 'ተጠቃሚ፡' : 'User:'} <strong className="text-stone-900 dark:text-white">{parishModalUser.fullName}</strong> ({parishModalUser.role})
@@ -678,8 +678,8 @@ export default function AdminUsersPage() {
                     setParishInput(churchParish);
                     setParishIdInput(parishId || null);
                   }}
-                  label={lang === 'am' ? 'የሰንበት ትምህርት ቤት / የደብር ስም *' : 'Parish / Sunday School Name *'}
-                  placeholder={lang === 'am' ? 'ደብር ይምረጡ ወይም ይፃፉ...' : 'Select or type Sunday School / Parish...'}
+                  label={lang === 'am' ? 'የሰንበት ትምህርት ቤት / የደብር ስም *' : 'Sunday School Name *'}
+                  placeholder={lang === 'am' ? 'ደብር ይምረጡ ወይም ይፃፉ...' : 'Select or type Sunday School...'}
                   helperText={
                     lang === 'am'
                       ? 'መምህሩ በዚህ ደብር የተመዘገቡ ተማሪዎችን ብቻ ማየትና መከታተል ይችላል።'

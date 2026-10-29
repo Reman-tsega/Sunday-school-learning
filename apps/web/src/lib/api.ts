@@ -22,6 +22,7 @@ import type {
   TicketCategory,
   ParishDto,
   CreateParishInput,
+  UpdateParishInput,
 } from '@eotc/shared';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -1288,12 +1289,12 @@ export class ApiClient {
   // ==========================================
 
   async getParishes(params?: {
-    search?: string;
-    diocese?: string;
-    subCity?: string;
-    isVerified?: boolean;
-    page?: number;
-    limit?: number;
+    search?: string | undefined;
+    diocese?: string | undefined;
+    subCity?: string | undefined;
+    isVerified?: boolean | undefined;
+    page?: number | undefined;
+    limit?: number | undefined;
   }): Promise<{
     parishes: ParishDto[];
     total: number;
@@ -1338,6 +1339,48 @@ export class ApiClient {
     }
     const json = await res.json();
     return json.data;
+  }
+
+  async updateParish(id: string, data: UpdateParishInput): Promise<ParishDto> {
+    const res = await fetch(`${API_BASE_URL}/parishes/${id}`, {
+      method: 'PUT',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to update Sunday School: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  async verifyParish(id: string, isVerified: boolean): Promise<ParishDto> {
+    const res = await fetch(`${API_BASE_URL}/parishes/${id}/verify`, {
+      method: 'PATCH',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify({ isVerified }),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to verify Sunday School: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  async deleteParish(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE_URL}/parishes/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeader(),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to delete Sunday School: HTTP ${res.status}`);
+    }
   }
 
   // ==========================================

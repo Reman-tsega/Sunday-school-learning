@@ -12,6 +12,7 @@ import {
   FileText,
   Activity,
   Layers,
+  Church,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
@@ -202,7 +203,7 @@ export default function AdminDashboardPage() {
           <Activity className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           <span>{lang === 'am' ? 'ፈጣን የአስተዳዳሪ ተግባራት' : 'Quick Actions'}</span>
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
             href="/admin/users"
             className="flex items-start space-x-3.5 p-4 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 dark:bg-slate-800/60 dark:hover:bg-slate-800 dark:border-slate-700/60 transition group shadow-2xs"
@@ -218,6 +219,25 @@ export default function AdminDashboardPage() {
                 {lang === 'am'
                   ? 'አዲስ ተማሪዎችን ወይም መምህራንን ይመዝግቡ፣ ሚናዎችን ይመድቡ።'
                   : 'Register students or teachers and manage accounts.'}
+              </p>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/sunday-schools"
+            className="flex items-start space-x-3.5 p-4 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 dark:bg-slate-800/60 dark:hover:bg-slate-800 dark:border-slate-700/60 transition group shadow-2xs"
+          >
+            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500/20 transition">
+              <Church className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm text-stone-800 group-hover:text-stone-950 dark:text-slate-200 dark:group-hover:text-white">
+                {lang === 'am' ? 'ሰንበት ት/ቤቶች' : 'Sunday Schools'}
+              </h3>
+              <p className="text-xs text-stone-500 dark:text-slate-400 mt-1">
+                {lang === 'am'
+                  ? 'የሰንበት ትምህርት ቤቶችን፣ ሀገረ ስብከቶችንና ክፍለ ከተሞችን ያስተዳድሩ።'
+                  : 'Manage Sunday School registries and dioceses.'}
               </p>
             </div>
           </Link>

@@ -17,6 +17,7 @@ import {
   MessageSquare,
   Bell,
   ShieldCheck,
+  Church,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
@@ -161,6 +162,12 @@ export default function AdminShell({
       href: '/admin/users',
       icon: Users,
       active: pathname.startsWith('/admin/users'),
+    },
+    {
+      name: lang === 'am' ? 'ሰንበት ትምህርት ቤቶች' : 'Sunday Schools',
+      href: '/admin/sunday-schools',
+      icon: Church,
+      active: pathname.startsWith('/admin/sunday-schools'),
     },
     {
       name: lang === 'am' ? 'ስርዓተ ትምህርት' : 'Curriculum',

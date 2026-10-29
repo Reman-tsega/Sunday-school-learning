@@ -1,6 +1,6 @@
 import { prisma } from '../config/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
-import type { ParishDto, CreateParishInput } from '@eotc/shared';
+import type { ParishDto, CreateParishInput, UpdateParishInput } from '@eotc/shared';
 
 export interface ParishQueryParams {
   search?: string | undefined;
@@ -547,6 +547,51 @@ export class ParishService {
     });
 
     return this.getParishById(updated.id);
+  }
+
+  /**
+   * Admin update Sunday School / Parish details
+   */
+  async updateParish(id: string, data: UpdateParishInput): Promise<ParishDto> {
+    const parish = await prisma.parish.findUnique({ where: { id } });
+    if (!parish) {
+      throw new AppError(404, 'PARISH_NOT_FOUND', 'Sunday School not found');
+    }
+
+    const updated = await prisma.parish.update({
+      where: { id },
+      data: {
+        ...(data.name && { name: data.name.trim() }),
+        ...(data.amharicName && { amharicName: data.amharicName.trim() }),
+        ...(data.diocese && { diocese: data.diocese.trim() }),
+        ...(data.subCity !== undefined && { subCity: data.subCity ? data.subCity.trim() : null }),
+        ...(data.woreda !== undefined && { woreda: data.woreda ? data.woreda.trim() : null }),
+        ...(data.city && { city: data.city.trim() }),
+        ...(data.sundaySchoolName !== undefined && { sundaySchoolName: data.sundaySchoolName ? data.sundaySchoolName.trim() : null }),
+        ...(data.parishType && { parishType: data.parishType }),
+        ...(data.isVerified !== undefined && { isVerified: data.isVerified }),
+      },
+    });
+
+    return this.getParishById(updated.id);
+  }
+
+  /**
+   * Admin delete Sunday School / Parish
+   */
+  async deleteParish(id: string): Promise<void> {
+    const parish = await prisma.parish.findUnique({ where: { id } });
+    if (!parish) {
+      throw new AppError(404, 'PARISH_NOT_FOUND', 'Sunday School not found');
+    }
+
+    // Safely unlink any users before deleting
+    await prisma.user.updateMany({
+      where: { parishId: id },
+      data: { parishId: null },
+    });
+
+    await prisma.parish.delete({ where: { id } });
   }
 }
 
