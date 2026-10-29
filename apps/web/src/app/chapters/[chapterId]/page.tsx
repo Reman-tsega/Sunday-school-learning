@@ -278,20 +278,20 @@ export default function ChapterStudyPage() {
 
     if (title.endsWith('.ppt') || title.endsWith('.pptx') || url.includes('.ppt')) {
       return (
-        <span className="text-[10px] font-bold text-orange-700 bg-orange-100 border border-orange-200 px-1.5 py-0.5 rounded">
+        <span className="text-[10px] font-bold text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-950/80 border border-orange-200 dark:border-orange-800 px-1.5 py-0.5 rounded">
           PPT / PPTX
         </span>
       );
     }
     if (title.endsWith('.doc') || title.endsWith('.docx') || url.includes('.doc')) {
       return (
-        <span className="text-[10px] font-bold text-blue-700 bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded">
+        <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-800 px-1.5 py-0.5 rounded">
           DOC / DOCX
         </span>
       );
     }
     return (
-      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 px-1.5 py-0.5 rounded">
+      <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 px-1.5 py-0.5 rounded">
         PDF
       </span>
     );
@@ -299,8 +299,8 @@ export default function ChapterStudyPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-stone-500">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600 mb-2" />
+      <div className="flex flex-col items-center justify-center py-20 text-stone-500 dark:text-slate-400">
+        <Loader2 className="w-8 h-8 animate-spin text-amber-600 dark:text-amber-400 mb-2" />
         <p>{lang === 'am' ? 'የትምህርት መረጃውን በማዘጋጀት ላይ...' : 'Loading chapter content...'}</p>
       </div>
     );
@@ -309,17 +309,17 @@ export default function ChapterStudyPage() {
   if (isRegistrationRequired) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-200 text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
-          <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-200 dark:border-slate-800 text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-16 h-16 bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 rounded-2xl flex items-center justify-center mx-auto shadow-sm border border-amber-200 dark:border-amber-800">
             <GraduationCap className="w-8 h-8" />
           </div>
-          <span className="text-xs uppercase tracking-wider font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded border border-amber-200 inline-block">
+          <span className="text-xs uppercase tracking-wider font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded border border-amber-200 dark:border-amber-800 inline-block">
             {lang === 'am' ? 'የተማሪ ምዝገባ ያስፈልጋል' : 'Registration Required'}
           </span>
-          <h2 className="text-xl sm:text-2xl font-black text-stone-900">
+          <h2 className="text-xl sm:text-2xl font-black text-stone-900 dark:text-white">
             {lang === 'am' ? 'እባክዎ መጀመሪያ ይመዝገቡ' : 'Please Register First'}
           </h2>
-          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+          <p className="text-xs sm:text-sm text-stone-600 dark:text-slate-400 leading-relaxed">
             {lang === 'am'
               ? 'ይህንን ምዕራፍ ለማጥናት፣ መጽሐፉን ለማንበብ፣ ፈተናዎችን ለመውሰድ እና ማጣቀሻዎችን ለመመልከት እባክዎ መጀመሪያ እንደ ተማሪ ይመዝገቡ። ምዝገባው 100% ነጻ ነው!'
               : 'To study this chapter, read clamped textbooks, take practice quizzes, and access church references, please create a student account. Registration is 100% free and takes less than a minute!'}
@@ -334,13 +334,13 @@ export default function ChapterStudyPage() {
             </button>
             <button
               onClick={() => router.push(`/login?redirect=/chapters/${chapterId}`)}
-              className="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-xl text-xs transition cursor-pointer"
+              className="w-full py-2.5 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 font-semibold rounded-xl text-xs transition cursor-pointer"
             >
               {lang === 'am' ? 'መለያ አለዎት? ይግቡ' : 'Already have an account? Sign In'}
             </button>
             <button
               onClick={() => router.push('/')}
-              className="w-full py-2 text-stone-400 hover:text-stone-600 text-xs transition cursor-pointer"
+              className="w-full py-2 text-stone-400 dark:text-slate-500 hover:text-stone-600 dark:hover:text-slate-300 text-xs transition cursor-pointer"
             >
               {lang === 'am' ? 'ወደ ስርዓተ ትምህርት ማውጫ ተመለስ' : 'Return to Curriculum Catalog'}
             </button>
@@ -353,14 +353,14 @@ export default function ChapterStudyPage() {
   if (isEnrollmentRequired && manifest) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-stone-200 text-center space-y-4">
-          <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl border border-stone-200 dark:border-slate-800 text-center space-y-4">
+          <div className="w-16 h-16 bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 rounded-2xl flex items-center justify-center mx-auto shadow-sm border border-amber-200 dark:border-amber-800">
             <Lock className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-black text-stone-900">
+          <h2 className="text-xl font-black text-stone-900 dark:text-white">
             {lang === 'am' ? 'የትምህርት ክፍል ምዝገባ ያስፈልጋል' : 'Enrollment Required'}
           </h2>
-          <p className="text-xs text-stone-600 leading-relaxed">
+          <p className="text-xs text-stone-600 dark:text-slate-400 leading-relaxed">
             {lang === 'am'
               ? `የ«${manifest.gradeName}» ትምህርቶችን ለመከታተል መጀመሪያ በክፍሉ መመዝገብ አለብዎት። በአንድ ጠቅታ በመመዝገብ ትምህርቱን መቀጠል ይችላሉ።`
               : `To study this chapter and access course material in ${manifest.gradeName}, you must enroll in this grade first.`}
@@ -384,7 +384,7 @@ export default function ChapterStudyPage() {
             </button>
             <button
               onClick={() => router.push('/')}
-              className="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-xl text-xs transition"
+              className="w-full py-2.5 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 font-semibold rounded-xl text-xs transition"
             >
               {lang === 'am' ? 'ወደ መማሪያ ክፍሎቼ ተመለስ' : 'Return to My Grades'}
             </button>
@@ -396,11 +396,11 @@ export default function ChapterStudyPage() {
 
   if (!manifest) {
     return (
-      <div className="bg-white rounded-xl p-8 text-center border border-stone-200">
-        <p className="text-stone-700 font-semibold mb-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl p-8 text-center border border-stone-200 dark:border-slate-800">
+        <p className="text-stone-700 dark:text-slate-300 font-semibold mb-4">
           {lang === 'am' ? 'የትምህርት ክፍሉ አልተገኘም ወይም አልታተመም።' : 'Chapter not found or not published.'}
         </p>
-        <Link href="/" className="px-4 py-2 bg-eotc-navy text-white rounded-lg text-sm">
+        <Link href="/" className="px-4 py-2 bg-eotc-navy dark:bg-amber-500 dark:text-slate-950 text-white rounded-lg text-sm font-semibold">
           {lang === 'am' ? 'ወደ ማውጫ ተመለስ' : 'Back to Curriculum'}
         </Link>
       </div>
@@ -413,31 +413,31 @@ export default function ChapterStudyPage() {
     <div className="space-y-6">
       {/* Skippable Download Prompt Modal */}
       {showDownloadPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-amber-200 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-stone-200 dark:border-slate-800 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
-                <div className="w-10 h-10 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-700">
+                <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-700 dark:text-amber-300">
                   <Download className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base text-stone-900">
+                  <h3 className="font-bold text-base text-stone-900 dark:text-white">
                     {lang === 'am' ? 'ከመስመር ውጭ ማውረድ ይፈልጋሉ?' : 'Download for Offline Study?'}
                   </h3>
-                  <span className="text-xs text-stone-500">
+                  <span className="text-xs text-stone-500 dark:text-slate-400">
                     {pick(manifest.amharicChapterTitle, manifest.chapterTitle)}
                   </span>
                 </div>
               </div>
               <button
                 onClick={handleSkipDownloadPrompt}
-                className="text-stone-400 hover:text-stone-600 p-1 rounded-lg"
+                className="text-stone-400 dark:text-slate-500 hover:text-stone-600 dark:hover:text-slate-300 p-1 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-stone-600 leading-relaxed">
+            <p className="text-xs text-stone-600 dark:text-slate-400 leading-relaxed">
               {lang === 'am'
                 ? 'ይህን ምዕራፍ አሁን በማውረድ ያለ ኢንተርኔት በየትኛውም ቦታና ሰዓት ማንበብና የልምምድ ፈተና መውሰድ ይችላሉ።'
                 : 'Downloading this chapter allows you to read clamped pages and practice quizzes completely offline without internet.'}
@@ -449,17 +449,17 @@ export default function ChapterStudyPage() {
                 id="dontAsk"
                 checked={dontAskAgain}
                 onChange={(e) => setDontAskAgain(e.target.checked)}
-                className="rounded text-amber-600 focus:ring-amber-500"
+                className="rounded text-amber-600 focus:ring-amber-500 dark:bg-slate-800 dark:border-slate-700"
               />
-              <label htmlFor="dontAsk" className="text-xs text-stone-500 cursor-pointer">
+              <label htmlFor="dontAsk" className="text-xs text-stone-500 dark:text-slate-400 cursor-pointer">
                 {lang === 'am' ? 'ዳግመኛ አታሳየኝ' : "Don't ask again on this device"}
               </label>
             </div>
 
-            <div className="flex items-center justify-end space-x-3 pt-2 border-t border-stone-100">
+            <div className="flex items-center justify-end space-x-3 pt-2 border-t border-stone-100 dark:border-slate-800">
               <button
                 onClick={handleSkipDownloadPrompt}
-                className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-800 bg-stone-100 hover:bg-stone-200 rounded-lg transition"
+                className="px-4 py-2 text-xs font-semibold text-stone-600 dark:text-slate-300 hover:text-stone-800 dark:hover:text-white bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 rounded-lg transition"
               >
                 {lang === 'am' ? 'በመስመር ላይ ቀጥል (ዝለል)' : 'Continue Online (Skip)'}
               </button>
@@ -476,11 +476,11 @@ export default function ChapterStudyPage() {
       )}
 
       {/* Top Header Card */}
-      <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl shadow-sm border border-stone-200">
+      <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800">
         <div className="flex items-center justify-between gap-2 mb-2">
           <button
             onClick={() => router.push('/')}
-            className="text-xs text-stone-500 hover:text-amber-700 flex items-center space-x-1 transition cursor-pointer py-0.5"
+            className="text-xs text-stone-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-400 flex items-center space-x-1 transition cursor-pointer py-0.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>{lang === 'am' ? 'ወደ ማውጫ ተመለስ' : 'Back to Curriculum'}</span>
@@ -493,7 +493,7 @@ export default function ChapterStudyPage() {
               onClick={handleToggleCompletion}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold text-xs shadow-xs transition cursor-pointer ${
                 isCompleted
-                  ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300'
+                  ? 'bg-emerald-100 dark:bg-emerald-950/80 hover:bg-emerald-200 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
                   : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow'
               }`}
               title={
@@ -537,7 +537,7 @@ export default function ChapterStudyPage() {
                 )}
               </button>
             ) : (
-              <span className="text-[11px] text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md font-mono">
+              <span className="text-[11px] text-stone-500 dark:text-slate-400 bg-stone-100 dark:bg-slate-800 px-2 py-0.5 rounded-md font-mono border border-stone-200/60 dark:border-slate-750">
                 {Math.round(manifest.totalSizeBytes / 1024)} KB
               </span>
             )}
@@ -546,36 +546,36 @@ export default function ChapterStudyPage() {
 
         {/* Badges Row */}
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2">
-          <span className="text-[11px] sm:text-xs font-bold text-amber-800 uppercase bg-amber-50 px-2 py-0.5 rounded border border-amber-200 shrink-0">
+          <span className="text-[11px] sm:text-xs font-bold text-amber-800 dark:text-amber-300 uppercase bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800 shrink-0">
             {lang === 'am' ? `ክፍል ${manifest.gradeLevel}` : `Grade ${manifest.gradeLevel}`} · {pick(manifest.amharicSubjectName, manifest.subjectName)}
           </span>
           <OfflineBadge status={offlinePkg?.downloadStatus ?? 'NOT_DOWNLOADED'} />
           {isCompleted && (
-            <span className="text-[11px] sm:text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center space-x-1 shrink-0">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+            <span className="text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full flex items-center space-x-1 shrink-0">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               <span>{lang === 'am' ? 'ተጠናቋል' : 'Completed'}</span>
             </span>
           )}
         </div>
 
         {/* Chapter Title */}
-        <h1 className="text-lg sm:text-2xl font-black text-stone-900 leading-tight">
+        <h1 className="text-lg sm:text-2xl font-black text-stone-900 dark:text-white leading-tight">
           {pick(manifest.amharicChapterTitle, manifest.chapterTitle)}
         </h1>
 
         {/* Integrated Chapter Completion Celebratory Strip */}
         {isCompleted && !bannerDismissed && (
-          <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2.5 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-amber-50/40 p-2.5 rounded-xl border border-emerald-200/70 transition animate-in fade-in">
+          <div className="mt-3 pt-2.5 border-t border-stone-100 dark:border-slate-800 flex items-center justify-between gap-2.5 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-amber-50/40 dark:from-emerald-950/50 dark:via-teal-950/30 dark:to-amber-950/20 p-2.5 rounded-xl border border-emerald-200/70 dark:border-emerald-800/60 transition animate-in fade-in">
             <div className="flex items-center space-x-2.5 min-w-0">
               <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                 ✓
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-bold text-emerald-950 flex items-center space-x-1 truncate">
+                <p className="text-xs font-bold text-emerald-950 dark:text-emerald-200 flex items-center space-x-1 truncate">
                   <span>{lang === 'am' ? 'እንኳን ደስ አለዎት! ምዕራፉ ተጠናቋል።' : 'Congratulations! Chapter Completed.'}</span>
                   <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 </p>
-                <p className="text-[11px] text-emerald-700 truncate hidden xs:block">
+                <p className="text-[11px] text-emerald-700 dark:text-emerald-400 truncate hidden xs:block">
                   {lang === 'am'
                     ? 'ትምህርቱንና ፈተናውን አጠናቀዋል። ወደ ቀጣዩ መቀጠል ይችላሉ።'
                     : 'You passed the requirements. Proceed to the next lesson or review anytime!'}
@@ -584,7 +584,7 @@ export default function ChapterStudyPage() {
             </div>
             <button
               onClick={() => setBannerDismissed(true)}
-              className="text-stone-400 hover:text-stone-700 p-1 rounded-md transition shrink-0"
+              className="text-stone-400 dark:text-slate-400 hover:text-stone-700 dark:hover:text-slate-200 p-1 rounded-md transition shrink-0"
               title={lang === 'am' ? 'ዝጋ' : 'Dismiss'}
               aria-label="Dismiss"
             >
@@ -595,16 +595,16 @@ export default function ChapterStudyPage() {
       </div>
 
       {/* Responsive Segmented Tabs Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 sm:flex sm:space-x-2 border-b border-stone-200 bg-stone-100/70 p-1 rounded-xl gap-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 sm:flex sm:space-x-2 border-b border-stone-200 dark:border-slate-800 bg-stone-100/70 dark:bg-slate-950/80 p-1 rounded-xl gap-1">
         <button
           onClick={() => setActiveTab('textbook')}
           className={`flex items-center justify-center space-x-1.5 py-2 px-1.5 sm:px-4 font-bold text-xs sm:text-sm rounded-lg transition min-h-[42px] cursor-pointer ${
             activeTab === 'textbook'
-              ? 'bg-white text-amber-900 shadow-xs border border-amber-200/60'
-              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+              ? 'bg-white dark:bg-slate-900 text-amber-900 dark:text-amber-300 shadow-xs border border-amber-200/60 dark:border-amber-700/60'
+              : 'text-stone-600 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200/50 dark:hover:bg-slate-800/50'
           }`}
         >
-          <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-700" />
+          <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-700 dark:text-amber-400" />
           <span className="truncate">{lang === 'am' ? 'መጽሐፍ' : 'Textbook'}</span>
         </button>
 
@@ -612,14 +612,14 @@ export default function ChapterStudyPage() {
           onClick={() => setActiveTab('drills')}
           className={`flex items-center justify-center space-x-1.5 py-2 px-1.5 sm:px-4 font-bold text-xs sm:text-sm rounded-lg transition min-h-[42px] cursor-pointer ${
             activeTab === 'drills'
-              ? 'bg-white text-amber-900 shadow-xs border border-amber-200/60'
-              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+              ? 'bg-white dark:bg-slate-900 text-amber-900 dark:text-amber-300 shadow-xs border border-amber-200/60 dark:border-amber-700/60'
+              : 'text-stone-600 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200/50 dark:hover:bg-slate-800/50'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-600" />
+          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-600 dark:text-amber-400" />
           <span className="truncate">{lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Drills'}</span>
           {practiceQuestions.length > 0 && (
-            <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded-full font-bold">
+            <span className="text-[10px] bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 px-1.5 py-0.5 rounded-full font-bold">
               {practiceQuestions.length}
             </span>
           )}
@@ -629,14 +629,14 @@ export default function ChapterStudyPage() {
           onClick={() => setActiveTab('quiz')}
           className={`flex items-center justify-center space-x-1.5 py-2 px-1.5 sm:px-4 font-bold text-xs sm:text-sm rounded-lg transition min-h-[42px] cursor-pointer ${
             activeTab === 'quiz'
-              ? 'bg-white text-amber-900 shadow-xs border border-amber-200/60'
-              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+              ? 'bg-white dark:bg-slate-900 text-amber-900 dark:text-amber-300 shadow-xs border border-amber-200/60 dark:border-amber-700/60'
+              : 'text-stone-600 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200/50 dark:hover:bg-slate-800/50'
           }`}
         >
-          <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-700" />
+          <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-700 dark:text-amber-400" />
           <span className="truncate">{lang === 'am' ? 'ፈተና' : 'Graded Quiz'}</span>
           {manifest.quizzes.length > 0 && (
-            <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded-full font-bold">
+            <span className="text-[10px] bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 px-1.5 py-0.5 rounded-full font-bold">
               {manifest.quizzes.length}
             </span>
           )}
@@ -646,14 +646,14 @@ export default function ChapterStudyPage() {
           onClick={() => setActiveTab('references')}
           className={`flex items-center justify-center space-x-1.5 py-2 px-1.5 sm:px-4 font-bold text-xs sm:text-sm rounded-lg transition min-h-[42px] cursor-pointer ${
             activeTab === 'references'
-              ? 'bg-white text-amber-900 shadow-xs border border-amber-200/60'
-              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+              ? 'bg-white dark:bg-slate-900 text-amber-900 dark:text-amber-300 shadow-xs border border-amber-200/60 dark:border-amber-700/60'
+              : 'text-stone-600 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200/50 dark:hover:bg-slate-800/50'
           }`}
         >
-          <Link2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-700" />
+          <Link2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-700 dark:text-amber-400" />
           <span className="truncate">{lang === 'am' ? 'ማጣቀሻ' : 'References'}</span>
           {manifest.references.length > 0 && (
-            <span className="text-[10px] bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded-full font-bold">
+            <span className="text-[10px] bg-stone-200 dark:bg-slate-800 text-stone-700 dark:text-slate-300 px-1.5 py-0.5 rounded-full font-bold">
               {manifest.references.length}
             </span>
           )}
@@ -689,7 +689,7 @@ export default function ChapterStudyPage() {
               chapterId={manifest.chapterId}
             />
           ) : (
-            <div className="bg-white p-8 rounded-xl text-center text-stone-500 border border-stone-200 space-y-3">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center text-stone-500 dark:text-slate-400 border border-stone-200 dark:border-slate-800 space-y-3">
               <p>{lang === 'am' ? 'ለዚህ ምዕራፍ ምንም የልምምድ ፈተና አልተዘጋጀም። መጽሐፉን በማንበብ ትምህርቱን ማጠናቀቅ ይችላሉ።' : 'No practice quiz for this chapter. Completing reading fulfills this chapter.'}</p>
               {!isCompleted && (
                 <button
@@ -713,13 +713,13 @@ export default function ChapterStudyPage() {
         )}
 
         {activeTab === 'references' && (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-stone-200 space-y-4">
-            <h3 className="font-bold text-base text-stone-800">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-stone-200 dark:border-slate-800 space-y-4">
+            <h3 className="font-bold text-base text-stone-800 dark:text-white">
               {lang === 'am' ? 'የተፈቀዱ ማጣቀሻዎች' : 'Approved References'}
             </h3>
 
             {manifest.references.length === 0 ? (
-              <p className="text-stone-500 text-sm">
+              <p className="text-stone-500 dark:text-slate-400 text-sm">
                 {lang === 'am' ? 'ምንም የተካተተ ማጣቀሻ የለም።' : 'No references attached to this chapter.'}
               </p>
             ) : (
@@ -730,18 +730,18 @@ export default function ChapterStudyPage() {
                   return (
                     <div
                       key={ref.id}
-                      className="p-4 rounded-lg border border-stone-200 bg-stone-50 flex items-center justify-between gap-4"
+                      className="p-4 rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 flex items-center justify-between gap-4"
                     >
                       <div className="flex items-start space-x-3">
-                        <FileText className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                        <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                         <div>
                           <div className="flex items-center space-x-2">
-                            <h4 className="font-semibold text-sm text-stone-900">
+                            <h4 className="font-semibold text-sm text-stone-900 dark:text-white">
                               {pick(ref.amharicTitle, ref.title)}
                             </h4>
                             {getDocTypeBadge(ref)}
                           </div>
-                          <span className="text-xs text-stone-500">
+                          <span className="text-xs text-stone-500 dark:text-slate-400">
                             {ref.isDownloadable
                               ? (lang === 'am'
                                   ? `ከመስመር ውጭ የሚነበብ ሰነድ (${Math.round((ref.downloadableDocSize || 0) / 1024)} KB)`
@@ -775,7 +775,7 @@ export default function ChapterStudyPage() {
                             href={ref.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center space-x-1 text-xs font-semibold text-stone-700 hover:text-amber-700"
+                            className="inline-flex items-center space-x-1 text-xs font-semibold text-stone-700 dark:text-slate-300 hover:text-amber-700 dark:hover:text-amber-400"
                           >
                             <span>{lang === 'am' ? 'ጎብኝ' : 'Visit Link'}</span>
                             <ExternalLink className="w-3.5 h-3.5" />

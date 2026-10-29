@@ -45,8 +45,8 @@ export function PracticeQuestionList({
 
   if (loading) {
     return (
-      <div className="bg-white p-8 rounded-2xl border border-stone-200 text-center text-stone-500 space-y-2">
-        <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto" />
+      <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-stone-200 dark:border-slate-800 text-center text-stone-500 dark:text-slate-400 space-y-2">
+        <div className="w-8 h-8 border-2 border-amber-600 dark:border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
         <p className="text-xs">
           {lang === 'am' ? 'የልምምድ ጥያቄዎችን በማዘጋጀት ላይ...' : 'Loading practice drill questions...'}
         </p>
@@ -56,14 +56,14 @@ export function PracticeQuestionList({
 
   if (questions.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-2xl border border-stone-200 text-center text-stone-500 space-y-3">
-        <div className="w-12 h-12 bg-amber-50 text-amber-700 rounded-full flex items-center justify-center mx-auto border border-amber-200">
+      <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-stone-200 dark:border-slate-800 text-center text-stone-500 dark:text-slate-400 space-y-3">
+        <div className="w-12 h-12 bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 rounded-full flex items-center justify-center mx-auto border border-amber-200 dark:border-amber-800">
           <HelpCircle className="w-6 h-6" />
         </div>
-        <h4 className="font-bold text-stone-800 text-sm sm:text-base">
+        <h4 className="font-bold text-stone-800 dark:text-white text-sm sm:text-base">
           {lang === 'am' ? 'ምንም የልምምድ ጥያቄ አልተካተተም' : 'No Practice Questions Available'}
         </h4>
-        <p className="text-xs text-stone-500 max-w-sm mx-auto">
+        <p className="text-xs text-stone-500 dark:text-slate-400 max-w-sm mx-auto">
           {lang === 'am'
             ? 'ለዚህ ምዕራፍ የተዘጋጀ የራስ-መገምገሚያ የልምምድ ጥያቄ እስካሁን የለም። መጽሐፉን በማንበብ ወይም ዋናውን ፈተና በመውሰድ ማጥናት ይችላሉ።'
             : 'No formative practice questions have been published for this chapter yet. You can study the textbook or take the graded quiz.'}
@@ -75,13 +75,13 @@ export function PracticeQuestionList({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Informative Guidance Banner */}
-      <div className="p-3.5 sm:p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-start space-x-3 text-xs text-amber-950">
-        <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+      <div className="p-3.5 sm:p-4 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 flex items-start space-x-3 text-xs text-amber-950 dark:text-amber-200">
+        <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
         <div className="leading-relaxed">
           <p className="font-bold">
             {lang === 'am' ? 'የራስ-ዕውቀት መገምገሚያ ልምምዶች (Drill Questions)' : 'Self-Study Practice Drills'}
           </p>
-          <p className="text-[11px] text-amber-800 mt-0.5">
+          <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5">
             {lang === 'am'
               ? 'እነዚህ ጥያቄዎች እራስዎትን ለመፈተሽ የሚረዱ ሲሆኑ፣ የክፍል ውጤትዎን ወይም የማለፊያ ነጥብዎን አይወስኑም። መልሱን ለማየት «መልሱን አሳይ» የሚለውን ይጫኑ።'
               : 'These questions are formative exercises for personal self-assessment. They do not affect your graded scores or completion records. Tap "Show Answer" at any time to verify.'}
@@ -100,17 +100,17 @@ export function PracticeQuestionList({
           return (
             <div
               key={q.id}
-              className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 shadow-xs space-y-4 transition"
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 p-4 sm:p-6 shadow-xs space-y-4 transition"
             >
               {/* Question Header */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start space-x-3">
-                  <span className="w-6 h-6 rounded-lg bg-amber-100 text-amber-900 border border-amber-200 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                  <span className="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
                   <div>
                     <div className="flex items-center space-x-2 mb-1">
-                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-stone-100 text-stone-600 border border-stone-200">
+                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-slate-300 border border-stone-200 dark:border-slate-700">
                         {q.questionType === 'TRUE_FALSE'
                           ? lang === 'am' ? 'እውነት / ሐሰት' : 'True / False'
                           : q.questionType === 'SHORT_ANSWER'
@@ -118,7 +118,7 @@ export function PracticeQuestionList({
                           : lang === 'am' ? 'ባለብዙ ምርጫ' : 'Multiple Choice'}
                       </span>
                     </div>
-                    <h3 className="font-extrabold text-stone-900 text-sm sm:text-base leading-snug">
+                    <h3 className="font-extrabold text-stone-900 dark:text-white text-sm sm:text-base leading-snug">
                       {questionPrompt}
                     </h3>
                   </div>
@@ -132,14 +132,14 @@ export function PracticeQuestionList({
                     const isSelected = selectedChoices[q.id] === choice.id;
                     const isChoiceCorrect = choice.isCorrect;
 
-                    let choiceStyle = 'bg-stone-50 hover:bg-stone-100/80 border-stone-200 text-stone-800';
+                    let choiceStyle = 'bg-stone-50 dark:bg-slate-950 hover:bg-stone-100/80 dark:hover:bg-slate-850 border-stone-200 dark:border-slate-800 text-stone-800 dark:text-slate-200';
                     if (isSelected && !isRevealed) {
-                      choiceStyle = 'bg-amber-50 border-amber-400 text-amber-950 font-semibold ring-1 ring-amber-400';
+                      choiceStyle = 'bg-amber-50 dark:bg-amber-950/60 border-amber-400 dark:border-amber-500 text-amber-950 dark:text-amber-200 font-semibold ring-1 ring-amber-400';
                     } else if (isRevealed) {
                       if (isChoiceCorrect) {
-                        choiceStyle = 'bg-emerald-50 border-emerald-400 text-emerald-950 font-bold';
+                        choiceStyle = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-600 text-emerald-950 dark:text-emerald-200 font-bold';
                       } else if (isSelected && !isChoiceCorrect) {
-                        choiceStyle = 'bg-rose-50 border-rose-300 text-rose-900';
+                        choiceStyle = 'bg-rose-50 dark:bg-rose-950/60 border-rose-300 dark:border-rose-700 text-rose-900 dark:text-rose-200';
                       }
                     }
 
@@ -154,10 +154,10 @@ export function PracticeQuestionList({
                           {pick(choice.amharicText, choice.text)}
                         </span>
                         {isRevealed && isChoiceCorrect && (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         )}
                         {isRevealed && isSelected && !isChoiceCorrect && (
-                          <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                          <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                         )}
                       </button>
                     );
@@ -175,14 +175,14 @@ export function PracticeQuestionList({
                     const isSelected = selectedChoices[q.id] === tf.key;
                     const isCorrect = answerText?.trim().toUpperCase() === tf.key;
 
-                    let tfStyle = 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-stone-800';
+                    let tfStyle = 'bg-stone-50 dark:bg-slate-950 hover:bg-stone-100 dark:hover:bg-slate-850 border-stone-200 dark:border-slate-800 text-stone-800 dark:text-slate-200';
                     if (isSelected && !isRevealed) {
-                      tfStyle = 'bg-amber-50 border-amber-400 text-amber-950 font-bold ring-1 ring-amber-400';
+                      tfStyle = 'bg-amber-50 dark:bg-amber-950/60 border-amber-400 dark:border-amber-500 text-amber-950 dark:text-amber-200 font-bold ring-1 ring-amber-400';
                     } else if (isRevealed) {
                       if (isCorrect) {
-                        tfStyle = 'bg-emerald-50 border-emerald-400 text-emerald-950 font-bold';
+                        tfStyle = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-600 text-emerald-950 dark:text-emerald-200 font-bold';
                       } else if (isSelected && !isCorrect) {
-                        tfStyle = 'bg-rose-50 border-rose-300 text-rose-900';
+                        tfStyle = 'bg-rose-50 dark:bg-rose-950/60 border-rose-300 dark:border-rose-700 text-rose-900 dark:text-rose-200';
                       }
                     }
 
@@ -194,7 +194,7 @@ export function PracticeQuestionList({
                         className={`py-3 px-4 rounded-xl border text-center font-bold text-xs sm:text-sm transition cursor-pointer flex items-center justify-center space-x-2 ${tfStyle}`}
                       >
                         <span>{tf.label}</span>
-                        {isRevealed && isCorrect && <Check className="w-4 h-4 text-emerald-600" />}
+                        {isRevealed && isCorrect && <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
                       </button>
                     );
                   })}
@@ -215,19 +215,19 @@ export function PracticeQuestionList({
                         ? 'የእርስዎን መልስ እዚህ ይጻፉ (የግል ማስታወሻ)...'
                         : 'Type your reflection or answer here...'
                     }
-                    className="w-full text-xs sm:text-sm p-3 rounded-xl border border-stone-300 focus:outline-none focus:border-amber-500 bg-stone-50/50"
+                    className="w-full text-xs sm:text-sm p-3 rounded-xl border border-stone-300 dark:border-slate-700 focus:outline-none focus:border-amber-500 bg-stone-50/50 dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500"
                   />
                 </div>
               )}
 
               {/* Show Answer / Reveal Toggle */}
-              <div className="pt-2 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2">
+              <div className="pt-2 border-t border-stone-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
                 <button
                   type="button"
                   onClick={() => toggleRevealAnswer(q.id)}
                   className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                     isRevealed
-                      ? 'bg-stone-200 hover:bg-stone-300 text-stone-800'
+                      ? 'bg-stone-200 dark:bg-slate-800 hover:bg-stone-300 dark:hover:bg-slate-700 text-stone-800 dark:text-slate-200'
                       : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs'
                   }`}
                 >
@@ -245,7 +245,7 @@ export function PracticeQuestionList({
                 </button>
 
                 {q.hasAnswer === false && (
-                  <span className="text-[11px] text-stone-400 italic">
+                  <span className="text-[11px] text-stone-400 dark:text-slate-500 italic">
                     {lang === 'am'
                       ? 'ክፍት የውይይት/የማሰላሰያ ጥያቄ'
                       : 'Open reflection drill'}
@@ -255,25 +255,25 @@ export function PracticeQuestionList({
 
               {/* Revealed Answer & Spiritual Explanation */}
               {isRevealed && (
-                <div className="p-3.5 rounded-xl bg-emerald-50/90 border border-emerald-200 text-xs sm:text-sm space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <div className="flex items-center space-x-2 text-emerald-950 font-bold">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <div className="p-3.5 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/70 text-xs sm:text-sm space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="flex items-center space-x-2 text-emerald-950 dark:text-emerald-200 font-bold">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>{lang === 'am' ? 'ትክክለኛ መልስ / ማብራሪያ' : 'Answer & Explanation'}</span>
                   </div>
 
                   {answerText ? (
-                    <div className="text-emerald-900 leading-relaxed font-semibold pl-6">
+                    <div className="text-emerald-900 dark:text-emerald-300 leading-relaxed font-semibold pl-6">
                       {answerText}
                     </div>
                   ) : q.choices?.some((c) => c.isCorrect) ? (
-                    <div className="text-emerald-900 leading-relaxed font-semibold pl-6">
+                    <div className="text-emerald-900 dark:text-emerald-300 leading-relaxed font-semibold pl-6">
                       {q.choices
                         .filter((c) => c.isCorrect)
                         .map((c) => pick(c.amharicText, c.text))
                         .join(' | ')}
                     </div>
                   ) : (
-                    <div className="text-emerald-800 pl-6 italic">
+                    <div className="text-emerald-800 dark:text-emerald-300 pl-6 italic">
                       {lang === 'am'
                         ? 'ይህ ጥያቄ ክፍት የማሰላሰያ ጥያቄ ስለሆነ የተወሰነ አንድ መልስ የለውም።'
                         : 'This is an open contemplation drill without a single rigid answer.'}
@@ -281,8 +281,8 @@ export function PracticeQuestionList({
                   )}
 
                   {explanation && (
-                    <div className="mt-2 pt-2 border-t border-emerald-200/70 text-emerald-800 text-xs pl-6 flex items-start space-x-1.5">
-                      <BookOpen className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
+                    <div className="mt-2 pt-2 border-t border-emerald-200/70 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 text-xs pl-6 flex items-start space-x-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
                       <span>{explanation}</span>
                     </div>
                   )}
