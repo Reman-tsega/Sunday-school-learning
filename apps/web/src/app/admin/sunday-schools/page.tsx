@@ -23,7 +23,6 @@ import {
   RotateCcw,
   Building2,
 } from 'lucide-react';
-import AdminShell from '../AdminShell';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import type { ParishDto, CreateParishInput } from '@eotc/shared';
@@ -279,7 +278,7 @@ export default function SundaySchoolsManagementPage() {
   };
 
   return (
-    <AdminShell>
+    <>
       <div className="p-3 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 max-w-7xl mx-auto w-full">
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl shadow-sm">
@@ -1117,6 +1116,6 @@ export default function SundaySchoolsManagementPage() {
           </div>
         </div>
       )}
-    </AdminShell>
+    </>
   );
 }
