@@ -112,6 +112,33 @@ export function Navbar() {
     };
   }, []);
 
+  // Auto-close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll and listen for Escape key when mobile menu is open
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return undefined;
+    }
+
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalStyle === 'hidden' ? '' : originalStyle;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mobileMenuOpen]);
+
   const handleLogout = async () => {
     setMobileMenuOpen(false);
     await api.logout();
@@ -460,225 +487,264 @@ export function Navbar() {
       </div>
 
       {/* ============================================================== */}
-      {/* MOBILE DRAWER DROPDOWN MENU                                    */}
+      {/* MOBILE DRAWER OVERLAY (Fixed Off-Canvas Drawer over Page)       */}
       {/* ============================================================== */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-slate-900/98 backdrop-blur-md px-4 py-3 space-y-3 animate-in slide-in-from-top-2 duration-150 shadow-2xl">
-          {/* Header Card in Mobile Menu */}
-          {isAuthenticated ? (
-            /* Logged-in User Profile Strip */
-            <div className="flex items-center justify-between p-3 bg-slate-800/80 rounded-xl border border-slate-700 text-xs">
-              <Link
-                href="/profile"
-                onClick={handleNavClick}
-                className="flex items-center space-x-2 hover:opacity-85 transition"
-              >
-                <div className="w-7 h-7 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold">
-                  <User className="w-4 h-4" />
+        <div className="fixed inset-0 z-50 md:hidden flex justify-end" role="dialog" aria-modal="true" aria-label="Main Navigation Menu">
+          {/* 1. Backdrop Blur Overlay (Tapping closes drawer) */}
+          <div
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* 2. Slide-out Off-Canvas Drawer (Stays fixed over page, scrolls internally) */}
+          <aside className="relative w-80 max-w-[85vw] bg-slate-900 border-l border-slate-800 flex flex-col h-full shadow-2xl z-10 animate-in slide-in-from-right duration-250 ease-out">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/40 shrink-0">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-full bg-eotc-gold flex items-center justify-center text-eotc-navy font-bold text-base shadow shrink-0">
+                  ✞
                 </div>
                 <div>
-                  <div className="font-bold text-white text-sm truncate max-w-[170px]">{userName}</div>
-                  <div className="text-[11px] text-amber-300 font-semibold">
+                  <span className="font-bold text-sm tracking-wide text-white block">
+                    {lang === 'am' ? 'ሰንበት ት/ቤት' : 'Sunday School'}
+                  </span>
+                  <span className="text-[10px] text-amber-300 block">
                     {userRole === 'ADMIN'
-                      ? (lang === 'am' ? 'አስተዳዳሪ (Admin)' : 'Administrator')
-                      : (lang === 'am' ? 'ተማሪ (Student)' : 'Student')}
-                  </div>
+                      ? (lang === 'am' ? 'የአስተዳዳሪ ስቱዲዮ' : 'Admin Studio')
+                      : (lang === 'am' ? 'የመማሪያ መድረክ' : 'Learning Platform')}
+                  </span>
                 </div>
-              </Link>
+              </div>
               <button
-                onClick={handleLogout}
-                className="px-2.5 py-1 text-xs text-rose-300 bg-rose-950/60 hover:bg-rose-900 border border-rose-800/60 rounded-lg flex items-center space-x-1"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                aria-label="Close navigation menu"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>{lang === 'am' ? 'ውጣ' : 'Sign Out'}</span>
+                <X className="w-5 h-5 text-amber-400" />
               </button>
             </div>
-          ) : (
-            /* Guest Dual Sign-In & Register Action */
-            <div className="grid grid-cols-2 gap-2">
-              <Link
-                href="/login"
-                onClick={handleNavClick}
-                className="text-center py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs border border-slate-700 transition"
-              >
-                {lang === 'am' ? 'ግባ / Sign In' : 'Sign In'}
-              </Link>
-              <Link
-                href="/login?mode=register"
-                onClick={handleNavClick}
-                className="text-center py-2 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow transition flex items-center justify-center space-x-1"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{lang === 'am' ? 'ተመዝገብ' : 'Register'}</span>
-              </Link>
-            </div>
-          )}
 
-          {/* Navigation Links based on role / authentication */}
-          <div className="space-y-1.5 pt-1">
-            {!isAuthenticated ? (
-              /* Public Links in Mobile Drawer */
-              <>
-                <Link
-                  href="/"
-                  onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
-                >
-                  <BookOpen className="w-4 h-4 text-amber-400" />
-                  <span>{lang === 'am' ? 'መነሻ ገጽ' : 'Home'}</span>
-                </Link>
+            {/* Scrollable Navigation Body */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 overscroll-contain">
+              {/* Header Card in Mobile Menu */}
+              {isAuthenticated ? (
+                /* Logged-in User Profile Strip */
+                <div className="flex items-center justify-between p-3 bg-slate-800/80 rounded-xl border border-slate-700 text-xs">
+                  <Link
+                    href="/profile"
+                    onClick={handleNavClick}
+                    className="flex items-center space-x-2 hover:opacity-85 transition"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-sm truncate max-w-[170px]">{userName}</div>
+                      <div className="text-[11px] text-amber-300 font-semibold">
+                        {userRole === 'ADMIN'
+                          ? (lang === 'am' ? 'አስተዳዳሪ (Admin)' : 'Administrator')
+                          : (lang === 'am' ? 'ተማሪ (Student)' : 'Student')}
+                      </div>
+                    </div>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="px-2.5 py-1 text-xs text-rose-300 bg-rose-950/60 hover:bg-rose-900 border border-rose-800/60 rounded-lg flex items-center space-x-1"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>{lang === 'am' ? 'ውጣ' : 'Sign Out'}</span>
+                  </button>
+                </div>
+              ) : (
+                /* Guest Dual Sign-In & Register Action */
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/login"
+                    onClick={handleNavClick}
+                    className="text-center py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs border border-slate-700 transition"
+                  >
+                    {lang === 'am' ? 'ግባ / Sign In' : 'Sign In'}
+                  </Link>
+                  <Link
+                    href="/login?mode=register"
+                    onClick={handleNavClick}
+                    className="text-center py-2 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow transition flex items-center justify-center space-x-1"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{lang === 'am' ? 'ተመዝገብ' : 'Register'}</span>
+                  </Link>
+                </div>
+              )}
 
-                <Link
-                  href="/#curriculum-preview"
-                  onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
-                >
-                  <BookOpen className="w-4 h-4 text-amber-400" />
-                  <span>{lang === 'am' ? 'ሥርዓተ ትምህርት' : 'Curriculum'}</span>
-                </Link>
-              </>
-            ) : userRole === 'ADMIN' ? (
-              /* Admin Links in Mobile Drawer - no duplicate teacher portal or redundant views on admin routes */
-              <>
-                {!isAdminRoute && (
+              {/* Navigation Links based on role / authentication */}
+              <div className="space-y-1.5 pt-1">
+                {!isAuthenticated ? (
+                  /* Public Links in Mobile Drawer */
                   <>
                     <Link
-                      href="/admin"
+                      href="/"
+                      onClick={handleNavClick}
+                      className="flex items-center space-x-2.5 p-2.5 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
+                    >
+                      <BookOpen className="w-4 h-4 text-amber-400" />
+                      <span>{lang === 'am' ? 'መነሻ ገጽ' : 'Home'}</span>
+                    </Link>
+
+                    <Link
+                      href="/#curriculum-preview"
+                      onClick={handleNavClick}
+                      className="flex items-center space-x-2.5 p-2.5 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
+                    >
+                      <BookOpen className="w-4 h-4 text-amber-400" />
+                      <span>{lang === 'am' ? 'ሥርዓተ ትምህርት' : 'Curriculum'}</span>
+                    </Link>
+                  </>
+                ) : userRole === 'ADMIN' ? (
+                  /* Admin Links in Mobile Drawer */
+                  <>
+                    {!isAdminRoute && (
+                      <>
+                        <Link
+                          href="/admin"
+                          onClick={handleNavClick}
+                          className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs"
+                        >
+                          <Shield className="w-4 h-4 text-amber-400" />
+                          <span>{lang === 'am' ? 'ወደ አስተዳዳሪ ስቱዲዮ' : 'Admin Control Studio'}</span>
+                        </Link>
+
+                        <Link
+                          href="/"
+                          onClick={handleNavClick}
+                          className="flex items-center space-x-2.5 p-2.5 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
+                        >
+                          <BookOpen className="w-4 h-4 text-amber-400" />
+                          <span>{lang === 'am' ? 'የተማሪዎች እይታ (ትምህርቶች)' : 'Student View (Courses)'}</span>
+                        </Link>
+                      </>
+                    )}
+                  </>
+                ) : userRole === 'TEACHER' ? (
+                  /* Teacher Links in Mobile Drawer */
+                  <>
+                    <Link
+                      href="/teacher"
                       onClick={handleNavClick}
                       className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs"
                     >
-                      <Shield className="w-4 h-4 text-amber-400" />
-                      <span>{lang === 'am' ? 'ወደ አስተዳዳሪ ስቱዲዮ' : 'Admin Control Studio'}</span>
+                      <GraduationCap className="w-4 h-4 text-amber-400" />
+                      <span>{lang === 'am' ? 'የመምህራን መድረክ' : 'Teacher Portal'}</span>
                     </Link>
 
                     <Link
                       href="/"
                       onClick={handleNavClick}
-                      className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
+                      className="flex items-center space-x-2.5 p-2.5 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
                     >
                       <BookOpen className="w-4 h-4 text-amber-400" />
-                      <span>{lang === 'am' ? 'የተማሪዎች እይታ (ትምህርቶች)' : 'Student View (Courses)'}</span>
+                      <span>{lang === 'am' ? 'ሥርዓተ ትምህርት' : 'Curriculum Courses'}</span>
+                    </Link>
+                  </>
+                ) : (
+                  /* Authenticated Student Links in Mobile Drawer */
+                  <>
+                    <Link
+                      href="/"
+                      onClick={handleNavClick}
+                      className="flex items-center space-x-2.5 p-2.5 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
+                    >
+                      <BookOpen className="w-4 h-4 text-amber-400" />
+                      <span>{lang === 'am' ? 'ሥርዓተ ትምህርት' : 'Curriculum Courses'}</span>
+                    </Link>
+
+                    <Link
+                      href="/download-manager"
+                      onClick={handleNavClick}
+                      className="flex items-center space-x-2.5 p-2.5 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
+                    >
+                      <Download className="w-4 h-4 text-amber-400" />
+                      <span>{lang === 'am' ? 'የወረዱ መጻሕፍት' : 'Offline Downloads'}</span>
                     </Link>
                   </>
                 )}
-              </>
-            ) : userRole === 'TEACHER' ? (
-              /* Teacher Links in Mobile Drawer */
-              <>
-                <Link
-                  href="/teacher"
-                  onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs"
-                >
-                  <GraduationCap className="w-4 h-4 text-amber-400" />
-                  <span>{lang === 'am' ? 'የመምህራን መድረክ' : 'Teacher Portal'}</span>
-                </Link>
 
-                <Link
-                  href="/"
-                  onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
-                >
-                  <BookOpen className="w-4 h-4 text-amber-400" />
-                  <span>{lang === 'am' ? 'ሥርዓተ ትምህርት' : 'Curriculum Courses'}</span>
-                </Link>
-              </>
-            ) : (
-              /* Authenticated Student Links in Mobile Drawer */
-              <>
-                <Link
-                  href="/"
-                  onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
-                >
-                  <BookOpen className="w-4 h-4 text-amber-400" />
-                  <span>{lang === 'am' ? 'ሥርዓተ ትምህርት' : 'Curriculum Courses'}</span>
-                </Link>
+                {/* Common informational links */}
+                {!isAdminRoute && (
+                  <div className="pt-2 border-t border-slate-800/80 grid grid-cols-3 gap-1.5">
+                    <Link
+                      href="/about"
+                      onClick={handleNavClick}
+                      className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
+                    >
+                      <Info className="w-4 h-4 text-amber-400 mb-1" />
+                      <span className="truncate">{lang === 'am' ? 'ስለ እኛ' : 'About'}</span>
+                    </Link>
 
-                <Link
-                  href="/download-manager"
-                  onClick={handleNavClick}
-                  className="flex items-center space-x-2.5 p-2 rounded-xl text-slate-200 hover:bg-slate-800 text-xs font-semibold"
-                >
-                  <Download className="w-4 h-4 text-amber-400" />
-                  <span>{lang === 'am' ? 'የወረዱ መጻሕፍት' : 'Offline Downloads'}</span>
-                </Link>
-              </>
-            )}
+                    <Link
+                      href="/faq"
+                      onClick={handleNavClick}
+                      className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
+                    >
+                      <HelpCircle className="w-4 h-4 text-amber-400 mb-1" />
+                      <span className="truncate">{lang === 'am' ? 'ጥያቄዎች' : 'FAQ'}</span>
+                    </Link>
 
-            {/* Common informational links (hidden on admin route per requirements) */}
-            {!isAdminRoute && (
-              <div className="pt-2 border-t border-slate-800/80 grid grid-cols-3 gap-1.5">
-                <Link
-                  href="/about"
-                  onClick={handleNavClick}
-                  className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
-                >
-                  <Info className="w-4 h-4 text-amber-400 mb-1" />
-                  <span className="truncate">{lang === 'am' ? 'ስለ እኛ' : 'About'}</span>
-                </Link>
-
-                <Link
-                  href="/faq"
-                  onClick={handleNavClick}
-                  className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
-                >
-                  <HelpCircle className="w-4 h-4 text-amber-400 mb-1" />
-                  <span className="truncate">{lang === 'am' ? 'ጥያቄዎች' : 'FAQ'}</span>
-                </Link>
-
-                <Link
-                  href="/support"
-                  onClick={handleNavClick}
-                  className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
-                >
-                  <MessageSquare className="w-4 h-4 text-amber-400 mb-1" />
-                  <span className="truncate">{lang === 'am' ? 'እርዳታ' : 'Support'}</span>
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Status & Sync in Mobile Menu - ONLY for Authenticated Users */}
-          {isAuthenticated && (
-            <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-              <div className="flex items-center space-x-1.5">
-                {isOnline ? (
-                  <span className="flex items-center text-emerald-400 font-semibold">
-                    <Wifi className="w-3.5 h-3.5 mr-1" />
-                    {lang === 'am' ? 'መስመር ላይ' : 'Online'}
-                  </span>
-                ) : (
-                  <span className="flex items-center text-amber-400 font-semibold">
-                    <WifiOff className="w-3.5 h-3.5 mr-1" />
-                    {lang === 'am' ? 'ከመስመር ውጭ' : 'Offline'}
-                  </span>
+                    <Link
+                      href="/support"
+                      onClick={handleNavClick}
+                      className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-200 text-center text-xs font-semibold"
+                    >
+                      <MessageSquare className="w-4 h-4 text-amber-400 mb-1" />
+                      <span className="truncate">{lang === 'am' ? 'እርዳታ' : 'Support'}</span>
+                    </Link>
+                  </div>
                 )}
               </div>
-
-              <button
-                onClick={handleSyncClick}
-                disabled={syncState.status === 'syncing' || !isOnline}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                  syncState.pendingCount > 0
-                    ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow'
-                    : 'bg-slate-800 hover:bg-slate-700 text-amber-300'
-                }`}
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${syncState.status === 'syncing' ? 'animate-spin' : ''}`} />
-                <span>
-                  {syncState.status === 'syncing'
-                    ? (lang === 'am' ? 'በማመሳሰል ላይ...' : 'Syncing...')
-                    : (lang === 'am' ? 'አመሳስል' : 'Sync Now')}
-                </span>
-                {syncState.pendingCount > 0 && (
-                  <span className="bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full min-w-[16px] text-center">
-                    {syncState.pendingCount}
-                  </span>
-                )}
-              </button>
             </div>
-          )}
+
+            {/* Status & Sync in Mobile Menu - ONLY for Authenticated Users */}
+            {isAuthenticated && (
+              <div className="p-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 bg-slate-950/40 shrink-0">
+                <div className="flex items-center space-x-1.5">
+                  {isOnline ? (
+                    <span className="flex items-center text-emerald-400 font-semibold">
+                      <Wifi className="w-3.5 h-3.5 mr-1" />
+                      {lang === 'am' ? 'መስመር ላይ' : 'Online'}
+                    </span>
+                  ) : (
+                    <span className="flex items-center text-amber-400 font-semibold">
+                      <WifiOff className="w-3.5 h-3.5 mr-1" />
+                      {lang === 'am' ? 'ከመስመር ውጭ' : 'Offline'}
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  onClick={handleSyncClick}
+                  disabled={syncState.status === 'syncing' || !isOnline}
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                    syncState.pendingCount > 0
+                      ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow'
+                      : 'bg-slate-800 hover:bg-slate-700 text-amber-300'
+                  }`}
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${syncState.status === 'syncing' ? 'animate-spin' : ''}`} />
+                  <span>
+                    {syncState.status === 'syncing'
+                      ? (lang === 'am' ? 'በማመሳሰል ላይ...' : 'Syncing...')
+                      : (lang === 'am' ? 'አመሳስል' : 'Sync Now')}
+                  </span>
+                  {syncState.pendingCount > 0 && (
+                    <span className="bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full min-w-[16px] text-center">
+                      {syncState.pendingCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+            )}
+          </aside>
         </div>
       )}
 

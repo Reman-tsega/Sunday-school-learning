@@ -35,6 +35,33 @@ export default function AdminShell({
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Auto-close mobile drawer on route navigation
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll and listen for Escape key when mobile menu is open
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return undefined;
+    }
+
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalStyle === 'hidden' ? '' : originalStyle;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mobileMenuOpen]);
+
   useEffect(() => {
     api.init().then(() => {
       const user = api.getUser();
@@ -232,44 +259,86 @@ export default function AdminShell({
         </div>
       </div>
 
-      {/* Mobile Dropdown Nav Menu */}
+      {/* Mobile Off-Canvas Drawer Overlay (Fixed over the page, never scrolls with the page) */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white/98 dark:bg-slate-900/98 border-b border-stone-200 dark:border-slate-800 px-4 py-3 space-y-1.5 animate-in slide-in-from-top-2 duration-150 z-30 shadow-xl backdrop-blur-md">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
+        <div className="fixed inset-0 z-50 md:hidden flex" role="dialog" aria-modal="true" aria-label="Admin Navigation Drawer">
+          {/* 1. Backdrop Overlay (Tap outside to close) */}
+          <div
+            className="fixed inset-0 bg-stone-950/60 dark:bg-slate-950/80 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* 2. Slide-out Off-Canvas Drawer Panel */}
+          <aside className="relative w-72 max-w-[85vw] bg-white dark:bg-slate-900 border-r border-stone-200 dark:border-slate-800 flex flex-col h-full shadow-2xl z-10 animate-in slide-in-from-left duration-250 ease-out">
+            {/* Drawer Header with Title & Close Button */}
+            <div className="p-4 border-b border-stone-200 dark:border-slate-800 flex items-center justify-between bg-stone-50/70 dark:bg-slate-800/40 shrink-0">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-lg shrink-0 shadow-sm">
+                  ✞
+                </div>
+                <div>
+                  <h2 className="font-bold text-sm tracking-wide text-stone-900 dark:text-white leading-tight">
+                    {lang === 'am' ? 'አስተዳዳሪ ፖርታል' : 'Admin Portal'}
+                  </h2>
+                  <p className="text-[10px] text-amber-600 dark:text-amber-400 leading-tight">
+                    {lang === 'am' ? 'የቁጥጥር ስቱዲዮ' : 'Control Studio'}
+                  </p>
+                </div>
+              </div>
+              <button
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
-                  item.active
-                    ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-semibold'
-                    : 'text-stone-600 dark:text-slate-400 hover:bg-stone-100 dark:hover:bg-slate-800/60 hover:text-stone-900 dark:hover:text-slate-200'
-                }`}
+                className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 dark:text-slate-400 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-slate-800 transition"
+                aria-label="Close navigation menu"
               >
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                <span>{item.name}</span>
+                <X className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              </button>
+            </div>
+
+            {/* Scrollable Navigation Items (Independent scroll within drawer, page body is locked) */}
+            <nav className="flex-1 overflow-y-auto p-3 space-y-1 overscroll-contain">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
+                      item.active
+                        ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-semibold'
+                        : 'text-stone-600 dark:text-slate-400 hover:bg-stone-100 dark:hover:bg-slate-800/60 hover:text-stone-900 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Drawer Bottom Actions */}
+            <div className="p-3 border-t border-stone-200 dark:border-slate-800 space-y-1.5 bg-stone-50/70 dark:bg-slate-800/40 shrink-0">
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center space-x-2 px-3.5 py-2.5 text-xs text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition font-medium"
+              >
+                <BookOpen className="w-4 h-4 shrink-0" />
+                <span>{lang === 'am' ? 'ወደ ተማሪዎች ገጽ' : 'Open Student Platform'}</span>
               </Link>
-            );
-          })}
-          <div className="pt-2 border-t border-stone-200 dark:border-slate-800 space-y-1">
-            <Link
-              href="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center space-x-2 px-3.5 py-2 text-xs text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>{lang === 'am' ? 'ወደ ተማሪዎች ገጽ' : 'Open Student Platform'}</span>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center space-x-2 px-3.5 py-2 text-xs text-rose-600 dark:text-red-400 hover:text-rose-700 dark:hover:text-red-300 hover:bg-rose-50 dark:hover:bg-red-950/40 rounded-lg transition"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>{lang === 'am' ? 'ውጣ' : 'Sign Out'}</span>
-            </button>
-          </div>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="w-full flex items-center space-x-2 px-3.5 py-2.5 text-xs text-rose-600 dark:text-red-400 hover:text-rose-700 dark:hover:text-red-300 hover:bg-rose-50 dark:hover:bg-red-950/40 rounded-lg transition font-medium"
+              >
+                <LogOut className="w-4 h-4 shrink-0" />
+                <span>{lang === 'am' ? 'ውጣ' : 'Sign Out'}</span>
+              </button>
+            </div>
+          </aside>
         </div>
       )}
 
