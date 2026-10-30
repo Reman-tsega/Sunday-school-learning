@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import { ChurchLoader } from '@/components/ChurchLoader';
+import ParishCombobox from '@/components/ParishCombobox';
 import type { UserProfile, StudentEnrollmentItem } from '@eotc/shared';
 
 export default function ProfilePage() {
@@ -36,6 +38,7 @@ export default function ProfilePage() {
   const [baptismalName, setBaptismalName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [churchParish, setChurchParish] = useState('');
+  const [parishId, setParishId] = useState<string | null>(null);
 
   useEffect(() => {
     loadProfile();
@@ -58,6 +61,7 @@ export default function ProfilePage() {
       setBaptismalName(currentUser.baptismalName || '');
       setPhoneNumber(currentUser.phoneNumber || '');
       setChurchParish(currentUser.churchParish || '');
+      setParishId(currentUser.parishId || null);
 
       if (currentUser.role !== 'ADMIN') {
         const studentEnrollments = await api.getStudentEnrollments().catch(() => []);
@@ -100,6 +104,7 @@ export default function ProfilePage() {
         baptismalName: baptismalName.trim() || null,
         phoneNumber: phoneNumber.trim() || null,
         churchParish: churchParish.trim() || null,
+        parishId,
       });
 
       setUser(updated);
@@ -119,10 +124,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-stone-500">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600 mb-2" />
-        <p className="text-xs">{lang === 'am' ? 'መረጃዎችን በመጫን ላይ...' : 'Loading profile...'}</p>
-      </div>
+      <ChurchLoader label={lang === 'am' ? 'መረጃዎችን በመጫን ላይ...' : 'Loading profile...'} />
     );
   }
 
@@ -282,15 +284,16 @@ export default function ProfilePage() {
 
                 {/* Sunday School / Parish */}
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                    {lang === 'am' ? 'ሰንበት ትምህርት ቤት ወይም አጥቢያ ቤተክርስቲያን' : 'Sunday School'}
-                  </label>
-                  <input
-                    type="text"
+                  <ParishCombobox
                     value={churchParish}
-                    onChange={(e) => setChurchParish(e.target.value)}
-                    placeholder={lang === 'am' ? 'ደብረ ሰላም መድኃኔዓለም' : 'Debre Selam Medhanealem'}
-                    className="w-full px-3 py-2 border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-lg text-xs text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    parishId={parishId}
+                    onChange={(name, id) => {
+                      setChurchParish(name);
+                      setParishId(id || null);
+                    }}
+                    label={lang === 'am' ? 'ሰንበት ት/ቤት ወይም አጥቢያ ቤተክርስቲያን' : 'Sunday School'}
+                    placeholder={lang === 'am' ? 'ደብር ወይም ሰንበት ትምህርት ቤት ይምረጡ ወይም ይፃፉ...' : 'Select or type Sunday School...'}
+                    helperText={lang === 'am' ? 'ከዝርዝሩ ይምረጡ ወይም ካልተገኘ ስሙን ይፃፉ' : 'Select from list or type a custom name'}
                   />
                 </div>
 

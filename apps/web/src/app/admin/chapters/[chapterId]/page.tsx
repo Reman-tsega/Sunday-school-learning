@@ -131,16 +131,13 @@ export default function AdminChapterStudioPage() {
   const [practiceQuestionForm, setPracticeQuestionForm] = useState({
     questionType: 'MULTIPLE_CHOICE' as QuestionType,
     prompt: '',
-    amharicPrompt: '',
     explanation: '',
-    amharicExplanation: '',
     choices: [
-      { text: '', amharicText: '', isCorrect: true, orderIndex: 1 },
-      { text: '', amharicText: '', isCorrect: false, orderIndex: 2 },
+      { text: '', isCorrect: true, orderIndex: 1 },
+      { text: '', isCorrect: false, orderIndex: 2 },
     ],
     tfAnswer: 'TRUE' as 'TRUE' | 'FALSE',
     saAnswer: '',
-    saAmharicAnswer: '',
   });
 
   const handleAddPracticeChoice = () => {
@@ -148,7 +145,7 @@ export default function AdminChapterStudioPage() {
       ...prev,
       choices: [
         ...prev.choices,
-        { text: '', amharicText: '', isCorrect: false, orderIndex: prev.choices.length + 1 },
+        { text: '', isCorrect: false, orderIndex: prev.choices.length + 1 },
       ],
     }));
   };
@@ -169,7 +166,7 @@ export default function AdminChapterStudioPage() {
 
   const handleSavePracticeQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!practiceQuestionForm.prompt.trim() && !practiceQuestionForm.amharicPrompt.trim()) {
+    if (!practiceQuestionForm.prompt.trim()) {
       setActionMessage({
         type: 'error',
         text: lang === 'am' ? 'እባክዎ የጥያቄውን ጽሑፍ ያስገቡ' : 'Please provide question prompt',
@@ -182,55 +179,48 @@ export default function AdminChapterStudioPage() {
       const payload: any = {
         chapterId,
         questionType: practiceQuestionForm.questionType,
-        prompt: practiceQuestionForm.prompt.trim() || practiceQuestionForm.amharicPrompt.trim(),
-        amharicPrompt: practiceQuestionForm.amharicPrompt.trim() || undefined,
+        prompt: practiceQuestionForm.prompt.trim(),
         explanation: practiceQuestionForm.explanation.trim() || undefined,
-        amharicExplanation: practiceQuestionForm.amharicExplanation.trim() || undefined,
       };
 
       if (practiceQuestionForm.questionType === 'MULTIPLE_CHOICE') {
-        const valid = practiceQuestionForm.choices.filter((c) => c.text.trim() || c.amharicText.trim());
+        const valid = practiceQuestionForm.choices.filter((c) => c.text.trim());
         if (valid.length < 2) {
           throw new Error(lang === 'am' ? 'ቢያንስ 2 ምርጫዎች ያስፈልጋሉ' : 'At least 2 choices required');
         }
         if (!valid.some((c) => c.isCorrect)) valid[0]!.isCorrect = true;
         payload.choices = valid.map((c, i) => ({
-          text: c.text.trim() || c.amharicText.trim(),
-          amharicText: c.amharicText.trim() || undefined,
+          text: c.text.trim(),
           isCorrect: c.isCorrect,
           orderIndex: i + 1,
         }));
       } else if (practiceQuestionForm.questionType === 'TRUE_FALSE') {
         payload.choices = [
-          { text: 'True', amharicText: 'እውነት', isCorrect: practiceQuestionForm.tfAnswer === 'TRUE', orderIndex: 1 },
-          { text: 'False', amharicText: 'ሐሰት', isCorrect: practiceQuestionForm.tfAnswer === 'FALSE', orderIndex: 2 },
+          { text: 'True', isCorrect: practiceQuestionForm.tfAnswer === 'TRUE', orderIndex: 1 },
+          { text: 'False', isCorrect: practiceQuestionForm.tfAnswer === 'FALSE', orderIndex: 2 },
         ];
       } else if (practiceQuestionForm.questionType === 'SHORT_ANSWER') {
-        payload.hasAnswer = !!(practiceQuestionForm.saAnswer.trim() || practiceQuestionForm.saAmharicAnswer.trim());
+        payload.hasAnswer = !!practiceQuestionForm.saAnswer.trim();
         payload.answerText = practiceQuestionForm.saAnswer.trim() || undefined;
-        payload.amharicAnswerText = practiceQuestionForm.saAmharicAnswer.trim() || undefined;
       }
 
       await api.submitTeacherPracticeQuestion(payload);
       setShowPracticeQuestionModal(false);
       setActionMessage({
         type: 'success',
-        text: lang === 'am' ? 'የልምምድ ጥያቄው ወዲያውኑ ጸድቆ ተመዝግቧል!' : 'Practice drill created and published immediately!',
+        text: lang === 'am' ? 'የልምምድ ጥያቄው ወዲያውኑ ጸድቆ ተመዝግቧል!' : 'Practice question created and published immediately!',
       });
       // reset form
       setPracticeQuestionForm({
         questionType: 'MULTIPLE_CHOICE',
         prompt: '',
-        amharicPrompt: '',
         explanation: '',
-        amharicExplanation: '',
         choices: [
-          { text: '', amharicText: '', isCorrect: true, orderIndex: 1 },
-          { text: '', amharicText: '', isCorrect: false, orderIndex: 2 },
+          { text: '', isCorrect: true, orderIndex: 1 },
+          { text: '', isCorrect: false, orderIndex: 2 },
         ],
         tfAnswer: 'TRUE',
         saAnswer: '',
-        saAmharicAnswer: '',
       });
       const updated = await api.getChapterPracticeQuestions(chapterId).catch(() => []);
       setPracticeQuestions(updated || []);
@@ -1180,7 +1170,7 @@ export default function AdminChapterStudioPage() {
                 <div key={ref.id} className="p-3 bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 rounded-lg space-y-1">
                   <div className="flex justify-between items-start">
                     <h4 className="text-xs font-semibold text-stone-800 dark:text-slate-200">
-                      {pick(ref.amharicTitle, ref.title)}
+                      {ref.title}
                     </h4>
                     <div className="flex items-center space-x-1.5">
                       {ref.isDownloadable ? (
@@ -1221,7 +1211,7 @@ export default function AdminChapterStudioPage() {
             <div className="flex items-center space-x-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <h2 className="text-sm font-bold text-stone-900 dark:text-white uppercase tracking-wider">
-                {lang === 'am' ? '፬. የልምምድ ጥያቄዎች' : '4. Practice Drills'}
+                {lang === 'am' ? '፬. የልምምድ ጥያቄዎች' : '4. Practice Questions'}
               </h2>
             </div>
             <button
@@ -1229,12 +1219,12 @@ export default function AdminChapterStudioPage() {
               className="text-[11px] text-amber-700 dark:text-amber-300 hover:underline font-semibold flex items-center space-x-0.5 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
             >
               <PlusCircle className="w-3 h-3 mr-0.5" />
-              <span>{lang === 'am' ? 'ጥያቄ ጨምር' : 'Add Drill'}</span>
+              <span>{lang === 'am' ? 'ጥያቄ ጨምር' : 'Add Question'}</span>
             </button>
           </div>
 
           <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-slate-400">
-            <span>{lang === 'am' ? 'ጠቅላላ የልምምድ ጥያቄዎች' : 'Total Practice Drills'}</span>
+            <span>{lang === 'am' ? 'ጠቅላላ የልምምድ ጥያቄዎች' : 'Total Practice Questions'}</span>
             <span className="font-mono font-bold text-amber-700 dark:text-amber-400">{practiceQuestions.length}</span>
           </div>
 
@@ -1242,7 +1232,7 @@ export default function AdminChapterStudioPage() {
             <div className="p-6 text-center text-stone-500 dark:text-slate-500 text-xs italic bg-stone-50 dark:bg-slate-950 rounded-lg border border-stone-200 dark:border-slate-800">
               {lang === 'am'
                 ? 'ምንም የልምምድ ጥያቄ አልተጨመረም። "ጥያቄ ጨምር" የሚለውን ይጫኑ።'
-                : 'No practice questions yet. Click "Add Drill" to create one.'}
+                : 'No practice questions yet. Click "Add Question" to create one.'}
             </div>
           ) : (
             <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
@@ -1270,22 +1260,22 @@ export default function AdminChapterStudioPage() {
                               : (lang === 'am' ? 'አጭር መልስ' : 'Short Answer')}
                           </span>
                         </div>
-                        <p className="line-clamp-2">{pick(q.amharicPrompt, q.prompt)}</p>
+                        <p className="line-clamp-2">{q.prompt}</p>
                       </div>
                       <button
                         onClick={() => handleDeletePracticeQuestion(q.id)}
                         className="text-stone-400 dark:text-slate-500 hover:text-red-500 p-1 transition shrink-0"
-                        title={lang === 'am' ? 'ጥያቄውን ሰርዝ' : 'Delete Drill'}
+                        title={lang === 'am' ? 'ጥያቄውን ሰርዝ' : 'Delete Question'}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
                     {qType === 'SHORT_ANSWER' ? (
-                      (q.answerText || q.amharicAnswerText) && (
+                      q.answerText && (
                         <div className="text-[11px] bg-white dark:bg-slate-900/80 p-1.5 rounded border border-stone-200 dark:border-slate-800 text-stone-700 dark:text-slate-300">
                           <span className="text-amber-700 dark:text-amber-400 font-semibold">{lang === 'am' ? 'የሚጠበቅ መልስ፡ ' : 'Expected: '}</span>
-                          <span>{pick(q.amharicAnswerText, q.answerText)}</span>
+                          <span>{q.answerText}</span>
                         </div>
                       )
                     ) : (
@@ -1298,7 +1288,7 @@ export default function AdminChapterStudioPage() {
                             }`}
                           >
                             <span>{c.isCorrect ? '✓' : '•'}</span>
-                            <span className="truncate">{pick(c.amharicText, c.text)}</span>
+                            <span className="truncate">{c.text}</span>
                           </div>
                         ))}
                       </div>
@@ -1686,7 +1676,7 @@ export default function AdminChapterStudioPage() {
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-5 h-5 text-amber-500" />
                 <h2 className="text-base font-bold text-stone-900 dark:text-white">
-                  {lang === 'am' ? 'አዲስ የልምምድ ጥያቄ ጨምር (ቀጥታ የሚጸድቅ)' : 'Add Practice Drill (Direct Publish)'}
+                  {lang === 'am' ? 'አዲስ የልምምድ ጥያቄ ጨምር (ቀጥታ የሚጸድቅ)' : 'Add Practice Question (Direct Publish)'}
                 </h2>
               </div>
               <button
@@ -1729,21 +1719,7 @@ export default function AdminChapterStudioPage() {
               <div className="space-y-2">
                 <div>
                   <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
-                    {lang === 'am' ? 'የጥያቄው ጽሑፍ (አማርኛ)' : 'Question Prompt (Amharic)'}
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={practiceQuestionForm.amharicPrompt}
-                    onChange={(e) =>
-                      setPracticeQuestionForm((p) => ({ ...p, amharicPrompt: e.target.value }))
-                    }
-                    placeholder="ጥያቄውን በአማርኛ እዚህ ይጻፉ..."
-                    className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg p-2.5 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
-                    {lang === 'am' ? 'የጥያቄው ጽሑፍ (እንግሊዝኛ - አማራጭ)' : 'Question Prompt (English - Optional)'}
+                    {lang === 'am' ? 'የጥያቄው ጽሑፍ' : 'Question Prompt'}
                   </label>
                   <textarea
                     rows={2}
@@ -1751,7 +1727,7 @@ export default function AdminChapterStudioPage() {
                     onChange={(e) =>
                       setPracticeQuestionForm((p) => ({ ...p, prompt: e.target.value }))
                     }
-                    placeholder="Enter question prompt in English..."
+                    placeholder={lang === 'am' ? 'ጥያቄውን እዚህ ይጻፉ...' : 'Enter question prompt...'}
                     className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg p-2.5 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
                   />
                 </div>
@@ -1791,20 +1767,7 @@ export default function AdminChapterStudioPage() {
                       />
                       <input
                         type="text"
-                        placeholder={lang === 'am' ? `ምርጫ ${cIdx + 1} (አማርኛ)` : `Choice ${cIdx + 1} (Amharic)`}
-                        value={choice.amharicText}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setPracticeQuestionForm((p) => ({
-                            ...p,
-                            choices: p.choices.map((c, i) => (i === cIdx ? { ...c, amharicText: val } : c)),
-                          }));
-                        }}
-                        className="flex-1 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1 text-stone-900 dark:text-white"
-                      />
-                      <input
-                        type="text"
-                        placeholder={`Choice ${cIdx + 1} (En)`}
+                        placeholder={lang === 'am' ? `ምርጫ ${cIdx + 1}` : `Choice ${cIdx + 1}`}
                         value={choice.text}
                         onChange={(e) => {
                           const val = e.target.value;
@@ -1813,7 +1776,7 @@ export default function AdminChapterStudioPage() {
                             choices: p.choices.map((c, i) => (i === cIdx ? { ...c, text: val } : c)),
                           }));
                         }}
-                        className="w-28 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2 py-1 text-stone-900 dark:text-white text-[11px]"
+                        className="flex-1 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded px-2.5 py-1 text-stone-900 dark:text-white"
                       />
                       {practiceQuestionForm.choices.length > 2 && (
                         <button
@@ -1867,21 +1830,7 @@ export default function AdminChapterStudioPage() {
                 <div className="p-3 bg-stone-50 dark:bg-slate-950/80 rounded-xl border border-stone-200 dark:border-slate-800 space-y-2">
                   <div>
                     <label className="block text-stone-700 dark:text-slate-300 font-semibold mb-1">
-                      {lang === 'am' ? 'የሚጠበቅ መልስ (አማርኛ - አማራጭ)' : 'Expected Answer (Amharic - Optional)'}
-                    </label>
-                    <input
-                      type="text"
-                      value={practiceQuestionForm.saAmharicAnswer}
-                      onChange={(e) =>
-                        setPracticeQuestionForm((p) => ({ ...p, saAmharicAnswer: e.target.value }))
-                      }
-                      placeholder="ተማሪው መልስ ሲከፍት የሚታየው መልስ..."
-                      className="w-full bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-stone-900 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-stone-700 dark:text-slate-300 font-semibold mb-1">
-                      {lang === 'am' ? 'የሚጠበቅ መልስ (እንግሊዝኛ - አማራጭ)' : 'Expected Answer (English - Optional)'}
+                      {lang === 'am' ? 'የሚጠበቅ መልስ (አማራጭ)' : 'Expected Answer (Optional)'}
                     </label>
                     <input
                       type="text"
@@ -1900,21 +1849,7 @@ export default function AdminChapterStudioPage() {
               <div className="space-y-2">
                 <div>
                   <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
-                    {lang === 'am' ? 'መንፈሳዊ ማብራሪያ (አማርኛ - አማራጭ)' : 'Spiritual Explanation (Amharic - Optional)'}
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={practiceQuestionForm.amharicExplanation}
-                    onChange={(e) =>
-                      setPracticeQuestionForm((p) => ({ ...p, amharicExplanation: e.target.value }))
-                    }
-                    placeholder="ተማሪው መልሱን ሲመረምር የሚታየው ማብራሪያ..."
-                    className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg p-2.5 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
-                    {lang === 'am' ? 'መንፈሳዊ ማብራሪያ (እንግሊዝኛ - አማራጭ)' : 'Spiritual Explanation (English - Optional)'}
+                    {lang === 'am' ? 'ማብራሪያ (አማራጭ)' : 'Explanation (Optional)'}
                   </label>
                   <textarea
                     rows={2}

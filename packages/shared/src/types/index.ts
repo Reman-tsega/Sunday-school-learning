@@ -173,6 +173,7 @@ export interface NotificationItem {
   targetGradeId?: string | null;
   targetGradeName?: string | null;
   targetRole?: UserRole | null;
+  linkUrl?: string | null;
   senderId?: string | null;
   senderName?: string | null;
   createdAt: string;

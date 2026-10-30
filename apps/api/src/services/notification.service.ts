@@ -17,6 +17,7 @@ export class NotificationService {
       targetType: NotificationTargetType;
       targetGradeId?: string | null | undefined;
       targetRole?: Role | null | undefined;
+      linkUrl?: string | null | undefined;
     }
   ) {
     const notification = await prisma.notification.create({
@@ -28,6 +29,7 @@ export class NotificationService {
         targetType: data.targetType,
         targetGradeId: data.targetType === 'BY_GRADE' && data.targetGradeId ? data.targetGradeId : null,
         targetRole: data.targetType === 'BY_ROLE' && data.targetRole ? data.targetRole : null,
+        linkUrl: data.linkUrl || null,
         senderId: adminUserId,
       },
       include: {
@@ -68,6 +70,7 @@ export class NotificationService {
         ? `${n.targetGrade.name}${n.targetGrade.amharicName ? ` (${n.targetGrade.amharicName})` : ''}`
         : null,
       targetRole: n.targetRole,
+      linkUrl: n.linkUrl,
       senderId: n.senderId,
       senderName: n.sender?.fullName || 'Administrator',
       readCount: n._count.recipients,
@@ -135,6 +138,7 @@ export class NotificationService {
           ? `${n.targetGrade.name}${n.targetGrade.amharicName ? ` (${n.targetGrade.amharicName})` : ''}`
           : null,
         targetRole: n.targetRole,
+        linkUrl: n.linkUrl,
         senderId: n.senderId,
         senderName: n.sender?.fullName || 'EOTC Admin',
         createdAt: n.createdAt.toISOString(),

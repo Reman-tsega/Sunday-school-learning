@@ -24,6 +24,7 @@ import type {
   AdminStudentListItem,
   AdminStudentDetails,
 } from '@eotc/shared';
+import { Select } from '@/components/Select';
 
 interface GradeOption {
   id: string;
@@ -260,7 +261,7 @@ export default function AdminStudentsPage() {
         <div className="pt-1 border-t border-stone-100 dark:border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
           {/* Diocese Filter */}
           <div className="relative">
-            <select
+            <Select
               value={selectedDiocese}
               onChange={(e) => {
                 setSelectedDiocese(e.target.value);
@@ -274,12 +275,12 @@ export default function AdminStudentsPage() {
                   {d}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
 
           {/* Sub-City Filter */}
           <div className="relative">
-            <select
+            <Select
               value={selectedSubCity}
               onChange={(e) => setSelectedSubCity(e.target.value)}
               className="w-full px-3 py-2 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-xs text-stone-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 transition cursor-pointer"
@@ -292,12 +293,12 @@ export default function AdminStudentsPage() {
                     {s.subCity}
                   </option>
                 ))}
-            </select>
+            </Select>
           </div>
 
           {/* Sunday School / Parish Filter */}
           <div className="relative">
-            <select
+            <Select
               value={selectedSundaySchool}
               onChange={(e) => setSelectedSundaySchool(e.target.value)}
               className="w-full px-3 py-2 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-xs text-stone-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 transition cursor-pointer"
@@ -312,12 +313,12 @@ export default function AdminStudentsPage() {
                   {school}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
 
           {/* Grade Level Filter */}
           <div className="relative">
-            <select
+            <Select
               value={selectedGradeId}
               onChange={(e) => setSelectedGradeId(e.target.value)}
               className="w-full px-3 py-2 bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-800 rounded-xl text-xs text-stone-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 transition cursor-pointer"
@@ -330,7 +331,7 @@ export default function AdminStudentsPage() {
                   {lang === 'am' && g.amharicName ? g.amharicName : g.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         </div>
 

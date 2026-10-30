@@ -37,3 +37,14 @@ body {
 .dark ::-webkit-scrollbar-thumb {
   background: #d97706;
 }
+
+/* Landing hero: gentle floating status chips (disabled for reduced motion) */
+@keyframes eotc-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.eotc-float { animation: eotc-float 5s ease-in-out infinite; }
+.eotc-float-slow { animation: eotc-float 7s ease-in-out infinite; animation-delay: 1s; }
+@media (prefers-reduced-motion: reduce) {
+  .eotc-float, .eotc-float-slow { animation: none; }
+}

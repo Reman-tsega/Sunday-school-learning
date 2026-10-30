@@ -47,3 +47,9 @@ coverage/
 # Upload caches
 apps/api/uploads/cache/
 
+
+# Uploaded files and database dumps (never commit user data)
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
+backups/
+scratch/

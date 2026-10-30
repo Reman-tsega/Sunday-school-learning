@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import { Select } from '@/components/Select';
 
 function AiCurriculumContent() {
   const searchParams = useSearchParams();
@@ -228,7 +229,7 @@ function AiCurriculumContent() {
               <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                 {lang === 'am' ? 'የትምህርት ክፍል' : 'Grade'}
               </label>
-              <select
+              <Select
                 value={selectedGradeId}
                 onChange={(e) => {
                   setSelectedGradeId(e.target.value);
@@ -243,7 +244,7 @@ function AiCurriculumContent() {
                     {pick(g.amharicName, g.name)} ({lang === 'am' ? `ክፍል ${g.level}` : `Grade ${g.level}`})
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Subject Selector */}
@@ -251,7 +252,7 @@ function AiCurriculumContent() {
               <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                 {lang === 'am' ? 'የትምህርት ዓይነት' : 'Subject'}
               </label>
-              <select
+              <Select
                 value={selectedSubjectId}
                 onChange={(e) => {
                   setSelectedSubjectId(e.target.value);
@@ -265,7 +266,7 @@ function AiCurriculumContent() {
                     {s.code} - {pick(s.amharicName, s.name)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Optional Chapter Target */}
@@ -273,7 +274,7 @@ function AiCurriculumContent() {
               <label className="block text-stone-600 dark:text-slate-400 mb-1 font-semibold">
                 {lang === 'am' ? 'ዒላማ የተደረገ ምዕራፍ (አማራጭ)' : 'Target Chapter (Optional)'}
               </label>
-              <select
+              <Select
                 value={selectedChapterId}
                 onChange={(e) => setSelectedChapterId(e.target.value)}
                 className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
@@ -284,7 +285,7 @@ function AiCurriculumContent() {
                     #{ch.chapterNumber} - {pick(ch.amharicTitle, ch.title)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Topic Prompt */}

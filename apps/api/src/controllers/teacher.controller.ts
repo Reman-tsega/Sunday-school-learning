@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import { teacherService } from '../services/teacher.service.js';
-import { CreatePracticeQuestionSchema } from '@eotc/shared';
+import { CreatePracticeQuestionSchema, SubmitPracticeQuestionBatchSchema } from '@eotc/shared';
+import crypto from 'crypto';
+import fs from 'fs';
 import type { ApiResponse } from '@eotc/shared';
 
 export async function getParishOverview(
@@ -99,6 +101,64 @@ export async function submitPracticeQuestion(
     res.status(201).json({
       success: true,
       data: question,
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function submitPracticeQuestionBatch(
+  req: Request,
+  res: Response<ApiResponse<unknown>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const teacherId = req.user!.id;
+    const validated = SubmitPracticeQuestionBatchSchema.parse(req.body);
+    const created = await teacherService.createPracticeQuestionBatch(
+      teacherId,
+      validated.chapterId,
+      validated.questions
+    );
+
+    res.status(201).json({
+      success: true,
+      data: { count: created.length, questions: created },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function uploadReferenceDocument(
+  req: Request,
+  res: Response<ApiResponse<unknown>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    if (!req.file) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'FILE_REQUIRED', message: 'No document was uploaded' },
+        meta: { timestamp: new Date().toISOString() },
+      });
+      return;
+    }
+
+    const checksumSha256 = crypto.createHash('sha256').update(fs.readFileSync(req.file.path)).digest('hex');
+    const host = req.get('host') || 'localhost:4000';
+
+    res.status(200).json({
+      success: true,
+      data: {
+        fileUrl: `${req.protocol}://${host}/uploads/references/${req.file.filename}`,
+        fileName: req.file.originalname,
+        fileSize: req.file.size,
+        checksumSha256,
+        mimeType: req.file.mimetype,
+      },
       meta: { timestamp: new Date().toISOString() },
     });
   } catch (error) {

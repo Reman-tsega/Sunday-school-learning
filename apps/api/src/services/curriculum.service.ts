@@ -756,7 +756,7 @@ export class CurriculumService {
   // ==========================================
 
   async getPublishedCurriculum() {
-    return prisma.grade.findMany({
+    const grades = await prisma.grade.findMany({
       orderBy: [{ level: 'asc' }, { orderIndex: 'asc' }],
       include: {
         subjects: {
@@ -772,6 +772,9 @@ export class CurriculumService {
                 amharicTitle: true,
                 version: true,
                 isPublished: true,
+                _count: {
+                  select: { practiceQuestions: { where: { status: 'APPROVED' } } },
+                },
                 packages: {
                   where: { status: PackageStatus.PUBLISHED },
                   orderBy: { version: 'desc' },
@@ -789,6 +792,18 @@ export class CurriculumService {
         },
       },
     });
+
+    // Expose the approved practice question count so clients can show a Practice shortcut
+    return grades.map((g) => ({
+      ...g,
+      subjects: g.subjects.map((sub) => ({
+        ...sub,
+        chapters: sub.chapters.map(({ _count, ...ch }) => ({
+          ...ch,
+          practiceQuestionCount: _count.practiceQuestions,
+        })),
+      })),
+    }));
   }
 
   async getLearningPackageManifest(chapterId: string): Promise<LearningPackageManifest> {
@@ -796,6 +811,7 @@ export class CurriculumService {
       where: { id: chapterId },
       include: {
         textbook: true,
+        subject: { include: { grade: true } },
         packages: {
           where: { status: PackageStatus.PUBLISHED },
           orderBy: { version: 'desc' },
@@ -810,6 +826,21 @@ export class CurriculumService {
 
     const latestPkg = chapter.packages[0]!;
     const manifest = JSON.parse(JSON.stringify(latestPkg.manifestJson)) as LearningPackageManifest;
+
+    // Packages published before these fields existed would otherwise miss grade/subject details,
+    // which clients need for the enrollment check and titles
+    const { subject } = chapter;
+    manifest.chapterId = chapter.id;
+    manifest.chapterNumber = chapter.chapterNumber;
+    manifest.chapterTitle = chapter.title;
+    manifest.amharicChapterTitle = chapter.amharicTitle;
+    manifest.subjectId = subject.id;
+    manifest.subjectName = subject.name;
+    manifest.amharicSubjectName = subject.amharicName;
+    manifest.gradeId = subject.grade.id;
+    manifest.gradeLevel = subject.grade.level;
+    manifest.gradeName = subject.grade.name;
+    manifest.amharicGradeName = subject.grade.amharicName;
 
     // Ensure student viewer and download manager have access to the isolated chapter PDF
     if (manifest.textbook) {

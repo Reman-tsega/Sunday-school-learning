@@ -21,6 +21,7 @@ import type {
   TicketStatus,
   TicketCategory,
 } from '@eotc/shared';
+import { Select } from '@/components/Select';
 
 export default function AdminSupportPage() {
   const { lang } = useLanguage();
@@ -299,7 +300,7 @@ export default function AdminSupportPage() {
               />
             </form>
 
-            <select
+            <Select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="py-2 px-3 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl text-xs text-stone-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 transition shadow-xs"
@@ -309,7 +310,7 @@ export default function AdminSupportPage() {
               <option value="TECHNICAL_OFFLINE">{lang === 'am' ? 'ቴክኒካል / ማውረድ' : 'Technical & Offline'}</option>
               <option value="ACCOUNT_ENROLLMENT">{lang === 'am' ? 'አካውንት እና ምዝገባ' : 'Account & Enrollment'}</option>
               <option value="GENERAL">{lang === 'am' ? 'አጠቃላይ' : 'General'}</option>
-            </select>
+            </Select>
           </div>
 
           {/* Tickets Scroll Area */}
@@ -427,7 +428,7 @@ export default function AdminSupportPage() {
                   <span className="text-xs text-stone-500 dark:text-slate-400 font-medium">
                     {lang === 'am' ? 'ሁኔታ፦' : 'Status:'}
                   </span>
-                  <select
+                  <Select
                     value={activeTicket.status}
                     disabled={isUpdatingStatus}
                     onChange={(e) => handleStatusChange(e.target.value as TicketStatus)}
@@ -437,7 +438,7 @@ export default function AdminSupportPage() {
                     <option value="IN_PROGRESS">{lang === 'am' ? 'በሂደት ላይ (In Progress)' : 'In Progress'}</option>
                     <option value="RESOLVED">{lang === 'am' ? 'ተፈቷል (Resolved)' : 'Resolved'}</option>
                     <option value="CLOSED">{lang === 'am' ? 'ተዘግቷል (Closed)' : 'Closed'}</option>
-                  </select>
+                  </Select>
                 </div>
               </div>
 

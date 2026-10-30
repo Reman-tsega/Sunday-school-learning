@@ -11,11 +11,64 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import type { NotificationItem } from '@eotc/shared';
 
-export function NotificationBell() {
+interface NotificationLink {
+  href: string;
+  labelEn: string;
+  labelAm: string;
+}
+
+/** Maps workflow notifications (review requests / review results) to the page where the user acts on them. */
+function getNotificationLink(n: NotificationItem): NotificationLink | null {
+  const title = n.title || '';
+
+  // Explicit link stored with the notification wins
+  if (n.linkUrl) {
+    if (/^\/chapters\//.test(n.linkUrl)) {
+      return { href: n.linkUrl, labelEn: 'Try the practice questions', labelAm: 'የልምምድ ጥያቄዎችን ሞክር' };
+    }
+    if (n.linkUrl.startsWith('/admin/moderation')) {
+      const isReference = /tab=references/.test(n.linkUrl);
+      return {
+        href: n.linkUrl,
+        labelEn: isReference ? 'Review reference materials' : 'Review practice questions',
+        labelAm: isReference ? 'ማጣቀሻዎችን ገምግም' : 'የልምምድ ጥያቄዎችን ገምግም',
+      };
+    }
+    if (n.linkUrl.startsWith('/teacher')) {
+      return { href: n.linkUrl, labelEn: 'View my submissions', labelAm: 'ያቀረብኳቸውን ተመልከት' };
+    }
+    return { href: n.linkUrl, labelEn: 'Open', labelAm: 'ክፈት' };
+  }
+
+  if (n.targetType !== 'BY_ROLE') return null;
+
+  if (n.targetRole === 'ADMIN' && /Pending Review|New Reference Submission/i.test(title)) {
+    const isReference = /Reference/i.test(title);
+    return {
+      href: isReference ? '/admin/moderation?tab=references' : '/admin/moderation?tab=questions',
+      labelEn: isReference ? 'Review reference materials' : 'Review practice questions',
+      labelAm: isReference ? 'ማጣቀሻዎችን ገምግም' : 'የልምምድ ጥያቄዎችን ገምግም',
+    };
+  }
+
+  if (n.targetRole === 'TEACHER' && /Approved|Needs Revision/i.test(title)) {
+    return {
+      href: '/teacher?tab=submissions',
+      labelEn: 'View my submissions',
+      labelAm: 'ያቀረብኳቸውን ተመልከት',
+    };
+  }
+
+  return null;
+}
+
+export function NotificationBell({ variant = 'dark' }: { variant?: 'dark' | 'light' }) {
+  const router = useRouter();
   const { lang, pick } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -123,11 +176,17 @@ export function NotificationBell() {
         type="button"
         onClick={handleOpen}
         aria-label="Notifications"
-        className="relative p-2 rounded-full text-slate-200 hover:text-white hover:bg-slate-800/80 transition"
+        className={`relative p-2 rounded-full transition ${
+          variant === 'light'
+            ? 'text-stone-600 dark:text-slate-300 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700'
+            : 'text-slate-200 hover:text-white hover:bg-slate-800/80'
+        }`}
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-extrabold text-white bg-rose-600 rounded-full border-2 border-slate-900 shadow animate-pulse">
+          <span className={`absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] leading-none font-bold text-white bg-rose-600 rounded-full ring-2 ${
+              variant === 'light' ? 'ring-stone-100 dark:ring-slate-800' : 'ring-slate-900'
+            }`}>
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -135,9 +194,9 @@ export function NotificationBell() {
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="fixed inset-x-2 top-16 md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 w-auto md:w-96 bg-white text-stone-900 rounded-2xl shadow-2xl border border-stone-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-x-2 top-16 md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 w-auto md:w-96 bg-white dark:bg-slate-900 text-stone-900 dark:text-slate-100 rounded-2xl shadow-2xl border border-stone-200 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
           {/* Header */}
-          <div className="p-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+          <div className="p-3.5 bg-slate-900 dark:bg-slate-950 text-white flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center space-x-2">
               <Bell className="w-4 h-4 text-amber-400" />
               <h3 className="font-bold text-sm">
@@ -172,21 +231,21 @@ export function NotificationBell() {
           </div>
 
           {/* List */}
-          <div className="max-h-[420px] overflow-y-auto divide-y divide-stone-100">
+          <div className="max-h-[420px] overflow-y-auto divide-y divide-stone-100 dark:divide-slate-800">
             {loading ? (
-              <div className="py-10 text-center text-stone-400">
+              <div className="py-10 text-center text-stone-400 dark:text-slate-500">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto text-amber-500 mb-2" />
                 <span className="text-xs">{lang === 'am' ? 'በመጫን ላይ...' : 'Loading notifications...'}</span>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="py-12 px-4 text-center text-stone-400 space-y-2">
-                <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center mx-auto text-stone-400">
+              <div className="py-12 px-4 text-center text-stone-400 dark:text-slate-500 space-y-2">
+                <div className="w-10 h-10 rounded-full bg-stone-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-stone-400 dark:text-slate-500">
                   <Bell className="w-5 h-5" />
                 </div>
-                <p className="text-xs font-semibold text-stone-600">
+                <p className="text-xs font-semibold text-stone-600 dark:text-slate-300">
                   {lang === 'am' ? 'ምንም አዲስ ማስታወቂያ የለም' : 'No notifications right now'}
                 </p>
-                <p className="text-[11px] text-stone-400 max-w-xs mx-auto">
+                <p className="text-[11px] text-stone-400 dark:text-slate-500 max-w-xs mx-auto">
                   {lang === 'am'
                     ? 'አስተዳዳሪዎች የሚያስተላልፏቸው መልእክቶችና የክፍል ማስታወቂያዎች እዚህ ይደርሳሉ።'
                     : 'Announcements from teachers and administrators will appear here.'}
@@ -196,39 +255,44 @@ export function NotificationBell() {
               notifications.map((n) => {
                 const title = pick(n.title, n.amharicTitle);
                 const content = pick(n.content, n.amharicContent);
+                const linkTarget = getNotificationLink(n);
 
                 return (
                   <div
                     key={n.id}
                     onClick={() => {
                       if (!n.isRead) handleMarkAsRead(n.id);
+                      if (linkTarget) {
+                        setIsOpen(false);
+                        router.push(linkTarget.href);
+                      }
                     }}
                     className={`p-3.5 transition cursor-pointer text-left ${
                       n.isRead
-                        ? 'bg-white hover:bg-stone-50'
-                        : 'bg-amber-50/60 hover:bg-amber-50 border-l-4 border-amber-500'
+                        ? 'bg-white dark:bg-slate-900 hover:bg-stone-50 dark:hover:bg-slate-800/70'
+                        : 'bg-amber-50/60 dark:bg-amber-500/10 hover:bg-amber-50 dark:hover:bg-amber-500/15 border-l-4 border-amber-500'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
                       {/* Target Audience Badge */}
                       <div className="flex items-center space-x-1.5 flex-wrap gap-1">
                         {n.targetType === 'BROADCAST' && (
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
-                            <Megaphone className="w-3 h-3 text-purple-600" />
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">
+                            <Megaphone className="w-3 h-3 text-purple-600 dark:text-purple-300" />
                             <span>{lang === 'am' ? 'አጠቃላይ ማስታወቂያ' : 'Broadcast'}</span>
                           </span>
                         )}
 
                         {n.targetType === 'BY_GRADE' && (
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                            <GraduationCap className="w-3 h-3 text-blue-600" />
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30">
+                            <GraduationCap className="w-3 h-3 text-blue-600 dark:text-blue-300" />
                             <span>{n.targetGradeName || (lang === 'am' ? 'የክፍል ማስታወቂያ' : 'Grade Specific')}</span>
                           </span>
                         )}
 
                         {n.targetType === 'BY_ROLE' && (
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                            <Users className="w-3 h-3 text-amber-600" />
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30">
+                            <Users className="w-3 h-3 text-amber-600 dark:text-amber-300" />
                             <span>{n.targetRole}</span>
                           </span>
                         )}
@@ -239,23 +303,29 @@ export function NotificationBell() {
                       </div>
 
                       {/* Time */}
-                      <span className="text-[10px] text-stone-400 flex items-center space-x-1 shrink-0">
+                      <span className="text-[10px] text-stone-400 dark:text-slate-500 flex items-center space-x-1 shrink-0">
                         <Clock className="w-3 h-3" />
                         <span>{formatTime(n.createdAt)}</span>
                       </span>
                     </div>
 
-                    <h4 className="text-xs font-bold text-stone-900 mt-1 leading-snug">
+                    <h4 className="text-xs font-bold text-stone-900 dark:text-white mt-1 leading-snug">
                       {title}
                     </h4>
 
-                    <p className="text-xs text-stone-600 mt-1 line-clamp-3 leading-relaxed whitespace-pre-line">
+                    <p className="text-xs text-stone-600 dark:text-slate-300 mt-1 line-clamp-3 leading-relaxed whitespace-pre-line">
                       {content}
                     </p>
 
+                    {linkTarget && (
+                      <div className="mt-2 text-[11px] font-bold text-amber-700 dark:text-amber-400">
+                        {lang === 'am' ? linkTarget.labelAm : linkTarget.labelEn} →
+                      </div>
+                    )}
+
                     {n.senderName && (
-                      <div className="mt-2 text-[10px] text-stone-400">
-                        {lang === 'am' ? 'ከላኪ፡' : 'From:'} <span className="font-semibold text-stone-600">{n.senderName}</span>
+                      <div className="mt-2 text-[10px] text-stone-400 dark:text-slate-500">
+                        {lang === 'am' ? 'ከላኪ፡' : 'From:'} <span className="font-semibold text-stone-600 dark:text-slate-300">{n.senderName}</span>
                       </div>
                     )}
                   </div>

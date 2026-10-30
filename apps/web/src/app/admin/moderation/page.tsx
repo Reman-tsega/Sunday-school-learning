@@ -18,10 +18,28 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import { QuestionTypeFilter, type QuestionTypeFilterValue } from '@/components/QuestionTypeFilter';
 import type { ModeratedReferenceDto, PracticeQuestionDto } from '@eotc/shared';
 
+/** Grade › Subject › Chapter trail so the admin knows exactly where a submission belongs. */
+function ContextTrail({ item, lang }: { item: any; lang: 'am' | 'en' }) {
+  const parts: string[] = [];
+  if (item.gradeLevel != null) parts.push(lang === 'am' ? `ክፍል ${item.gradeLevel}` : `Grade ${item.gradeLevel}`);
+  const subject = lang === 'am' ? item.amharicSubjectName || item.subjectName : item.subjectName;
+  if (subject) parts.push(subject);
+  const chapter = lang === 'am'
+    ? item.chapter?.amharicTitle || item.chapter?.title
+    : item.chapter?.title || item.chapter?.amharicTitle;
+  parts.push(chapter || (lang === 'am' ? 'ምዕራፍ' : 'Chapter'));
+  return (
+    <span className="text-xs font-bold text-stone-800 dark:text-slate-300">
+      {parts.join(' › ')}
+    </span>
+  );
+}
+
 export default function AdminModerationPage() {
-  const { lang, pick } = useLanguage();
+  const { lang } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -29,6 +47,9 @@ export default function AdminModerationPage() {
 
   const [pendingReferences, setPendingReferences] = useState<ModeratedReferenceDto[]>([]);
   const [pendingQuestions, setPendingQuestions] = useState<PracticeQuestionDto[]>([]);
+  const [typeFilter, setTypeFilter] = useState<QuestionTypeFilterValue>('ALL');
+  const visibleQuestions =
+    typeFilter === 'ALL' ? pendingQuestions : pendingQuestions.filter((q) => q.questionType === typeFilter);
 
   // Decline Dialog Modal State
   const [declineModal, setDeclineModal] = useState<{
@@ -51,6 +72,9 @@ export default function AdminModerationPage() {
   } | null>(null);
 
   useEffect(() => {
+    // Deep link from notifications: /admin/moderation?tab=references|questions
+    const tab = new URLSearchParams(window.location.search).get('tab');
+    if (tab === 'references' || tab === 'questions') setActiveTab(tab);
     loadPending();
   }, []);
 
@@ -59,8 +83,8 @@ export default function AdminModerationPage() {
     try {
       await api.init();
       const data = await api.getPendingModeration();
-      setPendingReferences(data.pendingReferences || []);
-      setPendingQuestions(data.pendingPracticeQuestions || []);
+      setPendingReferences(data.references || []);
+      setPendingQuestions(data.practiceQuestions || []);
     } catch (err: any) {
       console.error('Failed to load pending moderation items:', err);
       setNotification({
@@ -103,7 +127,7 @@ export default function AdminModerationPage() {
   const handleOpenDeclineModal = (type: 'question' | 'reference', item: any) => {
     const title =
       type === 'question'
-        ? item.amharicPrompt || item.prompt || 'Practice Question'
+        ? item.prompt || 'Practice Question'
         : item.amharicTitle || item.title || 'Reference Link';
     setDeclineModal({
       isOpen: true,
@@ -281,12 +305,18 @@ export default function AdminModerationPage() {
               <p className="text-xs text-stone-400 dark:text-slate-500">
                 {lang === 'am'
                   ? 'መምህራን አዳዲስ ጥያቄዎችን ሲያቀርቡ እዚህ ይዘረዘራሉ።'
-                  : 'Newly submitted teacher drills will appear here for verification.'}
+                  : 'Newly submitted teacher practice questions will appear here for verification.'}
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {pendingQuestions.map((q) => (
+              <QuestionTypeFilter questions={pendingQuestions} value={typeFilter} onChange={setTypeFilter} lang={lang} />
+              {visibleQuestions.length === 0 && (
+                <p className="text-xs text-stone-500 dark:text-slate-400 py-6 text-center">
+                  {lang === 'am' ? 'በዚህ አይነት ምንም ጥያቄ የለም' : 'No pending questions of this type.'}
+                </p>
+              )}
+              {visibleQuestions.map((q) => (
                 <div
                   key={q.id}
                   className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4 hover:border-stone-300 dark:hover:border-slate-700 transition"
@@ -297,9 +327,7 @@ export default function AdminModerationPage() {
                       <span className="text-[10px] uppercase font-black text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-600/40">
                         {q.questionType}
                       </span>
-                      <span className="text-xs font-bold text-stone-800 dark:text-slate-300">
-                        {q.chapter?.amharicTitle || q.chapter?.title || 'Chapter'}
-                      </span>
+                      <ContextTrail item={q} lang={lang} />
                     </div>
 
                     {/* Submitter & Parish */}
@@ -322,11 +350,8 @@ export default function AdminModerationPage() {
                   {/* Question Content */}
                   <div className="space-y-2">
                     <h3 className="font-bold text-base sm:text-lg text-stone-900 dark:text-white">
-                      {q.amharicPrompt || q.prompt}
+                      {q.prompt}
                     </h3>
-                    {q.prompt && q.prompt !== q.amharicPrompt && (
-                      <p className="text-xs text-stone-500 dark:text-slate-400 font-medium">{q.prompt}</p>
-                    )}
 
                     {/* Choices display */}
                     {q.choices && q.choices.length > 0 && (
@@ -341,7 +366,7 @@ export default function AdminModerationPage() {
                             }`}
                           >
                             <span className="font-medium">
-                              {pick(c.amharicText, c.text)}
+                              {c.text}
                             </span>
                             {c.isCorrect && (
                               <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/80 px-2 py-0.5 rounded ml-2">
@@ -354,23 +379,23 @@ export default function AdminModerationPage() {
                     )}
 
                     {/* Short Answer display */}
-                    {q.questionType === 'SHORT_ANSWER' && (q.amharicAnswerText || q.answerText) && (
+                    {q.questionType === 'SHORT_ANSWER' && q.answerText && (
                       <div className="p-3 bg-stone-50 dark:bg-slate-800/60 rounded-xl border border-stone-200 dark:border-slate-700/60 text-xs text-stone-800 dark:text-slate-200">
                         <span className="font-bold text-amber-700 dark:text-amber-400 block mb-1">
                           {lang === 'am' ? 'የሚጠበቀው መልስ:' : 'Expected Answer:'}
                         </span>
-                        <span>{pick(q.amharicAnswerText, q.answerText)}</span>
+                        <span>{q.answerText}</span>
                       </div>
                     )}
 
                     {/* Spiritual Explanation display */}
-                    {(q.amharicExplanation || q.explanation) && (
+                    {q.explanation && (
                       <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 text-xs text-amber-900 dark:text-amber-200/90 space-y-0.5">
                         <span className="font-bold text-amber-700 dark:text-amber-400 flex items-center space-x-1 text-[11px]">
                           <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                           <span>{lang === 'am' ? 'የመንፈሳዊ ማብራሪያ' : 'Spiritual Explanation'}</span>
                         </span>
-                        <p>{pick(q.amharicExplanation, q.explanation)}</p>
+                        <p>{q.explanation}</p>
                       </div>
                     )}
                   </div>
@@ -429,9 +454,7 @@ export default function AdminModerationPage() {
                       <span className="text-[10px] uppercase font-black text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-600/40">
                         {r.isDownloadable ? 'Offline Doc' : 'External Link'}
                       </span>
-                      <span className="text-xs font-bold text-stone-800 dark:text-slate-300">
-                        {r.chapter?.amharicTitle || r.chapter?.title || 'Chapter'}
-                      </span>
+                      <ContextTrail item={r} lang={lang} />
                     </div>
 
                     <div className="flex items-center space-x-3 text-xs text-stone-500 dark:text-slate-400">
@@ -452,15 +475,19 @@ export default function AdminModerationPage() {
 
                   <div className="space-y-2">
                     <h3 className="font-bold text-base sm:text-lg text-stone-900 dark:text-white">
-                      {pick(r.amharicTitle, r.title)}
+                      {r.title}
                     </h3>
                     <a
-                      href={r.url}
+                      href={r.downloadableDocUrl || r.url}
                       target="_blank"
                       rel="noreferrer"
                       className="text-xs font-mono text-amber-600 dark:text-amber-400 hover:underline flex items-center space-x-1 max-w-xl truncate"
                     >
-                      <span className="truncate">{r.url}</span>
+                      <span className="truncate">
+                        {r.downloadableDocUrl
+                          ? (lang === 'am' ? 'የተጫነ ሰነድ ክፈት' : 'Open uploaded document')
+                          : r.url}
+                      </span>
                       <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                     </a>
                     {r.isDownloadable && (

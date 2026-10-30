@@ -112,9 +112,17 @@ export async function deleteOfflinePackage(chapterId: string): Promise<void> {
 // QUIZ ATTEMPTS REPOSITORY (OFFLINE OUTBOX)
 // ==========================================
 
+/** Tells the sync indicator that locally stored data changed, so its pending count refreshes immediately. */
+function emitSyncStateChanged(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('eotc:sync-state-changed'));
+  }
+}
+
 export async function saveQuizAttempt(attempt: OfflineQuizAttempt): Promise<void> {
   const db = await getOfflineDB();
   await db.put('quiz_attempts', attempt);
+  emitSyncStateChanged();
 }
 
 export async function getQuizAttempts(quizId?: string): Promise<OfflineQuizAttempt[]> {
@@ -150,11 +158,26 @@ export async function updateQuizAttemptSyncState(
 
 export async function saveStudentProgress(progress: StudentProgressUpdate): Promise<void> {
   const db = await getOfflineDB();
+  const existing = await db.get('student_progress', progress.chapterId);
+  let syncState = progress.syncState || 'PENDING';
+
+  // One record per chapter. A local save only becomes "pending upload" when it changes something that
+  // matters: the completed flag, or reading position on a chapter that is not completed yet.
+  // Re-completing a finished chapter, or paging through it again, must not re-queue it.
+  if (existing && syncState === 'PENDING') {
+    const completionChanged = progress.isCompleted !== existing.isCompleted;
+    const positionChanged = !progress.isCompleted && progress.lastReadPage !== existing.lastReadPage;
+    if (!completionChanged && !positionChanged) {
+      syncState = existing.syncState ?? 'PENDING';
+    }
+  }
+
   const update: StudentProgressUpdate = {
     ...progress,
-    syncState: progress.syncState || 'PENDING',
+    syncState,
   };
   await db.put('student_progress', update);
+  emitSyncStateChanged();
 }
 
 export async function updateStudentProgressSyncState(

@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
+import { Select } from './Select';
 
 export interface PaginationProps {
   currentPage: number;
@@ -97,7 +98,7 @@ export default function Pagination({
             <span className="text-[11px] text-stone-400 dark:text-slate-500 hidden sm:inline">
               {lang === 'am' ? 'በገጽ፦' : 'Per page:'}
             </span>
-            <select
+            <Select
               value={pageSize}
               onChange={(e) => {
                 onPageSizeChange(Number(e.target.value));
@@ -111,7 +112,7 @@ export default function Pagination({
                   {opt}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
       </div>

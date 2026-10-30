@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { getAllOfflinePackages, deleteOfflinePackage, type StoredPackage } from '@/lib/offline-db';
 import { useLanguage } from '@/lib/language-context';
+import { Select } from '@/components/Select';
 
 export default function DownloadManagerPage() {
   const { lang, pick } = useLanguage();
@@ -218,7 +219,7 @@ export default function DownloadManagerPage() {
             {/* Sort Selector */}
             <div className="flex items-center space-x-1.5 bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs shrink-0">
               <ArrowUpDown className="w-3.5 h-3.5 text-stone-500 dark:text-slate-400 shrink-0" />
-              <select
+              <Select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="bg-transparent text-stone-700 dark:text-slate-200 font-semibold focus:outline-none cursor-pointer"
@@ -228,7 +229,7 @@ export default function DownloadManagerPage() {
                 <option value="size_desc" className="dark:bg-slate-900">{lang === 'am' ? 'መጠን (ከከፍተኛ)' : 'Size: Largest'}</option>
                 <option value="size_asc" className="dark:bg-slate-900">{lang === 'am' ? 'መጠን (ከዝቅተኛ)' : 'Size: Smallest'}</option>
                 <option value="title" className="dark:bg-slate-900">{lang === 'am' ? 'ርዕስ (ፊደል ቅደም ተከተል)' : 'Title (A-Z)'}</option>
-              </select>
+              </Select>
             </div>
           </div>
 

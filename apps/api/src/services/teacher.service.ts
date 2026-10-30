@@ -353,13 +353,19 @@ export class TeacherService {
 
     const isAdmin = teacher.role === 'ADMIN';
 
+    // An uploaded document replaces the external link
+    const resolvedUrl = data.url || data.downloadableDocUrl;
+    if (!resolvedUrl) {
+      throw new AppError(400, 'VALIDATION_ERROR', 'Provide either a document link or an uploaded document');
+    }
+
     const reference = await prisma.referenceLink.create({
       data: {
         chapterId,
         title: data.title,
         amharicTitle: data.amharicTitle ?? null,
-        url: data.url,
-        isDownloadable: data.isDownloadable ?? false,
+        url: resolvedUrl,
+        isDownloadable: data.isDownloadable ?? !data.url,
         downloadableDocUrl: data.downloadableDocUrl ?? null,
         downloadableDocSize: data.downloadableDocSize ?? null,
         downloadableDocChecksum: data.downloadableDocChecksum ?? null,
@@ -377,10 +383,13 @@ export class TeacherService {
         await notificationService.createNotification(teacherId, {
           title: `New Reference Submission: ${data.title}`,
           amharicTitle: `አዲስ የማጣቀሻ ሰነድ ይሁንታ ይጠብቃል፡ ${data.amharicTitle || data.title}`,
-          content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Teacher'}) submitted a reference document for ${chapter.title} (Grade ${chapter.subject.grade.level}).`,
-          amharicContent: `መምህር ${teacher.fullName} ለ«${chapter.amharicTitle || chapter.title}» አዲስ የማጣቀሻ ሰነድ ለይሁንታ አቅርበዋል።`,
+          content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Sunday School not set'}) submitted a reference document.
+Grade ${chapter.subject.grade.level} · ${chapter.subject.name} · ${chapter.title}`,
+          amharicContent: `መምህር ${teacher.fullName} (${teacher.churchParish || 'ሰንበት ት/ቤት ያልተመዘገበ'}) አዲስ የማጣቀሻ ሰነድ አቅርበዋል።
+ክፍል ${chapter.subject.grade.level} · ${chapter.subject.amharicName || chapter.subject.name} · ${chapter.amharicTitle || chapter.title}`,
           targetType: 'BY_ROLE',
           targetRole: 'ADMIN',
+          linkUrl: '/admin/moderation?tab=references',
         });
       } catch (e) {
         console.warn('Failed to dispatch moderation notification to admins:', e);
@@ -393,7 +402,12 @@ export class TeacherService {
   /**
    * Teacher or Admin submits a practice question (auto-approved if Admin)
    */
-  async createPracticeQuestionSubmission(teacherId: string, data: CreatePracticeQuestionInput) {
+  async createPracticeQuestionSubmission(
+    teacherId: string,
+    data: CreatePracticeQuestionInput,
+    options: { notify?: boolean } = {}
+  ) {
+    const notify = options.notify ?? true;
     const teacher = await this.getTeacherAndParish(teacherId);
 
     const chapter = await prisma.chapter.findUnique({
@@ -446,16 +460,19 @@ export class TeacherService {
       },
     });
 
-    if (!isAdmin) {
+    if (!isAdmin && notify) {
       // Notify administrators
       try {
         await notificationService.createNotification(teacherId, {
           title: `New Practice Question Pending Review`,
           amharicTitle: `አዲስ የልምምድ ጥያቄ ይሁንታ ይጠብቃል`,
-          content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Teacher'}) submitted a practice question for ${chapter.title} (Grade ${chapter.subject.grade.level}).`,
-          amharicContent: `መምህር ${teacher.fullName} ለ«${chapter.amharicTitle || chapter.title}» አዲስ የልምምድ ጥያቄ አቅርበዋል።`,
+          content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Sunday School not set'}) submitted a practice question.
+Grade ${chapter.subject.grade.level} · ${chapter.subject.name} · ${chapter.title}`,
+          amharicContent: `መምህር ${teacher.fullName} (${teacher.churchParish || 'ሰንበት ት/ቤት ያልተመዘገበ'}) አዲስ የልምምድ ጥያቄ አቅርበዋል።
+ክፍል ${chapter.subject.grade.level} · ${chapter.subject.amharicName || chapter.subject.name} · ${chapter.amharicTitle || chapter.title}`,
           targetType: 'BY_ROLE',
           targetRole: 'ADMIN',
+          linkUrl: '/admin/moderation?tab=questions',
         });
       } catch (e) {
         console.warn('Failed to dispatch practice question moderation alert:', e);
@@ -463,6 +480,57 @@ export class TeacherService {
     }
 
     return question;
+  }
+
+  /**
+   * Teacher sends a prepared set of practice questions for one chapter in a single review request.
+   * All questions are stored together and admins receive exactly one notification.
+   */
+  async createPracticeQuestionBatch(
+    teacherId: string,
+    chapterId: string,
+    questions: Array<Omit<CreatePracticeQuestionInput, 'chapterId'>>
+  ) {
+    const teacher = await this.getTeacherAndParish(teacherId);
+    const chapter = await prisma.chapter.findUnique({
+      where: { id: chapterId },
+      include: { subject: { include: { grade: true } } },
+    });
+    if (!chapter) {
+      throw new AppError(404, 'NOT_FOUND', 'Chapter not found');
+    }
+
+    const created = [];
+    for (const [idx, q] of questions.entries()) {
+      created.push(
+        await this.createPracticeQuestionSubmission(
+          teacherId,
+          { ...q, chapterId, orderIndex: q.orderIndex ?? idx },
+          { notify: false }
+        )
+      );
+    }
+
+    if (teacher.role !== 'ADMIN') {
+      try {
+        const n = created.length;
+        await notificationService.createNotification(teacherId, {
+          title: `New Practice Questions Pending Review (${n})`,
+          amharicTitle: `${n} አዲስ የልምምድ ጥያቄዎች ይሁንታ ይጠብቃሉ`,
+          content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Sunday School not set'}) sent ${n} practice question${n === 1 ? '' : 's'} for review.
+Grade ${chapter.subject.grade.level} · ${chapter.subject.name} · ${chapter.title}`,
+          amharicContent: `መምህር ${teacher.fullName} (${teacher.churchParish || 'ሰንበት ት/ቤት ያልተመዘገበ'}) ${n} የልምምድ ጥያቄዎችን ለግምገማ ልከዋል።
+ክፍል ${chapter.subject.grade.level} · ${chapter.subject.amharicName || chapter.subject.name} · ${chapter.amharicTitle || chapter.title}`,
+          targetType: 'BY_ROLE',
+          targetRole: 'ADMIN',
+          linkUrl: '/admin/moderation?tab=questions',
+        });
+      } catch (e) {
+        console.warn('Failed to dispatch practice question moderation alert:', e);
+      }
+    }
+
+    return created;
   }
 
   /**

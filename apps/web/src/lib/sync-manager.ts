@@ -2,6 +2,7 @@ import {
   getPendingQuizAttempts,
   updateQuizAttemptSyncState,
   getAllStudentProgress,
+  getAllOfflinePackages,
   updateStudentProgressSyncState,
   getCachedAuthSession,
 } from './offline-db';
@@ -15,6 +16,8 @@ export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'offline' | 'error';
 export interface SyncState {
   status: SyncStatus;
   pendingCount: number;
+  /** Human-readable list of what is waiting to be uploaded */
+  pendingItems: string[];
   lastSyncedAt: string | null;
   errorMessage: string | null;
 }
@@ -30,16 +33,17 @@ class SyncManager {
 
   constructor() {
     if (typeof window !== 'undefined') {
+      // Syncing is user-driven: new progress only raises the pending count shown on the sync icon
+      // and is sent when the student taps Sync.
       window.addEventListener('online', () => {
-        this.triggerSync().catch(() => {});
+        this.notify();
       });
-      // Listen for progress updates to trigger background sync if online
       window.addEventListener('eotc:progress-updated', () => {
-        if (navigator.onLine) {
-          this.triggerSync().catch(() => {});
-        } else {
-          this.notify();
-        }
+        this.notify();
+      });
+      // Any local save (progress, quiz attempt) refreshes the pending count
+      window.addEventListener('eotc:sync-state-changed', () => {
+        this.notify();
       });
     }
   }
@@ -51,14 +55,38 @@ class SyncManager {
   }
 
   private async notify(): Promise<void> {
-    const pending = await this.getPendingCount();
+    const pendingItems = await this.getPendingItems();
     const state: SyncState = {
       status: this.status,
-      pendingCount: pending,
+      pendingCount: pendingItems.length,
+      pendingItems,
       lastSyncedAt: this.lastSyncedAt,
       errorMessage: this.errorMessage,
     };
     this.listeners.forEach((fn) => fn(state));
+  }
+
+  /** Describes each local record that has not been uploaded yet. */
+  async getPendingItems(): Promise<string[]> {
+    try {
+      const [attempts, allProgress, packages] = await Promise.all([
+        getPendingQuizAttempts(),
+        getAllStudentProgress(),
+        getAllOfflinePackages().catch(() => []),
+      ]);
+      const titles = new Map(packages.map((p) => [p.chapterId, p.manifest?.chapterTitle || '']));
+      const items: string[] = [];
+      for (const p of allProgress.filter((x) => x.syncState !== 'SYNCED')) {
+        const name = titles.get(p.chapterId) || 'Chapter';
+        items.push(p.isCompleted ? `${name} — marked completed` : `${name} — reading progress (page ${p.lastReadPage})`);
+      }
+      for (const a of attempts) {
+        items.push(`Quiz result — ${a.score}/${a.maxScore}${a.passed ? ' (passed)' : ''}`);
+      }
+      return items;
+    } catch {
+      return [];
+    }
   }
 
   async getPendingCount(): Promise<number> {

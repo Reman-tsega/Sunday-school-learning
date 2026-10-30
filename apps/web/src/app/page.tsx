@@ -11,6 +11,7 @@ import {
   RefreshCw,
   HelpCircle,
   Sparkles,
+  Clock,
   Search,
   Award,
   CheckCircle2,
@@ -26,6 +27,10 @@ import { syncManager } from '@/lib/sync-manager';
 import { getOfflinePackage, getAllStudentProgress } from '@/lib/offline-db';
 import { OfflineBadge } from '@/components/OfflineBadge';
 import { useLanguage } from '@/lib/language-context';
+import { ChurchLoader } from '@/components/ChurchLoader';
+import { LandingTop } from '@/components/landing/LandingTop';
+import { LandingBottom } from '@/components/landing/LandingBottom';
+import { GradeSelect } from '@/components/GradeSelect';
 import type { PackageDownloadStatus, UserProfile } from '@eotc/shared';
 
 interface ChapterItem {
@@ -35,6 +40,9 @@ interface ChapterItem {
   amharicTitle?: string;
   version: number;
   isPublished: boolean;
+  practiceQuestionCount?: number;
+  /** Published learning packages; an empty list means no study material yet */
+  packages?: unknown[];
 }
 
 interface SubjectItem {
@@ -52,6 +60,8 @@ interface GradeItem {
   amharicName?: string;
   subjects: SubjectItem[];
 }
+
+const EMPTY_PROGRESS: Record<string, boolean> = {};
 
 export default function CurriculumPage() {
   const router = useRouter();
@@ -82,7 +92,7 @@ export default function CurriculumPage() {
   const toggleGrade = (level: number) => {
     setExpandedGrades((prev) => ({
       ...prev,
-      [level]: prev[level] !== undefined ? !prev[level] : false,
+      [level]: !prev[level],
     }));
   };
 
@@ -113,6 +123,8 @@ export default function CurriculumPage() {
       setUser(u);
       if (u?.role === 'ADMIN') {
         router.replace('/admin');
+      } else if (u?.role === 'TEACHER') {
+        router.replace('/teacher');
       }
     });
 
@@ -150,6 +162,10 @@ export default function CurriculumPage() {
         router.replace('/admin');
         return;
       }
+      if (currentUser?.role === 'TEACHER') {
+        router.replace('/teacher');
+        return;
+      }
       const data = await api.getCurriculum();
 
       // Ensure grades have unique IDs and are strictly ascending by level (Grade 1, Grade 2, Grade 3...)
@@ -162,11 +178,11 @@ export default function CurriculumPage() {
         .sort((a: GradeItem, b: GradeItem) => a.level - b.level);
       setCurriculum(sorted);
 
-      // Initialize all grades and subjects as expanded by default
+      // Grades start collapsed (only the grade headers show); subjects open once a grade is expanded
       const gMap: Record<number, boolean> = {};
       const sMap: Record<string, boolean> = {};
       sorted.forEach((g: GradeItem) => {
-        gMap[g.level] = true;
+        gMap[g.level] = false;
         g.subjects?.forEach((s: SubjectItem) => {
           sMap[s.id] = true;
         });
@@ -290,7 +306,7 @@ export default function CurriculumPage() {
     }
   };
 
-  const handleQuizClick = (chapter: ChapterItem, e: React.MouseEvent) => {
+  const handleQuizClick = (chapter: ChapterItem, e: React.MouseEvent, tab: 'quiz' | 'drills' = 'quiz') => {
     e.preventDefault();
 
     // Gate guest users: trigger registration modal
@@ -303,7 +319,7 @@ export default function CurriculumPage() {
       return;
     }
 
-    router.push(`/chapters/${chapter.id}?tab=quiz`);
+    router.push(`/chapters/${chapter.id}?tab=${tab}`);
   };
 
   const handlePromptDownloadAndStudy = async () => {
@@ -342,9 +358,11 @@ export default function CurriculumPage() {
     router.push(`/chapters/${targetId}`);
   };
 
+  const progressMap = user ? studentProgressMap : EMPTY_PROGRESS;
+
   const areAllExpanded =
     curriculum.length > 0 &&
-    curriculum.every((g) => expandedGrades[g.level] ?? true);
+    curriculum.every((g) => expandedGrades[g.level] ?? false);
 
   const isGradeEnrolled = (g: GradeItem) => {
     return (
@@ -442,13 +460,15 @@ export default function CurriculumPage() {
     })
     .filter(Boolean) as GradeItem[];
 
-  if (loading || user?.role === 'ADMIN') {
+  if (loading || user?.role === 'ADMIN' || user?.role === 'TEACHER') {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-stone-500">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600 mb-2" />
-        <p>
+      <div className="flex flex-col items-center justify-center py-20 text-stone-500 dark:text-slate-400">
+        <ChurchLoader size="inline" />
+        <p className="mt-3">
           {user?.role === 'ADMIN'
             ? (lang === 'am' ? 'ወደ አስተዳዳሪ ስቱዲዮ በመቀየር ላይ...' : 'Redirecting to Admin Studio...')
+            : user?.role === 'TEACHER'
+            ? (lang === 'am' ? 'ወደ መምህራን መድረክ በመቀየር ላይ...' : 'Redirecting to Teacher Portal...')
             : (lang === 'am' ? 'ሥርዓተ ትምህርቱን በመጫን ላይ...' : 'Loading Curriculum...')}
         </p>
       </div>
@@ -457,26 +477,32 @@ export default function CurriculumPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Hero Welcome Banner */}
-      <div className="bg-gradient-to-r from-eotc-navy via-slate-900 to-amber-950 text-white rounded-2xl p-4 sm:p-7 shadow-lg border border-amber-500/20">
-        <div className="max-w-2xl">
-          <span className="text-[11px] sm:text-xs uppercase tracking-widest text-amber-300 font-semibold flex items-center space-x-1">
-            <Sparkles className="w-3.5 h-3.5 mr-1" />
-            {lang === 'am' ? 'የሰንበት ትምህርት ቤት አንድነት' : 'EOTC Sunday School Platform'}
-          </span>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1">
-            {lang === 'am' ? 'ኦርቶዶክሳዊ የትምህርት መድረክ' : 'Orthodox Christian Learning Platform'}
-          </h1>
-          <p className="mt-1.5 text-stone-300 text-xs sm:text-sm md:text-base leading-relaxed">
-            {lang === 'am'
-              ? 'መጻሕፍትን፣ የልምምድ ፈተናዎችን እና ማጣቀሻዎችን አንዴ በማውረድ ያለ ኢንተርኔት በየትኛውም ቦታ ይማሩ።'
-              : 'Download textbooks, practice quizzes, and references once to study anywhere offline.'}
-          </p>
+      {/* Signed-out visitors get the public landing page; students keep the compact banner */}
+      {user ? (
+        <div className="bg-gradient-to-r from-eotc-navy via-slate-900 to-amber-950 text-white rounded-2xl p-4 sm:p-7 shadow-lg border border-amber-500/20">
+          <div className="max-w-2xl">
+            <span className="text-[11px] sm:text-xs uppercase tracking-widest text-amber-300 font-semibold flex items-center space-x-1">
+              <Sparkles className="w-3.5 h-3.5 mr-1" />
+              {lang === 'am' ? 'የሰንበት ትምህርት ቤት አንድነት' : 'EOTC Sunday School Platform'}
+            </span>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1">
+              {lang === 'am' ? 'ኦርቶዶክሳዊ የትምህርት መድረክ' : 'Orthodox Christian Learning Platform'}
+            </h1>
+            <p className="mt-1.5 text-stone-300 text-xs sm:text-sm md:text-base leading-relaxed">
+              {lang === 'am'
+                ? 'መጻሕፍትን፣ የልምምድ ፈተናዎችን እና ማጣቀሻዎችን አንዴ በማውረድ ያለ ኢንተርኔት በየትኛውም ቦታ ይማሩ።'
+                : 'Download textbooks, practice quizzes, and references once to study anywhere offline.'}
+            </p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <LandingTop />
+      )}
 
+      {/* Curriculum preview (target of the navbar's /#curriculum-preview link) */}
+      <div id="curriculum-preview" className="space-y-6 sm:space-y-8 scroll-mt-24">
       {/* Advanced Real-time Search & Filter Bar */}
-      <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-stone-200 dark:border-slate-800 shadow-sm flex items-center space-x-3">
+      <div className={`w-full max-w-xl ${user ? '' : 'mx-auto'} bg-white dark:bg-slate-900 px-3.5 py-2.5 rounded-2xl border border-stone-200 dark:border-slate-800 shadow-sm flex items-center space-x-3`}>
         <Search className="w-5 h-5 text-stone-400 dark:text-slate-500 shrink-0" />
         <input
           type="text"
@@ -503,12 +529,12 @@ export default function CurriculumPage() {
       {user && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
           <div className="flex items-center space-x-2">
-            <GraduationCap className="w-5 h-5 text-amber-700 shrink-0" />
+            <GraduationCap className="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0" />
             <div className="text-xs">
-              <span className="font-bold text-amber-950 block">
+              <span className="font-bold text-amber-950 dark:text-amber-100 block">
                 {lang === 'am' ? 'የተመዘገብኩባቸው ክፍሎች' : 'My Enrolled Grades'}
               </span>
-              <span className="text-stone-600">
+              <span className="text-stone-600 dark:text-slate-300">
                 {enrolledGradeIds.length > 0
                   ? (lang === 'am' ? `በ${enrolledGradeIds.length} ክፍሎች ተመዝግበዋል` : `Enrolled in ${enrolledGradeIds.length} grade(s)`)
                   : (lang === 'am' ? 'እስካሁን የተመዘገቡበት ክፍል የለም' : 'Not yet enrolled in any specific grade')}
@@ -540,24 +566,18 @@ export default function CurriculumPage() {
 
         {/* 1. Mobile Dropdown (< sm screens) */}
         <div className="sm:hidden w-full flex items-center gap-2">
-          <div className="relative flex-1">
-            <select
-              value={selectedGrade}
-              onChange={(e) => setSelectedGrade(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-              className="w-full appearance-none bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 text-stone-900 dark:text-white text-xs font-bold py-2.5 pl-3 pr-8 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
-              aria-label={lang === 'am' ? 'ክፍል ይምረጡ' : 'Select Grade'}
-            >
-              <option value="all">
-                {lang === 'am' ? '📚 ሁሉም ክፍሎች (All Grades)' : '📚 All Grades'}
-              </option>
-              {baseCurriculum.map((g) => (
-                <option key={g.level} value={g.level}>
-                  {lang === 'am' ? (g.amharicName || `ክፍል ${g.level}`) : (g.name || `Grade ${g.level}`)}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-4 h-4 text-stone-400 dark:text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+          <GradeSelect
+            value={String(selectedGrade)}
+            onChange={(v) => setSelectedGrade(v === 'all' ? 'all' : Number(v))}
+            ariaLabel={lang === 'am' ? 'ክፍል ይምረጡ' : 'Select Grade'}
+            options={[
+              { value: 'all', label: lang === 'am' ? 'ሁሉም ክፍሎች' : 'All Grades', icon: <BookOpen className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" /> },
+              ...baseCurriculum.map((g) => ({
+                value: String(g.level),
+                label: lang === 'am' ? g.amharicName || `ክፍል ${g.level}` : g.name || `Grade ${g.level}`,
+              })),
+            ]}
+          />
 
           {/* Quick Actions (Collapse/Expand All & Refresh) */}
           <button
@@ -670,12 +690,12 @@ export default function CurriculumPage() {
             const totalGradeSubjects = grade.subjects?.length || 0;
             const completedGradeSubjects = (grade.subjects || []).filter((s) => {
               const tCh = s.chapters?.length || 0;
-              const cCh = (s.chapters || []).filter((c) => studentProgressMap[c.id]).length;
+              const cCh = (s.chapters || []).filter((c) => progressMap[c.id]).length;
               return tCh > 0 && cCh === tCh;
             }).length;
             const isGradeCompleted = totalGradeSubjects > 0 && completedGradeSubjects === totalGradeSubjects;
 
-            const isGradeExpanded = searchQuery ? true : (expandedGrades[grade.level] ?? true);
+            const isGradeExpanded = searchQuery ? true : (expandedGrades[grade.level] ?? false);
 
             return (
               <div key={grade.level} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800 p-4 sm:p-6 space-y-4 transition">
@@ -739,7 +759,7 @@ export default function CurriculumPage() {
                   <div className="space-y-5 pt-1 border-t border-stone-100 dark:border-slate-800">
                     {/* Grade Completed Golden Banner */}
                     {isGradeCompleted && (
-                      <div className="p-3.5 bg-gradient-to-r from-amber-500/20 via-amber-400/10 to-emerald-500/20 border border-amber-400/60 rounded-xl flex items-center justify-between text-amber-950 font-bold text-xs sm:text-sm shadow-sm">
+                      <div className="p-3.5 bg-gradient-to-r from-amber-500/20 via-amber-400/10 to-emerald-500/20 border border-amber-400/60 rounded-xl flex items-center justify-between text-amber-950 dark:text-amber-100 font-bold text-xs sm:text-sm shadow-sm">
                         <div className="flex items-center space-x-2">
                           <Award className="w-5 h-5 text-amber-600 shrink-0" />
                           <span>
@@ -759,7 +779,7 @@ export default function CurriculumPage() {
                       {grade.subjects?.map((subject) => {
                         const totalChapters = subject.chapters?.length || 0;
                         const completedChapters = (subject.chapters || []).filter(
-                          (c) => studentProgressMap[c.id]
+                          (c) => progressMap[c.id]
                         ).length;
                         const subjectProgressPercent =
                           totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
@@ -835,7 +855,7 @@ export default function CurriculumPage() {
                                     {subject.chapters.map((chapter) => {
                                       const status = downloadStatuses[chapter.id] || 'NOT_DOWNLOADED';
                                       const isDownloading = downloadingId === chapter.id;
-                                      const isChapterDone = studentProgressMap[chapter.id] ?? false;
+                                      const isChapterDone = progressMap[chapter.id] ?? false;
 
                                       return (
                                         <div
@@ -869,7 +889,21 @@ export default function CurriculumPage() {
                                             </h5>
                                           </div>
 
-                                          <div className="mt-4 pt-3 border-t border-stone-100 dark:border-slate-800 flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-2.5">
+                                          {chapter.packages && chapter.packages.length === 0 && (
+                                            <div className="mt-4 pt-3 border-t border-stone-100 dark:border-slate-800 flex items-center gap-2 text-xs font-semibold text-stone-500 dark:text-slate-400">
+                                              <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                                              <span>
+                                                {lang === 'am'
+                                                  ? 'የመማሪያ ማቴሪያል በቅርቡ ይዘጋጃል'
+                                                  : 'Study material coming soon'}
+                                              </span>
+                                            </div>
+                                          )}
+                                          <div
+                                            className={`mt-4 pt-3 border-t border-stone-100 dark:border-slate-800 flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-2.5 ${
+                                              chapter.packages && chapter.packages.length === 0 ? 'hidden' : ''
+                                            }`}
+                                          >
                                             <div className="flex items-center space-x-2 w-full min-[380px]:w-auto">
                                               <button
                                                 type="button"
@@ -888,6 +922,19 @@ export default function CurriculumPage() {
                                                 <HelpCircle className="w-3.5 h-3.5 mr-1 text-amber-700 dark:text-amber-400" />
                                                 <span>{lang === 'am' ? 'ፈተና' : 'Quiz'}</span>
                                               </button>
+
+                                              {(chapter.practiceQuestionCount ?? 0) > 0 && (
+                                                <button
+                                                  type="button"
+                                                  onClick={(e) => handleQuizClick(chapter, e, 'drills')}
+                                                  className="flex-1 min-[380px]:flex-none justify-center inline-flex items-center text-xs font-semibold text-emerald-900 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-emerald-200 dark:border-emerald-800/60"
+                                                >
+                                                  <Sparkles className="w-3.5 h-3.5 mr-1 text-emerald-600 dark:text-emerald-400" />
+                                                  <span>
+                                                    {lang === 'am' ? 'ልምምድ' : 'Practice'} ({chapter.practiceQuestionCount})
+                                                  </span>
+                                                </button>
+                                              )}
                                             </div>
 
                                             {user && (
@@ -941,6 +988,10 @@ export default function CurriculumPage() {
           })
         )}
       </div>
+      </div>
+
+      {!user && <LandingBottom />}
+
       {/* Skippable Download Prompt Modal */}
       {studyPromptChapter && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">

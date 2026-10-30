@@ -54,52 +54,16 @@ export class AuthService {
       throw new AppError(409, 'EMAIL_EXISTS', 'An account with this email already exists');
     }
 
-    let resolvedParishId: string | null = data.parishId ?? null;
-    let resolvedChurchParish: string | null = data.churchParish?.trim() ?? null;
-
-    if (resolvedParishId) {
-      const existingParish = await prisma.parish.findUnique({
-        where: { id: resolvedParishId },
-      });
-      if (existingParish) {
-        resolvedChurchParish = existingParish.amharicName || existingParish.name;
-      }
-    } else if (resolvedChurchParish) {
-      // Find matching parish or auto-create custom parish
-      const matched = await prisma.parish.findFirst({
-        where: {
-          OR: [
-            { name: { equals: resolvedChurchParish, mode: 'insensitive' } },
-            { amharicName: { equals: resolvedChurchParish, mode: 'insensitive' } },
-            { sundaySchoolName: { equals: resolvedChurchParish, mode: 'insensitive' } },
-          ],
-        },
-      });
-      if (matched) {
-        resolvedParishId = matched.id;
-        resolvedChurchParish = matched.amharicName || matched.name;
-      } else {
-        try {
-          const customParish = await prisma.parish.create({
-            data: {
-              name: resolvedChurchParish,
-              amharicName: resolvedChurchParish,
-              diocese: 'Addis Ababa (አዲስ አበባ)',
-              city: 'Addis Ababa',
-              isVerified: false,
-              suggestedBy: data.email.toLowerCase().trim(),
-            },
-          });
-          resolvedParishId = customParish.id;
-        } catch {
-          // Ignore unique collision
-        }
-      }
-    }
+    const { resolvedParishId, resolvedChurchParish } = await this.resolveParish(
+      data.parishId,
+      data.churchParish,
+      data.email.toLowerCase().trim()
+    );
 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(data.password, salt);
-    const role = data.role || 'STUDENT';
+    // Public registration can only create students; teachers and admins are assigned by an administrator
+    const role = 'STUDENT' as const;
 
     const user = await prisma.user.create({
       data: {
@@ -317,6 +281,62 @@ export class AuthService {
     return toUserProfile(user);
   }
 
+  /**
+   * Resolve a Sunday School selection: a picked parish id, a typed name matching an existing parish,
+   * or a new unverified parish suggested by the user.
+   */
+  private async resolveParish(
+    parishId: string | null | undefined,
+    churchParish: string | null | undefined,
+    suggestedBy: string
+  ): Promise<{ resolvedParishId: string | null; resolvedChurchParish: string | null }> {
+    let resolvedParishId: string | null = parishId ?? null;
+    let resolvedChurchParish: string | null = churchParish?.trim() || null;
+
+    if (resolvedParishId) {
+      const existingParish = await prisma.parish.findUnique({ where: { id: resolvedParishId } });
+      if (existingParish) {
+        resolvedChurchParish = existingParish.amharicName || existingParish.name;
+      } else {
+        resolvedParishId = null;
+      }
+    }
+
+    if (!resolvedParishId && resolvedChurchParish) {
+      const matched = await prisma.parish.findFirst({
+        where: {
+          OR: [
+            { name: { equals: resolvedChurchParish, mode: 'insensitive' } },
+            { amharicName: { equals: resolvedChurchParish, mode: 'insensitive' } },
+            { sundaySchoolName: { equals: resolvedChurchParish, mode: 'insensitive' } },
+          ],
+        },
+      });
+      if (matched) {
+        resolvedParishId = matched.id;
+        resolvedChurchParish = matched.amharicName || matched.name;
+      } else {
+        try {
+          const customParish = await prisma.parish.create({
+            data: {
+              name: resolvedChurchParish,
+              amharicName: resolvedChurchParish,
+              diocese: 'Addis Ababa (አዲስ አበባ)',
+              city: 'Addis Ababa',
+              isVerified: false,
+              suggestedBy,
+            },
+          });
+          resolvedParishId = customParish.id;
+        } catch {
+          // Ignore unique collision
+        }
+      }
+    }
+
+    return { resolvedParishId, resolvedChurchParish };
+  }
+
   async updateProfile(
     userId: string,
     data: {
@@ -326,6 +346,7 @@ export class AuthService {
       baptismalName?: string | null | undefined;
       phoneNumber?: string | null | undefined;
       churchParish?: string | null | undefined;
+      parishId?: string | null | undefined;
     }
   ): Promise<UserProfile> {
     const existing = await prisma.user.findUnique({
@@ -342,6 +363,7 @@ export class AuthService {
       baptismalName?: string | null;
       phoneNumber?: string | null;
       churchParish?: string | null;
+      parishId?: string | null;
     } = {};
 
     if (data.fullName !== undefined) updateData.fullName = data.fullName.trim();
@@ -349,7 +371,15 @@ export class AuthService {
     if (data.address !== undefined) updateData.address = data.address?.trim() || null;
     if (data.baptismalName !== undefined) updateData.baptismalName = data.baptismalName?.trim() || null;
     if (data.phoneNumber !== undefined) updateData.phoneNumber = data.phoneNumber?.trim() || null;
-    if (data.churchParish !== undefined) updateData.churchParish = data.churchParish?.trim() || null;
+    if (data.churchParish !== undefined || data.parishId !== undefined) {
+      const { resolvedParishId, resolvedChurchParish } = await this.resolveParish(
+        data.parishId,
+        data.churchParish,
+        existing.email
+      );
+      updateData.churchParish = resolvedChurchParish;
+      updateData.parishId = resolvedParishId;
+    }
 
     const updated = await prisma.user.update({
       where: { id: userId },

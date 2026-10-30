@@ -357,6 +357,14 @@ export const CreatePracticeQuestionSchema = z.object({
   choices: z.array(CreatePracticeChoiceSchema).optional(),
 });
 
+export const SubmitPracticeQuestionBatchSchema = z.object({
+  chapterId: z.string().uuid(),
+  questions: z
+    .array(CreatePracticeQuestionSchema.omit({ chapterId: true }))
+    .min(1, 'Add at least one question')
+    .max(100),
+});
+
 export const ReviewMaterialSchema = z.object({
   action: z.enum(['APPROVE', 'DECLINE']),
   rejectionReason: z.string().optional(),
@@ -395,6 +403,7 @@ export const ParishQuerySchema = z.object({
 
 export const UpdateParishSchema = CreateParishSchema.partial();
 
+export type SubmitPracticeQuestionBatchInput = z.infer<typeof SubmitPracticeQuestionBatchSchema>;
 export type CreatePracticeQuestionInput = z.infer<typeof CreatePracticeQuestionSchema>;
 export type ReviewMaterialInput = z.infer<typeof ReviewMaterialSchema>;
 export type AssignTeacherParishInput = z.infer<typeof AssignTeacherParishSchema>;

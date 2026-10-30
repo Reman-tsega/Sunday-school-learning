@@ -20,6 +20,7 @@ import type {
   TicketStatus,
   UserProfile,
 } from '@eotc/shared';
+import { Select } from '@/components/Select';
 
 export default function StudentSupportPage() {
   const { lang } = useLanguage();
@@ -516,7 +517,7 @@ export default function StudentSupportPage() {
                 <label className="block text-xs font-semibold text-stone-700 dark:text-slate-300 mb-1.5">
                   {lang === 'am' ? 'የጥያቄው ዘርፍ' : 'Category'} *
                 </label>
-                <select
+                <Select
                   value={createForm.category}
                   onChange={(e) =>
                     setCreateForm({ ...createForm, category: e.target.value as TicketCategory })
@@ -533,7 +534,7 @@ export default function StudentSupportPage() {
                   <option value="ACCOUNT_ENROLLMENT">
                     {lang === 'am' ? 'አካውንት እና ምዝገባ (Account & Enrollment)' : 'Account & Enrollment'}
                   </option>
-                </select>
+                </Select>
               </div>
 
               <div>

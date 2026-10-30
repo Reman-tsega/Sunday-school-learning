@@ -10,24 +10,36 @@ import {
   Sparkles,
   BookOpen,
   Check,
+  Printer,
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
+import { QuestionTypeFilter, type QuestionTypeFilterValue } from '@/components/QuestionTypeFilter';
+import { printPracticeQuestions } from '@/lib/practice-export';
 import type { PracticeQuestionDto } from '@eotc/shared';
 
 interface PracticeQuestionListProps {
   chapterId: string;
   questions: PracticeQuestionDto[];
   loading?: boolean;
+  /** Title printed on the exported sheet, e.g. the chapter name */
+  exportHeading?: string;
+  exportSubheading?: string;
 }
 
 export function PracticeQuestionList({
   questions,
   loading = false,
+  exportHeading,
+  exportSubheading,
 }: PracticeQuestionListProps) {
-  const { lang, pick } = useLanguage();
+  const { lang } = useLanguage();
   const [selectedChoices, setSelectedChoices] = useState<Record<string, string>>({});
   const [revealedAnswers, setRevealedAnswers] = useState<Record<string, boolean>>({});
   const [shortAnswers, setShortAnswers] = useState<Record<string, string>>({});
+  const [typeFilter, setTypeFilter] = useState<QuestionTypeFilterValue>('ALL');
+  const [exportWithAnswers, setExportWithAnswers] = useState(true);
+  const visibleQuestions =
+    typeFilter === 'ALL' ? questions : questions.filter((q) => q.questionType === typeFilter);
 
   const toggleRevealAnswer = (questionId: string) => {
     setRevealedAnswers((prev) => ({
@@ -48,7 +60,7 @@ export function PracticeQuestionList({
       <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-stone-200 dark:border-slate-800 text-center text-stone-500 dark:text-slate-400 space-y-2">
         <div className="w-8 h-8 border-2 border-amber-600 dark:border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
         <p className="text-xs">
-          {lang === 'am' ? 'የልምምድ ጥያቄዎችን በማዘጋጀት ላይ...' : 'Loading practice drill questions...'}
+          {lang === 'am' ? 'የልምምድ ጥያቄዎችን በማዘጋጀት ላይ...' : 'Loading practice questions...'}
         </p>
       </div>
     );
@@ -79,7 +91,7 @@ export function PracticeQuestionList({
         <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
         <div className="leading-relaxed">
           <p className="font-bold">
-            {lang === 'am' ? 'የራስ-ዕውቀት መገምገሚያ ልምምዶች (Drill Questions)' : 'Self-Study Practice Drills'}
+            {lang === 'am' ? 'የራስ-ዕውቀት መገምገሚያ ልምምዶች' : 'Self-Study Practice Questions'}
           </p>
           <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5">
             {lang === 'am'
@@ -89,13 +101,46 @@ export function PracticeQuestionList({
         </div>
       </div>
 
+      {/* Export / Print */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
+        <label className="inline-flex items-center space-x-2 text-xs font-semibold text-stone-700 dark:text-slate-300 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={exportWithAnswers}
+            onChange={(e) => setExportWithAnswers(e.target.checked)}
+            className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+          />
+          <span>{lang === 'am' ? 'መልሶችን አካትት' : 'Include answers'}</span>
+        </label>
+        <button
+          type="button"
+          onClick={() =>
+            printPracticeQuestions({
+              questions,
+              heading: exportHeading || (lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Questions'),
+              subheading: exportSubheading,
+              includeAnswers: exportWithAnswers,
+              lang,
+            })
+          }
+          className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-eotc-navy dark:bg-amber-500 text-white dark:text-slate-950 hover:opacity-90 text-xs font-bold shadow-xs transition cursor-pointer"
+        >
+          <Printer className="w-4 h-4" />
+          <span>{lang === 'am' ? 'PDF አውጣ / አትም' : 'Export PDF / Print'}</span>
+        </button>
+      </div>
+
+      {questions.length > 1 && (
+        <QuestionTypeFilter questions={questions} value={typeFilter} onChange={setTypeFilter} lang={lang} />
+      )}
+
       {/* Questions List */}
       <div className="space-y-4">
-        {questions.map((q, idx) => {
+        {visibleQuestions.map((q, idx) => {
           const isRevealed = !!revealedAnswers[q.id];
-          const questionPrompt = pick(q.amharicPrompt, q.prompt);
-          const explanation = pick(q.amharicExplanation, q.explanation);
-          const answerText = pick(q.amharicAnswerText, q.answerText);
+          const questionPrompt = q.prompt;
+          const explanation = q.explanation;
+          const answerText = q.answerText;
 
           return (
             <div
@@ -151,7 +196,7 @@ export function PracticeQuestionList({
                         className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm flex items-center justify-between gap-2 transition cursor-pointer ${choiceStyle}`}
                       >
                         <span className="leading-relaxed">
-                          {pick(choice.amharicText, choice.text)}
+                          {choice.text}
                         </span>
                         {isRevealed && isChoiceCorrect && (
                           <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -248,7 +293,7 @@ export function PracticeQuestionList({
                   <span className="text-[11px] text-stone-400 dark:text-slate-500 italic">
                     {lang === 'am'
                       ? 'ክፍት የውይይት/የማሰላሰያ ጥያቄ'
-                      : 'Open reflection drill'}
+                      : 'Open reflection question'}
                   </span>
                 )}
               </div>
@@ -269,14 +314,14 @@ export function PracticeQuestionList({
                     <div className="text-emerald-900 dark:text-emerald-300 leading-relaxed font-semibold pl-6">
                       {q.choices
                         .filter((c) => c.isCorrect)
-                        .map((c) => pick(c.amharicText, c.text))
+                        .map((c) => c.text)
                         .join(' | ')}
                     </div>
                   ) : (
                     <div className="text-emerald-800 dark:text-emerald-300 pl-6 italic">
                       {lang === 'am'
                         ? 'ይህ ጥያቄ ክፍት የማሰላሰያ ጥያቄ ስለሆነ የተወሰነ አንድ መልስ የለውም።'
-                        : 'This is an open contemplation drill without a single rigid answer.'}
+                        : 'This is an open contemplation question without a single rigid answer.'}
                     </div>
                   )}
 

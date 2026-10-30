@@ -30,6 +30,7 @@ import type {
   PracticeQuestionDto,
   TeacherParishOverviewDto,
 } from '@eotc/shared';
+import { Select } from '@/components/Select';
 
 type TeacherTab = 'overview' | 'students' | 'contribute' | 'submissions';
 
@@ -71,7 +72,8 @@ export default function TeacherPortalPage() {
 
   // Reference Form
   const [refTitle, setRefTitle] = useState('');
-  const [refAmharicTitle, setRefAmharicTitle] = useState('');
+  const [refSource, setRefSource] = useState<'UPLOAD' | 'LINK'>('UPLOAD');
+  const [refFile, setRefFile] = useState<File | null>(null);
   const [refUrl, setRefUrl] = useState('');
   const [refIsDownloadable, setRefIsDownloadable] = useState(false);
   const [refDownloadUrl, setRefDownloadUrl] = useState('');
@@ -80,21 +82,22 @@ export default function TeacherPortalPage() {
   // Practice Question Form
   const [qType, setQType] = useState<QuestionType>('MULTIPLE_CHOICE');
   const [qText, setQText] = useState('');
-  const [qAmharicText, setQAmharicText] = useState('');
   const [qExplanation, setQExplanation] = useState('');
-  const [qAmharicExplanation, setQAmharicExplanation] = useState('');
   // Multiple Choice choices
   const [mcChoices, setMcChoices] = useState<
-    Array<{ text: string; amharicText: string; isCorrect: boolean }>
+    Array<{ text: string; isCorrect: boolean }>
   >([
-    { text: '', amharicText: '', isCorrect: true },
-    { text: '', amharicText: '', isCorrect: false },
+    { text: '', isCorrect: true },
+    { text: '', isCorrect: false },
   ]);
   // True / False correct answer
   const [tfCorrect, setTfCorrect] = useState<'TRUE' | 'FALSE'>('TRUE');
   // Short Answer expected text
   const [saAnswer, setSaAnswer] = useState('');
-  const [saAmharicAnswer, setSaAmharicAnswer] = useState('');
+  // Prepared questions waiting to be sent for review in one go
+  const [draftQuestions, setDraftQuestions] = useState<any[]>([]);
+  const [draftChapterId, setDraftChapterId] = useState('');
+  const [draftChapterLabel, setDraftChapterLabel] = useState('');
 
   useEffect(() => {
     initPortal();
@@ -110,6 +113,10 @@ export default function TeacherPortalPage() {
         return;
       }
       setCurrentUser(user);
+      const tabParam = new URLSearchParams(window.location.search).get('tab');
+      if (tabParam === 'overview' || tabParam === 'students' || tabParam === 'contribute' || tabParam === 'submissions') {
+        setActiveTab(tabParam);
+      }
 
       if (user.churchParish) {
         // Load parish overview
@@ -155,7 +162,7 @@ export default function TeacherPortalPage() {
   };
 
   const handleAddChoice = () => {
-    setMcChoices((prev) => [...prev, { text: '', amharicText: '', isCorrect: false }]);
+    setMcChoices((prev) => [...prev, { text: '', isCorrect: false }]);
   };
 
   const handleRemoveChoice = (idx: number) => {
@@ -172,7 +179,7 @@ export default function TeacherPortalPage() {
     );
   };
 
-  const handleUpdateChoiceText = (idx: number, field: 'text' | 'amharicText', val: string) => {
+  const handleUpdateChoiceText = (idx: number, field: 'text', val: string) => {
     setMcChoices((prev) =>
       prev.map((c, i) => (i === idx ? { ...c, [field]: val } : c))
     );
@@ -187,10 +194,20 @@ export default function TeacherPortalPage() {
       });
       return;
     }
-    if (!refTitle.trim() || !refAmharicTitle.trim() || !refUrl.trim()) {
+    if (!refTitle.trim()) {
       setFeedbackMsg({
         type: 'error',
-        text: lang === 'am' ? 'እባክዎ ርዕስና አድራሻ (URL) ያስገቡ' : 'Please provide titles and URL',
+        text: lang === 'am' ? 'እባክዎ የሰነዱን ርዕስ ያስገቡ' : 'Please provide a document title',
+      });
+      return;
+    }
+    if (refSource === 'UPLOAD' ? !refFile : !refUrl.trim()) {
+      setFeedbackMsg({
+        type: 'error',
+        text:
+          refSource === 'UPLOAD'
+            ? (lang === 'am' ? 'እባክዎ ሰነድ ይምረጡ' : 'Please choose a document to upload')
+            : (lang === 'am' ? 'እባክዎ አድራሻ (URL) ያስገቡ' : 'Please provide a link'),
       });
       return;
     }
@@ -198,14 +215,24 @@ export default function TeacherPortalPage() {
     setSubmitting(true);
     setFeedbackMsg(null);
     try {
-      await api.submitTeacherReference(selectedChapterId, {
-        title: refTitle.trim(),
-        amharicTitle: refAmharicTitle.trim(),
-        url: refUrl.trim(),
-        isDownloadable: refIsDownloadable,
-        downloadableDocUrl: refIsDownloadable ? (refDownloadUrl.trim() || refUrl.trim()) : undefined,
-        downloadableDocSize: refDocSize || undefined,
-      });
+      if (refSource === 'UPLOAD' && refFile) {
+        const uploaded = await api.uploadTeacherReference(refFile);
+        await api.submitTeacherReference(selectedChapterId, {
+          title: refTitle.trim(),
+          isDownloadable: true,
+          downloadableDocUrl: uploaded.fileUrl,
+          downloadableDocSize: uploaded.fileSize,
+          downloadableDocChecksum: uploaded.checksumSha256,
+        });
+      } else {
+        await api.submitTeacherReference(selectedChapterId, {
+          title: refTitle.trim(),
+          url: refUrl.trim(),
+          isDownloadable: refIsDownloadable,
+          downloadableDocUrl: refIsDownloadable ? (refDownloadUrl.trim() || refUrl.trim()) : undefined,
+          downloadableDocSize: refDocSize || undefined,
+        });
+      }
 
       setFeedbackMsg({
         type: 'success',
@@ -217,8 +244,8 @@ export default function TeacherPortalPage() {
 
       // Clear fields
       setRefTitle('');
-      setRefAmharicTitle('');
       setRefUrl('');
+      setRefFile(null);
       setRefDownloadUrl('');
       setRefIsDownloadable(false);
       setRefDocSize(undefined);
@@ -233,7 +260,7 @@ export default function TeacherPortalPage() {
     }
   };
 
-  const handleSubmitPracticeQuestion = async (e: React.FormEvent) => {
+  const handleAddDraftQuestion = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedChapterId) {
       setFeedbackMsg({
@@ -242,7 +269,7 @@ export default function TeacherPortalPage() {
       });
       return;
     }
-    if (!qText.trim() || !qAmharicText.trim()) {
+    if (!qText.trim()) {
       setFeedbackMsg({
         type: 'error',
         text: lang === 'am' ? 'እባክዎ የጥያቄውን ይዘት ያስገቡ' : 'Please enter question text',
@@ -250,20 +277,28 @@ export default function TeacherPortalPage() {
       return;
     }
 
-    setSubmitting(true);
+    if (draftQuestions.length > 0 && draftChapterId !== selectedChapterId) {
+      setFeedbackMsg({
+        type: 'error',
+        text:
+          lang === 'am'
+            ? 'መጀመሪያ ያዘጋጇቸውን ጥያቄዎች ይላኩ ወይም ያስወግዱ፤ ከዚያ ሌላ ምዕራፍ ይምረጡ።'
+            : 'Send or discard the questions you drafted for the other chapter before switching chapters.',
+      });
+      return;
+    }
+
     setFeedbackMsg(null);
     try {
       const payload: any = {
         chapterId: selectedChapterId,
         questionType: qType,
         prompt: qText.trim(),
-        amharicPrompt: qAmharicText.trim() || undefined,
         explanation: qExplanation.trim() || undefined,
-        amharicExplanation: qAmharicExplanation.trim() || undefined,
       };
 
       if (qType === 'MULTIPLE_CHOICE') {
-        const validChoices = mcChoices.filter((c) => c.text.trim() && c.amharicText.trim());
+        const validChoices = mcChoices.filter((c) => c.text.trim());
         if (validChoices.length < 2) {
           throw new Error(
             lang === 'am'
@@ -276,7 +311,6 @@ export default function TeacherPortalPage() {
         }
         payload.choices = validChoices.map((c, idx) => ({
           text: c.text.trim(),
-          amharicText: c.amharicText.trim(),
           isCorrect: c.isCorrect,
           orderIndex: idx + 1,
         }));
@@ -284,46 +318,67 @@ export default function TeacherPortalPage() {
         payload.choices = [
           {
             text: 'True',
-            amharicText: 'እውነት',
             isCorrect: tfCorrect === 'TRUE',
             orderIndex: 1,
           },
           {
             text: 'False',
-            amharicText: 'ሐሰት',
             isCorrect: tfCorrect === 'FALSE',
             orderIndex: 2,
           },
         ];
       } else if (qType === 'SHORT_ANSWER') {
-        payload.hasAnswer = !!(saAnswer.trim() || saAmharicAnswer.trim());
+        payload.hasAnswer = !!saAnswer.trim();
         payload.answerText = saAnswer.trim() || undefined;
-        payload.amharicAnswerText = saAmharicAnswer.trim() || undefined;
       }
 
-      await api.submitTeacherPracticeQuestion(payload);
+      if (draftQuestions.length === 0) {
+        const chapter = activeChapters.find((c: any) => c.id === selectedChapterId);
+        setDraftChapterId(selectedChapterId);
+        setDraftChapterLabel(chapter ? pick(chapter.amharicTitle, chapter.title) : '');
+      }
+      setDraftQuestions((prev) => [...prev, payload]);
 
+      // Clear fields so the next question can be prepared right away
+      setQText('');
+      setQExplanation('');
+      setSaAnswer('');
+      setMcChoices([
+        { text: '', isCorrect: true },
+        { text: '', isCorrect: false },
+      ]);
+    } catch (err: any) {
+      setFeedbackMsg({ type: 'error', text: err.message || 'Could not add question' });
+    }
+  };
+
+  const handleRemoveDraft = (idx: number) => {
+    setDraftQuestions((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleDiscardDrafts = () => {
+    setDraftQuestions([]);
+    setDraftChapterId('');
+    setDraftChapterLabel('');
+  };
+
+  const handleSendDraftsForReview = async () => {
+    if (draftQuestions.length === 0 || !draftChapterId) return;
+    setSubmitting(true);
+    setFeedbackMsg(null);
+    try {
+      const result = await api.submitTeacherPracticeQuestionBatch(
+        draftChapterId,
+        draftQuestions.map(({ chapterId: _c, ...q }) => q)
+      );
       setFeedbackMsg({
         type: 'success',
         text:
           lang === 'am'
-            ? 'የልምምድ ጥያቄው በተሳካ ሁኔታ ቀርቧል! በአስተዳዳሪ (Admin) ከተገመገመ በኋላ ለተማሪዎች ይፈቀዳል።'
-            : 'Practice question submitted successfully! It will be accessible once approved by Admin.',
+            ? `${result.count} የልምምድ ጥያቄዎች ለግምገማ ተልከዋል! አስተዳዳሪው ከገመገመ በኋላ ለተማሪዎች ይታያሉ።`
+            : `${result.count} practice question${result.count === 1 ? '' : 's'} sent for review. Students will see them once an admin approves.`,
       });
-
-      // Clear fields
-      setQText('');
-      setQAmharicText('');
-      setQExplanation('');
-      setQAmharicExplanation('');
-      setSaAnswer('');
-      setSaAmharicAnswer('');
-      setMcChoices([
-        { text: '', amharicText: '', isCorrect: true },
-        { text: '', amharicText: '', isCorrect: false },
-      ]);
-
-      // Refresh submissions
+      handleDiscardDrafts();
       const subs = await api.getTeacherSubmissions().catch(() => ({ references: [], practiceQuestions: [] }));
       setSubmissions(subs);
     } catch (err: any) {
@@ -366,13 +421,13 @@ export default function TeacherPortalPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+    <div className="w-full min-w-0 max-w-7xl mx-auto px-0 sm:px-6 py-4 sm:py-8 space-y-6 overflow-x-clip">
       {/* Top Banner & Header */}
       <div className="bg-gradient-to-r from-amber-950 via-stone-900 to-amber-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-amber-800/40 relative overflow-hidden">
         <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
+          <div className="space-y-2 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs uppercase tracking-widest font-black text-amber-400 bg-amber-950/80 px-2.5 py-1 rounded-full border border-amber-500/30">
                 ✟ {lang === 'am' ? 'የኦርቶዶክስ ተዋሕዶ ሰንበት ትምህርት ቤት' : 'EOTC Sunday School Platform'}
               </span>
@@ -390,15 +445,15 @@ export default function TeacherPortalPage() {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0 md:shrink-0">
             {currentUser?.churchParish ? (
-              <div className="bg-stone-900/90 border border-amber-500/40 rounded-2xl p-3.5 px-4 shadow-inner flex items-center space-x-3">
+              <div className="bg-stone-900/90 border border-amber-500/40 rounded-2xl p-3.5 px-4 shadow-inner flex items-center space-x-3 min-w-0">
                 <Church className="w-5 h-5 text-amber-400 shrink-0" />
-                <div>
+                <div className="min-w-0">
                   <span className="text-[10px] text-amber-300 uppercase tracking-wider block font-bold">
                     {lang === 'am' ? 'የተመደቡበት ደብር / ሰንበት ት/ቤት' : 'Assigned Sunday School'}
                   </span>
-                  <span className="font-extrabold text-sm text-white">
+                  <span className="font-extrabold text-sm text-white break-words block">
                     {currentUser.churchParish}
                   </span>
                 </div>
@@ -574,7 +629,7 @@ export default function TeacherPortalPage() {
             <p className="text-xs sm:text-sm text-stone-600 dark:text-slate-300 leading-relaxed">
               {lang === 'am'
                 ? 'በኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተክርስቲያን ቀኖና መሠረት ዋና ዋና የትምህርት መጻሕፍት (Core Syllabus) በቅዱስ ሲኖዶስ የተዘጋጁ ናቸው። መምህራን ተጨማሪ ማጣቀሻዎችንና ራስን መፈተሻ የልምምድ ጥያቄዎችን ብቻ ማበርከት የሚችሉ ሲሆን ሁሉም ይዘት በአስተዳዳሪ ተገምግሞ ከጸደቀ በኋላ ብቻ ለተማሪዎች ይታያል።'
-                : 'Per EOTC Synod guidelines, core textbooks remain immutable. Teachers are empowered to contribute supplementary reading references and formative practice drills. All submissions pass through the Admin Moderation Desk to maintain doctrinal integrity.'}
+                : 'Per EOTC Synod guidelines, core textbooks remain immutable. Teachers are empowered to contribute supplementary reading references and formative practice questions. All submissions pass through the Admin Moderation Desk to maintain doctrinal integrity.'}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
               <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-stone-200 dark:border-slate-800">
@@ -595,7 +650,7 @@ export default function TeacherPortalPage() {
               </div>
               <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-stone-200 dark:border-slate-800">
                 <span className="font-bold text-xs text-stone-900 dark:text-white block mb-1">
-                  {lang === 'am' ? '፫. የልምምድ ጥያቄዎችን ማዘጋጀት' : '3. Formative Drills'}
+                  {lang === 'am' ? '፫. የልምምድ ጥያቄዎችን ማዘጋጀት' : '3. Practice Questions'}
                 </span>
                 <p className="text-[11px] text-stone-500 dark:text-slate-400">
                   {lang === 'am' ? 'ተማሪዎች እውቀታቸውን እንዲፈትሹ ማብራሪያ ያላቸው ጥያቄዎችን ያበርክቱ።' : 'Draft self-study questions with spiritual explanations.'}
@@ -829,7 +884,7 @@ export default function TeacherPortalPage() {
               <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
                 {lang === 'am' ? '፩. ክፍል ምረጥ' : '1. Select Grade'}
               </label>
-              <select
+              <Select
                 value={selectedGradeId}
                 onChange={(e) => {
                   setSelectedGradeId(e.target.value);
@@ -844,14 +899,14 @@ export default function TeacherPortalPage() {
                     {lang === 'am' ? `ክፍል ${g.level} - ${g.amharicName || g.name}` : `Grade ${g.level} - ${g.name}`}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
                 {lang === 'am' ? '፪. ትምህርት (Subject) ምረጥ' : '2. Select Subject'}
               </label>
-              <select
+              <Select
                 disabled={!selectedGradeId}
                 value={selectedSubjectId}
                 onChange={(e) => {
@@ -866,14 +921,14 @@ export default function TeacherPortalPage() {
                     {pick(s.amharicName, s.name)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
                 {lang === 'am' ? '፫. ምዕራፍ ምረጥ' : '3. Select Chapter'}
               </label>
-              <select
+              <Select
                 disabled={!selectedSubjectId}
                 value={selectedChapterId}
                 onChange={(e) => setSelectedChapterId(e.target.value)}
@@ -885,7 +940,7 @@ export default function TeacherPortalPage() {
                     {pick(c.amharicTitle, c.title)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -914,99 +969,101 @@ export default function TeacherPortalPage() {
               }`}
             >
               <HelpCircle className="w-4 h-4" />
-              <span>{lang === 'am' ? 'የልምምድ ጥያቄ ማቅረቢያ' : 'Practice Question Drill'}</span>
+              <span>{lang === 'am' ? 'የልምምድ ጥያቄ ማቅረቢያ' : 'Practice Questions'}</span>
             </button>
           </div>
 
           {/* SUB-FORM A: REFERENCE DOCUMENT */}
           {contributionType === 'REFERENCE' && (
             <form onSubmit={handleSubmitReference} className="space-y-4 max-w-2xl">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                    {lang === 'am' ? 'የሰነዱ ርዕስ (አማርኛ) *' : 'Document Title (Amharic) *'}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="ምሳሌ፡ የሐዲስ ኪዳን መግቢያ"
-                    value={refAmharicTitle}
-                    onChange={(e) => setRefAmharicTitle(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                    {lang === 'am' ? 'የሰነዱ ርዕስ (እንግሊዝኛ) *' : 'Document Title (English) *'}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Introduction to the New Testament"
-                    value={refTitle}
-                    onChange={(e) => setRefTitle(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-              </div>
-
               <div>
                 <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                  {lang === 'am' ? 'የሰነዱ ወይም የድህረ-ገጹ አድራሻ (URL) *' : 'Document URL / Link *'}
+                  {lang === 'am' ? 'የሰነዱ ርዕስ *' : 'Document Title *'}
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   required
-                  placeholder="https://example.org/patristic-reading.pdf"
-                  value={refUrl}
-                  onChange={(e) => setRefUrl(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder={lang === 'am' ? 'ምሳሌ፡ የሐዲስ ኪዳን መግቢያ' : 'e.g. Introduction to the New Testament'}
+                  value={refTitle}
+                  onChange={(e) => setRefTitle(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
-              <div className="bg-stone-50 dark:bg-slate-950/60 p-4 rounded-2xl border border-stone-200 dark:border-slate-800 space-y-3">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="isDl"
-                    checked={refIsDownloadable}
-                    onChange={(e) => setRefIsDownloadable(e.target.checked)}
-                    className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
-                  />
-                  <label htmlFor="isDl" className="text-xs font-bold text-stone-800 dark:text-slate-200 cursor-pointer">
-                    {lang === 'am'
-                      ? 'ይህ ሰነድ ከመስመር ውጭ (Offline) ይወርዳል (PDF / DOCX)'
-                      : 'This document can be downloaded offline (PDF/DOCX)'}
-                  </label>
+              {/* Source: upload a document or share a link */}
+              <div className="space-y-3">
+                <div className="inline-flex rounded-xl border border-stone-300 dark:border-slate-700 overflow-hidden text-xs font-bold">
+                  {(['UPLOAD', 'LINK'] as const).map((src) => (
+                    <button
+                      key={src}
+                      type="button"
+                      onClick={() => setRefSource(src)}
+                      className={`px-4 py-2 transition cursor-pointer ${
+                        refSource === src
+                          ? 'bg-amber-600 text-white'
+                          : 'bg-white dark:bg-slate-900 text-stone-600 dark:text-slate-300 hover:bg-stone-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      {src === 'UPLOAD'
+                        ? (lang === 'am' ? 'ሰነድ ጫን' : 'Upload document')
+                        : (lang === 'am' ? 'አድራሻ (Link)' : 'Web link')}
+                    </button>
+                  ))}
                 </div>
 
-                {refIsDownloadable && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {refSource === 'UPLOAD' ? (
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
+                      {lang === 'am' ? 'ሰነድ (PDF, DOC, DOCX, PPT, PPTX) *' : 'Document (PDF, DOC, DOCX, PPT, PPTX) *'}
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.ppt,.pptx"
+                      onChange={(e) => setRefFile(e.target.files?.[0] || null)}
+                      className="w-full text-xs text-stone-700 dark:text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-100 file:text-amber-800 file:font-bold hover:file:bg-amber-200 cursor-pointer"
+                    />
+                    {refFile && (
+                      <p className="mt-1 text-[11px] text-stone-500 dark:text-slate-400">
+                        {refFile.name} · {(refFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    )}
+                    <p className="mt-1 text-[11px] text-stone-500 dark:text-slate-400">
+                      {lang === 'am'
+                        ? 'የተጫነው ሰነድ ከጸደቀ በኋላ ለተማሪዎች ከመስመር ውጭ ሊወርድ ይችላል።'
+                        : 'Approved documents can be downloaded by students for offline reading.'}
+                    </p>
+                  </div>
+                ) : (
+                  <>
                     <div>
-                      <label className="block text-[11px] font-bold text-stone-600 dark:text-slate-400 mb-1">
-                        {lang === 'am' ? 'የቀጥታ ማውረጃ ሊንክ (ከተለየ)' : 'Direct Download URL (if different)'}
+                      <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
+                        {lang === 'am' ? 'የሰነዱ ወይም የድህረ-ገጹ አድራሻ (URL) *' : 'Document URL / Link *'}
                       </label>
                       <input
                         type="url"
-                        value={refDownloadUrl}
-                        onChange={(e) => setRefDownloadUrl(e.target.value)}
-                        placeholder="https://.../doc.pdf"
-                        className="w-full p-2 rounded-lg border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-stone-900 dark:text-white text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        required
+                        placeholder="https://example.org/patristic-reading.pdf"
+                        value={refUrl}
+                        onChange={(e) => setRefUrl(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-stone-600 dark:text-slate-400 mb-1">
-                        {lang === 'am' ? 'የፋይል መጠን በባይት (Bytes)' : 'File Size in Bytes (Optional)'}
-                      </label>
+
+                    <div className="flex items-center space-x-2">
                       <input
-                        type="number"
-                        value={refDocSize || ''}
-                        onChange={(e) => setRefDocSize(e.target.value ? Number(e.target.value) : undefined)}
-                        placeholder="e.g. 5242880"
-                        className="w-full p-2 rounded-lg border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-stone-900 dark:text-white text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        type="checkbox"
+                        id="isDl"
+                        checked={refIsDownloadable}
+                        onChange={(e) => setRefIsDownloadable(e.target.checked)}
+                        className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
                       />
+                      <label htmlFor="isDl" className="text-xs font-bold text-stone-800 dark:text-slate-200 cursor-pointer">
+                        {lang === 'am'
+                          ? 'ይህ አድራሻ በቀጥታ የሚወርድ ሰነድ ነው (ከመስመር ውጭ)'
+                          : 'This link is a direct file download (usable offline)'}
+                      </label>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
 
@@ -1023,7 +1080,7 @@ export default function TeacherPortalPage() {
 
           {/* SUB-FORM B: PRACTICE QUESTION */}
           {contributionType === 'PRACTICE_QUESTION' && (
-            <form onSubmit={handleSubmitPracticeQuestion} className="space-y-4 max-w-2xl">
+            <form onSubmit={handleAddDraftQuestion} className="space-y-4 max-w-2xl">
               <div>
                 <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
                   {lang === 'am' ? 'የጥያቄው ዓይነት' : 'Question Type'}
@@ -1067,62 +1124,33 @@ export default function TeacherPortalPage() {
                 </div>
               </div>
 
-              {/* Question Texts */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                    {lang === 'am' ? 'ጥያቄ (አማርኛ) *' : 'Question (Amharic) *'}
-                  </label>
-                  <textarea
-                    rows={3}
-                    required
-                    placeholder="ጥያቄውን በአማርኛ ይጻፉ..."
-                    value={qAmharicText}
-                    onChange={(e) => setQAmharicText(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                    {lang === 'am' ? 'ጥያቄ (እንግሊዝኛ) *' : 'Question (English) *'}
-                  </label>
-                  <textarea
-                    rows={3}
-                    required
-                    placeholder="Enter question in English..."
-                    value={qText}
-                    onChange={(e) => setQText(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
+              {/* Question Text */}
+              <div>
+                <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
+                  {lang === 'am' ? 'ጥያቄ *' : 'Question *'}
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder={lang === 'am' ? 'ጥያቄውን ይጻፉ...' : 'Enter the question...'}
+                  value={qText}
+                  onChange={(e) => setQText(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
               </div>
 
-              {/* Explanations (Optional) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-stone-50 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-stone-200 dark:border-slate-800">
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                    {lang === 'am' ? 'መንፈሳዊ ማብራሪያ (አማርኛ - አማራጭ)' : 'Spiritual Explanation (Amharic - Optional)'}
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder="ለተማሪው መልሱን ሲከፍት የሚታይ ማብራሪያ..."
-                    value={qAmharicExplanation}
-                    onChange={(e) => setQAmharicExplanation(e.target.value)}
-                    className="w-full p-2 rounded-lg border border-stone-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                    {lang === 'am' ? 'መንፈሳዊ ማብራሪያ (እንግሊዝኛ - አማራጭ)' : 'Spiritual Explanation (English - Optional)'}
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder="Optional spiritual explanation shown upon reveal..."
-                    value={qExplanation}
-                    onChange={(e) => setQExplanation(e.target.value)}
-                    className="w-full p-2 rounded-lg border border-stone-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
+              {/* Explanation (Optional) */}
+              <div className="bg-stone-50 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-stone-200 dark:border-slate-800">
+                <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
+                  {lang === 'am' ? 'ማብራሪያ (አማራጭ)' : 'Explanation (Optional)'}
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder={lang === 'am' ? 'መልሱን ሲከፍት የሚታይ ማብራሪያ...' : 'Optional explanation shown upon reveal...'}
+                  value={qExplanation}
+                  onChange={(e) => setQExplanation(e.target.value)}
+                  className="w-full p-2 rounded-lg border border-stone-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
               </div>
 
               {/* Dynamic Answer Structure per Type */}
@@ -1153,14 +1181,7 @@ export default function TeacherPortalPage() {
                       />
                       <input
                         type="text"
-                        placeholder={lang === 'am' ? `አማራጭ ${idx + 1} (አማርኛ)` : `Choice ${idx + 1} (AM)`}
-                        value={choice.amharicText}
-                        onChange={(e) => handleUpdateChoiceText(idx, 'amharicText', e.target.value)}
-                        className="flex-1 p-1.5 rounded border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder={lang === 'am' ? `አማራጭ ${idx + 1} (EN)` : `Choice ${idx + 1} (EN)`}
+                        placeholder={lang === 'am' ? `አማራጭ ${idx + 1}` : `Choice ${idx + 1}`}
                         value={choice.text}
                         onChange={(e) => handleUpdateChoiceText(idx, 'text', e.target.value)}
                         className="flex-1 p-1.5 rounded border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-stone-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
@@ -1216,34 +1237,97 @@ export default function TeacherPortalPage() {
                   <span className="text-xs font-extrabold text-stone-800 dark:text-slate-200 block">
                     {lang === 'am' ? 'የሚጠበቀው አጭር መልስ (ተማሪው «መልስ አሳይ» ሲል የሚገለጥ - አማራጭ)' : 'Expected Answer (Shown when student clicks "Show Answer" - Optional)'}
                   </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input
                       type="text"
-                      placeholder={lang === 'am' ? 'መልስ በአማርኛ (አማራጭ)' : 'Answer in Amharic (optional)'}
-                      value={saAmharicAnswer}
-                      onChange={(e) => setSaAmharicAnswer(e.target.value)}
-                      className="w-full p-2 rounded-lg border border-stone-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder={lang === 'am' ? 'መልስ በእንግሊዝኛ (አማራጭ)' : 'Answer in English (optional)'}
+                      placeholder={lang === 'am' ? 'መልስ (አማራጭ)' : 'Answer (optional)'}
                       value={saAnswer}
                       onChange={(e) => setSaAnswer(e.target.value)}
                       className="w-full p-2 rounded-lg border border-stone-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-950 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
-                  </div>
                 </div>
               )}
 
               <button
                 type="submit"
-                disabled={submitting || !selectedChapterId}
-                className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs sm:text-sm shadow transition disabled:opacity-50 flex items-center space-x-2 cursor-pointer"
+                disabled={!selectedChapterId}
+                className="px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs sm:text-sm shadow transition disabled:opacity-50 flex items-center space-x-2 cursor-pointer"
               >
-                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>{lang === 'am' ? 'ጥያቄውን አስገባ (Submit Question)' : 'Submit Practice Question for Review'}</span>
+                <PlusCircle className="w-4 h-4" />
+                <span>{lang === 'am' ? 'ወደ ዝርዝሩ ጨምር' : 'Add to list'}</span>
               </button>
             </form>
+          )}
+
+          {/* Prepared questions: sent together for review */}
+          {contributionType === 'PRACTICE_QUESTION' && draftQuestions.length > 0 && (
+            <div className="max-w-2xl rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/60 dark:bg-amber-950/20 p-4 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <h4 className="text-sm font-extrabold text-stone-900 dark:text-white">
+                    {lang === 'am'
+                      ? `ለመላክ ዝግጁ የሆኑ ጥያቄዎች (${draftQuestions.length})`
+                      : `Ready to send (${draftQuestions.length})`}
+                  </h4>
+                  {draftChapterLabel && (
+                    <p className="text-[11px] text-stone-600 dark:text-slate-400 mt-0.5">
+                      {lang === 'am' ? 'ምዕራፍ፡ ' : 'Chapter: '}
+                      <span className="font-semibold">{draftChapterLabel}</span>
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDiscardDrafts}
+                  disabled={submitting}
+                  className="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer disabled:opacity-50"
+                >
+                  {lang === 'am' ? 'ሁሉንም አስወግድ' : 'Discard all'}
+                </button>
+              </div>
+
+              <ol className="space-y-2">
+                {draftQuestions.map((q, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-2 bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-xl p-2.5"
+                  >
+                    <span className="text-[11px] font-black text-amber-700 dark:text-amber-400 mt-0.5">{i + 1}.</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-stone-900 dark:text-white line-clamp-2">{q.prompt}</p>
+                      <p className="text-[10px] text-stone-500 dark:text-slate-400 mt-0.5">{q.questionType}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDraft(i)}
+                      disabled={submitting}
+                      aria-label={lang === 'am' ? 'አስወግድ' : 'Remove'}
+                      className="p-1 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </li>
+                ))}
+              </ol>
+
+              <button
+                type="button"
+                onClick={handleSendDraftsForReview}
+                disabled={submitting}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs sm:text-sm shadow transition disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
+              >
+                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>
+                  {lang === 'am'
+                    ? `ለግምገማ ላክ (${draftQuestions.length})`
+                    : `Send ${draftQuestions.length} for review`}
+                </span>
+              </button>
+              <p className="text-[11px] text-stone-500 dark:text-slate-400">
+                {lang === 'am'
+                  ? 'ሁሉም ጥያቄዎች በአንድ ጊዜ ወደ አስተዳዳሪ ይላካሉ።'
+                  : 'All questions are delivered to the admin together as one review request.'}
+              </p>
+            </div>
           )}
         </div>
       )}
@@ -1263,7 +1347,7 @@ export default function TeacherPortalPage() {
           {/* Practice Questions Submissions */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-slate-400">
-              {lang === 'am' ? 'የልምምድ ጥያቄዎች (Practice Questions)' : 'Practice Drill Questions'}
+              {lang === 'am' ? 'የልምምድ ጥያቄዎች (Practice Questions)' : 'Practice Questions'}
             </h4>
             {submissions.practiceQuestions.length === 0 ? (
               <p className="text-xs text-stone-400 dark:text-slate-500 italic bg-white dark:bg-slate-900 p-4 rounded-xl border border-stone-200 dark:border-slate-800">
@@ -1277,24 +1361,24 @@ export default function TeacherPortalPage() {
                     className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-stone-200 dark:border-slate-800 shadow-xs space-y-2"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center space-x-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800/60">
                             {q.questionType}
                           </span>
-                          <span className="text-xs font-bold text-stone-900 dark:text-white">
-                            {pick(q.amharicPrompt, q.prompt)}
+                          <span className="text-xs font-bold text-stone-900 dark:text-white break-words min-w-0">
+                            {q.prompt}
                           </span>
                         </div>
-                        {q.amharicExplanation && (
-                          <p className="text-[11px] text-stone-500 dark:text-slate-400 mt-1 italic">
+                        {q.explanation && (
+                          <p className="text-[11px] text-stone-500 dark:text-slate-400 mt-1 italic break-words">
                             {lang === 'am' ? 'ማብራሪያ: ' : 'Explanation: '}
-                            {pick(q.amharicExplanation, q.explanation)}
+                            {q.explanation}
                           </p>
                         )}
                       </div>
 
-                      <div>
+                      <div className="shrink-0">
                         {q.status === 'APPROVED' && (
                           <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800/60 px-2.5 py-0.5 rounded-full flex items-center space-x-1">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
@@ -1350,22 +1434,24 @@ export default function TeacherPortalPage() {
                     className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-stone-200 dark:border-slate-800 shadow-xs space-y-2"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h5 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-white">
-                          {pick(r.amharicTitle, r.title)}
+                      <div className="min-w-0 flex-1">
+                        <h5 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-white break-words">
+                          {r.title}
                         </h5>
                         <a
-                          href={r.url}
+                          href={r.downloadableDocUrl || r.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-[11px] text-amber-700 dark:text-amber-400 hover:underline flex items-center space-x-1 mt-0.5"
+                          className="text-[11px] text-amber-700 dark:text-amber-400 hover:underline flex items-center space-x-1 mt-0.5 max-w-full min-w-0"
                         >
-                          <span className="truncate max-w-sm">{r.url}</span>
+                          <span className="truncate min-w-0">
+                            {r.downloadableDocUrl ? (lang === 'am' ? 'የተጫነ ሰነድ ክፈት' : 'Open uploaded document') : r.url}
+                          </span>
                           <ExternalLink className="w-3 h-3 shrink-0" />
                         </a>
                       </div>
 
-                      <div>
+                      <div className="shrink-0">
                         {r.status === 'APPROVED' && (
                           <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800/60 px-2.5 py-0.5 rounded-full flex items-center space-x-1">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />

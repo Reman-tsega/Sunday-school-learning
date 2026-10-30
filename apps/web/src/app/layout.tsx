@@ -1,15 +1,24 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { LanguageProvider } from '@/lib/language-context';
 import { ThemeProvider } from '@/lib/theme-context';
+import { NavigationLoader } from '@/components/NavigationLoader';
+import { PwaInstallProvider } from '@/lib/pwa-install';
+import { InstallPrompt } from '@/components/InstallApp';
 
 export const metadata: Metadata = {
   title: 'የሰንበት ትምህርት ቤት አንድነት የመማሪያ መድረክ',
   description: 'Lean offline-first learning platform for Sunday School students',
   manifest: '/manifest.json',
+  openGraph: {
+    title: 'የሰንበት ትምህርት ቤት አንድነት የመማሪያ መድረክ',
+    description: 'Offline-first learning platform for Ethiopian Orthodox Sunday School students: textbooks, quizzes and practice questions in Amharic and English.',
+    type: 'website',
+    locale: 'am_ET',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32' },
@@ -67,11 +76,17 @@ export default function RootLayout({
       <body className="bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200 overflow-x-hidden">
         <LanguageProvider>
           <ThemeProvider>
+            <PwaInstallProvider>
             <Navbar />
+            <Suspense fallback={null}>
+              <NavigationLoader />
+            </Suspense>
             <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl has-[[data-admin-shell]]:p-0 has-[[data-admin-shell]]:max-w-none">
               {children}
             </main>
             <Footer />
+            <InstallPrompt />
+            </PwaInstallProvider>
           </ThemeProvider>
         </LanguageProvider>
       </body>

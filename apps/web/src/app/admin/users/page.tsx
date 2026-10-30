@@ -17,6 +17,7 @@ import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import ParishCombobox from '@/components/ParishCombobox';
 import Pagination from '@/components/Pagination';
+import { Select } from '@/components/Select';
 
 export default function AdminUsersPage() {
   const { lang } = useLanguage();
@@ -290,7 +291,7 @@ export default function AdminUsersPage() {
         {/* Hierarchical Hierarchy Filters (Diocese & SubCity) + Search */}
         <div className="flex flex-wrap items-center gap-2">
           {diocesesList.length > 0 && (
-            <select
+            <Select
               value={dioceseFilter}
               onChange={(e) => {
                 setDioceseFilter(e.target.value);
@@ -304,11 +305,11 @@ export default function AdminUsersPage() {
                   {d}
                 </option>
               ))}
-            </select>
+            </Select>
           )}
 
           {subCitiesList.length > 0 && (
-            <select
+            <Select
               value={subCityFilter}
               onChange={(e) => setSubCityFilter(e.target.value)}
               className="bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-stone-900 dark:text-white focus:outline-none focus:border-amber-500"
@@ -321,7 +322,7 @@ export default function AdminUsersPage() {
                     {s.subCity}
                   </option>
                 ))}
-            </select>
+            </Select>
           )}
 
           {/* Search Input */}
@@ -569,7 +570,7 @@ export default function AdminUsersPage() {
                 <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'ሚና' : 'Role'}
                 </label>
-                <select
+                <Select
                   value={createForm.role}
                   onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
                   className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
@@ -577,7 +578,7 @@ export default function AdminUsersPage() {
                   <option value="STUDENT">{lang === 'am' ? 'ተማሪ' : 'Student'}</option>
                   <option value="TEACHER">{lang === 'am' ? 'መምህር' : 'Teacher'}</option>
                   <option value="ADMIN">{lang === 'am' ? 'አስተዳዳሪ' : 'Admin'}</option>
-                </select>
+                </Select>
               </div>
 
               <div className="flex justify-end space-x-3 pt-3">
@@ -662,7 +663,7 @@ export default function AdminUsersPage() {
                 <label className="block text-xs font-semibold text-stone-600 dark:text-slate-400 mb-1">
                   {lang === 'am' ? 'አዲስ ሚና ምረጥ' : 'Select New Role'}
                 </label>
-                <select
+                <Select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
                   className="w-full bg-stone-50 dark:bg-slate-950 border border-stone-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
@@ -670,7 +671,7 @@ export default function AdminUsersPage() {
                   <option value="STUDENT">{lang === 'am' ? 'ተማሪ' : 'Student'}</option>
                   <option value="TEACHER">{lang === 'am' ? 'መምህር' : 'Teacher'}</option>
                   <option value="ADMIN">{lang === 'am' ? 'አስተዳዳሪ' : 'Admin'}</option>
-                </select>
+                </Select>
               </div>
               <div className="flex justify-end space-x-3">
                 <button

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import { Select } from '@/components/Select';
 
 interface AvailableGrade {
   id: string;
@@ -280,7 +281,7 @@ export default function AdminNotificationsPage() {
                 <label className="block font-semibold text-amber-700 dark:text-amber-300">
                   {lang === 'am' ? 'የሚላክበት ክፍል ይምረጡ *' : 'Select Target Grade *'}
                 </label>
-                <select
+                <Select
                   value={targetGradeId}
                   onChange={(e) => setTargetGradeId(e.target.value)}
                   className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded-lg text-xs text-stone-900 dark:text-white font-semibold focus:outline-none focus:border-amber-500 cursor-pointer"
@@ -290,7 +291,7 @@ export default function AdminNotificationsPage() {
                       {pick(g.name, g.amharicName)} (Grade {g.level})
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
             )}
 
@@ -300,14 +301,14 @@ export default function AdminNotificationsPage() {
                 <label className="block font-semibold text-amber-700 dark:text-amber-300">
                   {lang === 'am' ? 'የሚላክበት ሚና ይምረጡ *' : 'Select Target Role *'}
                 </label>
-                <select
+                <Select
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value as any)}
                   className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded-lg text-xs text-stone-900 dark:text-white font-semibold focus:outline-none focus:border-amber-500 cursor-pointer"
                 >
                   <option value="STUDENT" className="bg-white dark:bg-slate-900 text-stone-900 dark:text-white">{lang === 'am' ? 'ተማሪዎች ብቻ (All Students)' : 'All Students'}</option>
                   <option value="TEACHER" className="bg-white dark:bg-slate-900 text-stone-900 dark:text-white">{lang === 'am' ? 'መምህራን ብቻ (All Teachers)' : 'All Teachers'}</option>
-                </select>
+                </Select>
               </div>
             )}
 

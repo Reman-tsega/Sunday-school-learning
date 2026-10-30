@@ -8,7 +8,6 @@ import {
   Users,
   BookOpen,
   ShieldAlert,
-  Loader2,
   Sparkles,
   LogOut,
   Menu,
@@ -21,7 +20,9 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import { ChurchLoader } from '@/components/ChurchLoader';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { NotificationBell } from '@/components/NotificationBell';
 
 export default function AdminShell({
   children,
@@ -100,6 +101,11 @@ export default function AdminShell({
       if (elapsed >= IDLE_LIMIT_MS) {
         clearInterval(idleTimer);
         await api.logout();
+        try {
+          sessionStorage.setItem('eotc_session_notice', 'idle_timeout');
+        } catch {
+          /* storage unavailable */
+        }
         router.push('/login?reason=idle_timeout');
       }
     }, 20000);
@@ -133,8 +139,7 @@ export default function AdminShell({
   if (isLoading) {
     return (
       <div className="min-h-screen bg-stone-50 dark:bg-slate-900 flex items-center justify-center text-stone-600 dark:text-slate-300 transition-colors">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-500 dark:text-amber-400 mr-3" />
-        <span>{lang === 'am' ? 'የአስተዳዳሪ ማረጋገጫ በመፈተሽ ላይ...' : 'Verifying admin authorization...'}</span>
+        <ChurchLoader label={lang === 'am' ? 'የአስተዳዳሪ ማረጋገጫ በመፈተሽ ላይ...' : 'Verifying admin authorization...'} />
       </div>
     );
   }
@@ -247,6 +252,7 @@ export default function AdminShell({
         </div>
 
         <div className="flex items-center space-x-1.5">
+          <NotificationBell variant="light" />
           <ThemeToggle variant="compact" />
 
           <button
@@ -319,14 +325,6 @@ export default function AdminShell({
 
             {/* Drawer Bottom Actions */}
             <div className="p-3 border-t border-stone-200 dark:border-slate-800 space-y-1.5 bg-stone-50/70 dark:bg-slate-800/40 shrink-0">
-              <Link
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full flex items-center space-x-2 px-3.5 py-2.5 text-xs text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition font-medium"
-              >
-                <BookOpen className="w-4 h-4 shrink-0" />
-                <span>{lang === 'am' ? 'ወደ ተማሪዎች ገጽ' : 'Open Student Platform'}</span>
-              </Link>
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);

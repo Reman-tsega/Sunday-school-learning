@@ -141,11 +141,27 @@ export class ApiClient {
   }
 
   async handleSessionExpired(reason: string = 'session_expired'): Promise<void> {
+    // Only a user who actually had a session is "forced out"; visitors who are already signed out are left alone
+    const hadSession =
+      !!this.token ||
+      !!this.user ||
+      (typeof window !== 'undefined' && !!(localStorage.getItem('eotc_auth_token') || localStorage.getItem('eotc_refresh_token')));
+    if (!hadSession) {
+      this.notifyAuthChange(null);
+      return;
+    }
+
     console.warn(`[Auth] User session expired (${reason}). Forcing immediate logout.`);
     this.token = null;
     this.user = null;
 
     if (typeof window !== 'undefined') {
+      // One-time notice for the login page (not tied to the URL, so reloads/bookmarks never show it)
+      try {
+        sessionStorage.setItem('eotc_session_notice', reason);
+      } catch {
+        /* storage unavailable */
+      }
       localStorage.removeItem('eotc_auth_token');
       localStorage.removeItem('eotc_refresh_token');
       localStorage.removeItem('eotc_user');
@@ -1205,6 +1221,46 @@ export class ApiClient {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async submitTeacherPracticeQuestionBatch(chapterId: string, questions: any[]): Promise<{ count: number }> {
+    const res = await fetch(`${API_BASE_URL}/teacher/practice-questions/batch`, {
+      method: 'POST',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify({ chapterId, questions }),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to send questions for review: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  async uploadTeacherReference(file: File): Promise<{
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+    checksumSha256: string;
+    mimeType: string;
+  }> {
+    const token = this.getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API_BASE_URL}/teacher/upload-reference`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Failed to upload document: HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getTeacherSubmissions(): Promise<any> {
     const res = await fetch(`${API_BASE_URL}/teacher/submissions`, {
       headers: this.getAuthHeader(),
@@ -1420,3 +1476,78 @@ export class ApiClient {
 }
 
 export const api = new ApiClient();
+
+/**
+ * Global auth guard: every API response is inspected so a rejected token ends the session
+ * instead of leaving the user stuck on a page that only shows "Access token is invalid".
+ *  - TOKEN_EXPIRED: one silent refresh, then the original request is retried
+ *  - INVALID_TOKEN / USER_NOT_FOUND / ACCOUNT_INACTIVE: forced logout to the login page
+ */
+function installAuthGuard() {
+  if (typeof window === 'undefined') return;
+  const w = window as Window & { __eotcAuthGuard?: boolean };
+  if (w.__eotcAuthGuard) return;
+  w.__eotcAuthGuard = true;
+
+  const originalFetch = window.fetch.bind(window);
+  const PUBLIC_AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+  let forcingLogout = false;
+
+  const forceLogout = async (reason: string) => {
+    if (forcingLogout) return;
+    forcingLogout = true;
+    try {
+      await api.handleSessionExpired(reason);
+    } finally {
+      setTimeout(() => {
+        forcingLogout = false;
+      }, 3000);
+    }
+  };
+
+  const hasBearer = (init?: RequestInit, input?: RequestInfo | URL): boolean => {
+    const fromInit = init?.headers;
+    if (fromInit) {
+      if (fromInit instanceof Headers) return (fromInit.get('Authorization') || '').startsWith('Bearer ');
+      if (Array.isArray(fromInit)) return fromInit.some(([k, v]) => k.toLowerCase() === 'authorization' && String(v).startsWith('Bearer '));
+      return Object.entries(fromInit).some(([k, v]) => k.toLowerCase() === 'authorization' && String(v).startsWith('Bearer '));
+    }
+    return input instanceof Request ? (input.headers.get('Authorization') || '').startsWith('Bearer ') : false;
+  };
+
+  window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const response = await originalFetch(input, init);
+    if (response.status !== 401 && response.status !== 403) return response;
+
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    if (!url.startsWith(API_BASE_URL)) return response;
+    if (PUBLIC_AUTH_PATHS.some((p) => url.includes(`${API_BASE_URL}${p}`))) return response;
+    if (!hasBearer(init, input)) return response;
+
+    let code: string | undefined;
+    try {
+      code = (await response.clone().json())?.error?.code;
+    } catch {
+      /* non-JSON body */
+    }
+
+    if (code === 'TOKEN_EXPIRED') {
+      const newToken = await api.refreshSession();
+      if (newToken) {
+        const retryHeaders = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+        retryHeaders.set('Authorization', `Bearer ${newToken}`);
+        return originalFetch(input, { ...init, headers: retryHeaders });
+      }
+      return response; // refreshSession already forced the logout
+    }
+
+    if (code === 'INVALID_TOKEN' || code === 'USER_NOT_FOUND' || (code === 'UNAUTHORIZED' && response.status === 401)) {
+      void forceLogout('invalid_token');
+    } else if (code === 'ACCOUNT_INACTIVE') {
+      void forceLogout('account_inactive');
+    }
+    return response;
+  };
+}
+
+installAuthGuard();

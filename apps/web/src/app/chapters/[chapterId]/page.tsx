@@ -32,6 +32,7 @@ import { PracticeQuizPlayer } from '@/components/PracticeQuizPlayer';
 import { PracticeQuestionList } from '@/components/PracticeQuestionList';
 import { OfflineBadge } from '@/components/OfflineBadge';
 import { useLanguage } from '@/lib/language-context';
+import { ChurchLoader } from '@/components/ChurchLoader';
 import type { LearningPackageManifest, PracticeQuestionDto } from '@eotc/shared';
 
 type ActiveTab = 'textbook' | 'drills' | 'quiz' | 'references';
@@ -121,9 +122,7 @@ export default function ChapterStudyPage() {
         })
       );
     }
-    if (typeof navigator !== 'undefined' && navigator.onLine) {
-      syncManager.triggerSync().catch(() => {});
-    }
+    // Sync is manual: the pending count on the navbar sync icon updates via the progress event above
   };
 
   useEffect(() => {
@@ -170,7 +169,7 @@ export default function ChapterStudyPage() {
       const currentUser = api.getUser();
       if (!currentUser) {
         setIsRegistrationRequired(true);
-      } else if (currentUser.role === 'STUDENT' && activeManifest) {
+      } else if (currentUser.role === 'STUDENT' && activeManifest && activeManifest.gradeLevel != null) {
         const enrollments = await api.getStudentEnrollments().catch(() => []);
         const enrolledGradeIds = enrollments.map((e) => e.gradeId);
         const isEnrolled =
@@ -187,7 +186,7 @@ export default function ChapterStudyPage() {
         }
       }
 
-      // 4. Fetch approved practice drill questions for self-study
+      // 4. Fetch approved practice questions for self-study
       setLoadingDrills(true);
       try {
         const drills = await api.getChapterPracticeQuestions(chapterId);
@@ -297,12 +296,17 @@ export default function ChapterStudyPage() {
     );
   };
 
+  const gradeLabel =
+    manifest?.gradeName ||
+    (manifest?.gradeLevel != null
+      ? `${lang === 'am' ? 'ክፍል' : 'Grade'} ${manifest.gradeLevel}`
+      : lang === 'am'
+      ? 'ይህ ክፍል'
+      : 'this grade');
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-stone-500 dark:text-slate-400">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600 dark:text-amber-400 mb-2" />
-        <p>{lang === 'am' ? 'የትምህርት መረጃውን በማዘጋጀት ላይ...' : 'Loading chapter content...'}</p>
-      </div>
+      <ChurchLoader label={lang === 'am' ? 'የትምህርት መረጃውን በማዘጋጀት ላይ...' : 'Loading chapter content...'} />
     );
   }
 
@@ -362,8 +366,8 @@ export default function ChapterStudyPage() {
           </h2>
           <p className="text-xs text-stone-600 dark:text-slate-400 leading-relaxed">
             {lang === 'am'
-              ? `የ«${manifest.gradeName}» ትምህርቶችን ለመከታተል መጀመሪያ በክፍሉ መመዝገብ አለብዎት። በአንድ ጠቅታ በመመዝገብ ትምህርቱን መቀጠል ይችላሉ።`
-              : `To study this chapter and access course material in ${manifest.gradeName}, you must enroll in this grade first.`}
+              ? `የ«${gradeLabel}» ትምህርቶችን ለመከታተል መጀመሪያ በክፍሉ መመዝገብ አለብዎት። በአንድ ጠቅታ በመመዝገብ ትምህርቱን መቀጠል ይችላሉ።`
+              : `To study this chapter and access course material in ${gradeLabel}, you must enroll in this grade first.`}
           </p>
           <div className="pt-2 space-y-2">
             <button
@@ -378,8 +382,8 @@ export default function ChapterStudyPage() {
               )}
               <span>
                 {lang === 'am'
-                  ? `በ${manifest.gradeName} አሁን ተመዝገብ`
-                  : `Enroll in ${manifest.gradeName} Now`}
+                  ? `በ${gradeLabel} አሁን ተመዝገብ`
+                  : `Enroll in ${gradeLabel} Now`}
               </span>
             </button>
             <button
@@ -396,13 +400,26 @@ export default function ChapterStudyPage() {
 
   if (!manifest) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-8 text-center border border-stone-200 dark:border-slate-800">
-        <p className="text-stone-700 dark:text-slate-300 font-semibold mb-4">
-          {lang === 'am' ? 'የትምህርት ክፍሉ አልተገኘም ወይም አልታተመም።' : 'Chapter not found or not published.'}
-        </p>
-        <Link href="/" className="px-4 py-2 bg-eotc-navy dark:bg-amber-500 dark:text-slate-950 text-white rounded-lg text-sm font-semibold">
-          {lang === 'am' ? 'ወደ ማውጫ ተመለስ' : 'Back to Curriculum'}
-        </Link>
+      <div className="min-h-[50vh] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-200 dark:border-slate-800 text-center space-y-4">
+          <div className="w-16 h-16 bg-stone-100 dark:bg-slate-800 text-stone-500 dark:text-slate-400 rounded-2xl flex items-center justify-center mx-auto border border-stone-200 dark:border-slate-700">
+            <BookOpen className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-black text-stone-900 dark:text-white">
+            {lang === 'am' ? 'የትምህርት ማቴሪያል እስካሁን አልተዘጋጀም' : 'Study material not available yet'}
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-600 dark:text-slate-400 leading-relaxed">
+            {lang === 'am'
+              ? 'ለዚህ ምዕራፍ የመማሪያ ማቴሪያል ገና አልታተመም። መምህራን ሲያዘጋጁት ይታያል፤ እባክዎ ቆይተው እንደገና ይመልከቱ።'
+              : 'The learning material for this chapter hasn’t been published yet. It will appear here as soon as it is ready — please check back later.'}
+          </p>
+          <Link
+            href="/"
+            className="inline-block w-full py-2.5 bg-eotc-navy dark:bg-amber-500 dark:text-slate-950 text-white rounded-xl text-sm font-bold"
+          >
+            {lang === 'am' ? 'ወደ ሥርዓተ ትምህርት ተመለስ' : 'Back to Curriculum'}
+          </Link>
+        </div>
       </div>
     );
   }
@@ -617,7 +634,7 @@ export default function ChapterStudyPage() {
           }`}
         >
           <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <span className="truncate">{lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Drills'}</span>
+          <span className="truncate">{lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Questions'}</span>
           {practiceQuestions.length > 0 && (
             <span className="text-[10px] bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 px-1.5 py-0.5 rounded-full font-bold">
               {practiceQuestions.length}
@@ -667,6 +684,8 @@ export default function ChapterStudyPage() {
             chapterId={manifest.chapterId}
             questions={practiceQuestions}
             loading={loadingDrills}
+            exportHeading={pick(manifest.amharicChapterTitle, manifest.chapterTitle)}
+            exportSubheading={`${lang === 'am' ? 'ክፍል' : 'Grade'} ${manifest.gradeLevel} · ${pick(manifest.amharicSubjectName, manifest.subjectName)} · ${lang === 'am' ? 'ምዕራፍ' : 'Chapter'} ${manifest.chapterNumber}`}
           />
         )}
         {activeTab === 'textbook' && (
@@ -702,6 +721,9 @@ export default function ChapterStudyPage() {
                       lastStudiedAt: new Date().toISOString(),
                     });
                     setIsCompleted(true);
+                    window.dispatchEvent(
+                      new CustomEvent('eotc:progress-updated', { detail: { chapterId, isCompleted: true } })
+                    );
                   }}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition shadow"
                 >

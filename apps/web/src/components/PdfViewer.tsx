@@ -722,7 +722,7 @@ export function PdfViewer({
             <span className="text-white font-mono">
               {lang === 'am' ? 'ገጽ' : 'Page'} {currentPage} / {totalPages}
             </span>
-            <span className="text-slate-500">·</span>
+            <span className="text-slate-500 dark:text-slate-400">·</span>
             <span className="text-amber-400 font-mono">{progressPercent}%</span>
             {blob ? (
               <span className="text-emerald-400 hidden xs:inline font-mono">

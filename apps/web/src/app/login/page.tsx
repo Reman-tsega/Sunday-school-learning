@@ -11,6 +11,7 @@ import {
   GraduationCap,
   CheckCircle,
   Clock,
+  Church,
 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
@@ -28,8 +29,27 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason');
-  const isIdleTimeout = reason === 'idle_timeout';
-  const isSessionExpired = reason === 'session_expired';
+  // The notice is shown once, and only if a forced logout really just happened in this tab
+  const [notice, setNotice] = useState<string | null>(null);
+  useEffect(() => {
+    let stored: string | null = null;
+    try {
+      stored = sessionStorage.getItem('eotc_session_notice');
+      sessionStorage.removeItem('eotc_session_notice');
+    } catch {
+      /* storage unavailable */
+    }
+    if (reason && stored) setNotice(stored);
+    if (reason) {
+      // Strip the reason from the address bar so reloads/bookmarks don't repeat the message
+      const url = new URL(window.location.href);
+      url.searchParams.delete('reason');
+      window.history.replaceState(null, '', url.pathname + url.search);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const isIdleTimeout = notice === 'idle_timeout';
+  const isSessionExpired = notice === 'session_expired' || notice === 'invalid_token';
   const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
   const redirectParam = searchParams.get('redirect');
 
@@ -126,6 +146,8 @@ function LoginContent() {
       const auth = await api.login(loginEmail, loginPass);
       if (auth.user.role === 'ADMIN') {
         router.push('/admin');
+      } else if (auth.user.role === 'TEACHER') {
+        router.push('/teacher');
       } else {
         router.push(redirectParam || '/');
       }
@@ -182,6 +204,8 @@ function LoginContent() {
 
       if (auth.user.role === 'ADMIN') {
         router.push('/admin');
+      } else if (auth.user.role === 'TEACHER') {
+        router.push('/teacher');
       } else {
         router.push(redirectParam || '/');
       }
@@ -207,6 +231,13 @@ function LoginContent() {
     setEmail('admin@eotc-andnet.org');
     setPassword('AdminSecurePassword2026!');
     handleLoginSubmit('admin@eotc-andnet.org', 'AdminSecurePassword2026!');
+  };
+
+  const handleQuickTeacher = () => {
+    if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
+    setEmail('teacher@eotc-andnet.org');
+    setPassword('TeacherPassword2026!');
+    handleLoginSubmit('teacher@eotc-andnet.org', 'TeacherPassword2026!');
   };
 
   const handleQuickStudent = () => {
@@ -321,7 +352,7 @@ function LoginContent() {
           </div>
           <div className="pt-2 flex items-center space-x-2 pl-6">
             <button
-              onClick={() => router.push(currentUser.role === 'ADMIN' ? '/admin' : '/')}
+              onClick={() => router.push(currentUser.role === 'ADMIN' ? '/admin' : currentUser.role === 'TEACHER' ? '/teacher' : '/')}
               className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded text-xs transition cursor-pointer"
             >
               {lang === 'am' ? 'ወደ ገጽ ሂድ' : 'Continue'}
@@ -374,7 +405,7 @@ function LoginContent() {
             <span className="block text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-slate-400 text-center">
               {lang === 'am' ? 'ፈጣን የሙከራ መግቢያ' : 'Quick 1-Click Test Logins'}
             </span>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={handleQuickAdmin}
@@ -384,6 +415,17 @@ function LoginContent() {
                 <Shield className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>{lang === 'am' ? 'አስተዳዳሪ (Admin)' : 'Admin Test'}</span>
                 <span className="text-[10px] text-stone-500 dark:text-slate-400 font-normal">admin@eotc-andnet.org</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleQuickTeacher}
+                disabled={loading || (rateLimitSeconds !== null && rateLimitSeconds > 0)}
+                className="p-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-900 dark:text-emerald-300 rounded-lg text-xs font-bold transition flex flex-col items-center justify-center space-y-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Church className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>{lang === 'am' ? 'መምህር (Teacher)' : 'Teacher Test'}</span>
+                <span className="text-[10px] text-stone-500 dark:text-slate-400 font-normal truncate max-w-full">teacher@eotc-andnet.org</span>
               </button>
 
               <button

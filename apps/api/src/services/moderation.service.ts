@@ -60,6 +60,13 @@ export class ModerationService {
       references: references.map((r) => ({
         id: r.id,
         chapterId: r.chapterId,
+        chapter: {
+          id: r.chapter.id,
+          title: r.chapter.title,
+          amharicTitle: r.chapter.amharicTitle,
+          chapterNumber: r.chapter.chapterNumber,
+        },
+        createdBy: r.createdBy,
         chapterTitle: r.chapter.title,
         amharicChapterTitle: r.chapter.amharicTitle,
         subjectName: r.chapter.subject.name,
@@ -80,6 +87,13 @@ export class ModerationService {
       practiceQuestions: practiceQuestions.map((q) => ({
         id: q.id,
         chapterId: q.chapterId,
+        chapter: {
+          id: q.chapter.id,
+          title: q.chapter.title,
+          amharicTitle: q.chapter.amharicTitle,
+          chapterNumber: q.chapter.chapterNumber,
+        },
+        createdBy: q.createdBy,
         chapterTitle: q.chapter.title,
         amharicChapterTitle: q.chapter.amharicTitle,
         subjectName: q.chapter.subject.name,
@@ -159,6 +173,7 @@ export class ModerationService {
             : `ያቀረቡት ማጣቀሻ ተቀባይነት አላገኘም። ምክንያት፡ ${rejectionReason || 'እባክዎ መመሪያውን ይመልከቱ።'}`,
           targetType: 'BY_ROLE',
           targetRole: 'TEACHER',
+          linkUrl: '/teacher?tab=submissions',
         });
       } catch (err) {
         console.warn('Failed to dispatch review notification to teacher:', err);
@@ -181,7 +196,7 @@ export class ModerationService {
       where: { id: questionId },
       include: {
         createdBy: true,
-        chapter: true,
+        chapter: { include: { subject: { include: { grade: true } } } },
       },
     });
 
@@ -214,13 +229,61 @@ export class ModerationService {
             : `ያቀረቡት የልምምድ ጥያቄ ተቀባይነት አላገኘም። ምክንያት፡ ${rejectionReason || 'እባክዎ እንደገና ይመልከቱ።'}`,
           targetType: 'BY_ROLE',
           targetRole: 'TEACHER',
+          linkUrl: '/teacher?tab=submissions',
         });
       } catch (err) {
         console.warn('Failed to dispatch question review alert to teacher:', err);
       }
     }
 
+    if (isApprove) {
+      await this.notifyStudentsOfNewPractice(adminId, question.chapter);
+    }
+
     return updated;
+  }
+
+  /**
+   * Tell students of the chapter's grade that new practice drills are available.
+   * Approving several questions of one chapter produces a single notification (30 min window).
+   */
+  private async notifyStudentsOfNewPractice(
+    adminId: string,
+    chapter: {
+      id: string;
+      title: string;
+      amharicTitle: string | null;
+      isPublished: boolean;
+      subject: { name: string; amharicName: string | null; grade: { id: string; level: number } };
+    }
+  ) {
+    if (!chapter.isPublished) return;
+    try {
+      const linkUrl = `/chapters/${chapter.id}?tab=drills`;
+      const gradeId = chapter.subject.grade.id;
+      const recent = await prisma.notification.findFirst({
+        where: {
+          linkUrl,
+          targetType: 'BY_GRADE',
+          targetGradeId: gradeId,
+          createdAt: { gte: new Date(Date.now() - 30 * 60 * 1000) },
+        },
+        select: { id: true },
+      });
+      if (recent) return;
+
+      await notificationService.createNotification(adminId, {
+        title: `New Practice Questions: ${chapter.title}`,
+        amharicTitle: `አዲስ የልምምድ ጥያቄዎች፡ ${chapter.amharicTitle || chapter.title}`,
+        content: `New practice drills were added for Grade ${chapter.subject.grade.level} · ${chapter.subject.name} · ${chapter.title}. Tap to try them.`,
+        amharicContent: `ለክፍል ${chapter.subject.grade.level} · ${chapter.subject.amharicName || chapter.subject.name} · ${chapter.amharicTitle || chapter.title} አዲስ የልምምድ ጥያቄዎች ተጨምረዋል። ለመሞከር ይንኩ።`,
+        targetType: 'BY_GRADE',
+        targetGradeId: gradeId,
+        linkUrl,
+      });
+    } catch (err) {
+      console.warn('Failed to dispatch student practice notification:', err);
+    }
   }
 }
 

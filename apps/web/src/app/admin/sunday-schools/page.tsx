@@ -27,6 +27,7 @@ import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import Pagination from '@/components/Pagination';
 import type { ParishDto, CreateParishInput } from '@eotc/shared';
+import { Select } from '@/components/Select';
 
 export default function SundaySchoolsManagementPage() {
   const { lang } = useLanguage();
@@ -517,7 +518,7 @@ export default function SundaySchoolsManagementPage() {
 
             {/* Diocese Dropdown */}
             <div>
-              <select
+              <Select
                 value={selectedDiocese}
                 onChange={(e) => {
                   setSelectedDiocese(e.target.value);
@@ -532,12 +533,12 @@ export default function SundaySchoolsManagementPage() {
                     {d}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Sub-City Dropdown */}
             <div>
-              <select
+              <Select
                 value={selectedSubCity}
                 onChange={(e) => {
                   setSelectedSubCity(e.target.value);
@@ -551,12 +552,12 @@ export default function SundaySchoolsManagementPage() {
                     {s.subCity}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Verification Status */}
             <div>
-              <select
+              <Select
                 value={verificationFilter}
                 onChange={(e) => {
                   setVerificationFilter(e.target.value as any);
@@ -567,7 +568,7 @@ export default function SundaySchoolsManagementPage() {
                 <option value="ALL">{lang === 'am' ? 'ሁሉም የማረጋገጫ ሁኔታ' : 'All Verification States'}</option>
                 <option value="VERIFIED">{lang === 'am' ? 'የተረጋገጡ ብቻ' : 'Verified Only'}</option>
                 <option value="PENDING">{lang === 'am' ? 'ያልተረጋገጡ ብቻ' : 'Pending Review Only'}</option>
-              </select>
+              </Select>
             </div>
           </div>
         </div>
@@ -1067,7 +1068,7 @@ export default function SundaySchoolsManagementPage() {
                     <label className="block font-bold text-stone-800 dark:text-slate-200 mb-1">
                       {lang === 'am' ? 'የደብሩ ዓይነት' : 'Church Classification'}
                     </label>
-                    <select
+                    <Select
                       value={formParishType}
                       onChange={(e) => setFormParishType(e.target.value)}
                       className="w-full px-3.5 py-2.5 border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-xl text-stone-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer shadow-xs"
@@ -1076,7 +1077,7 @@ export default function SundaySchoolsManagementPage() {
                       <option value="CATHEDRAL">ካቴድራል (Cathedral)</option>
                       <option value="GEDAM">ገዳም (Gedam / Monastery)</option>
                       <option value="CHURCH">ቤተክርስቲያን (Church)</option>
-                    </select>
+                    </Select>
                   </div>
 
                   {/* Verified Checkbox */}
