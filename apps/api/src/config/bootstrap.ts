@@ -46,11 +46,13 @@ export async function bootstrapFirstRun(): Promise<void> {
 }
 
 /**
- * Sample Teacher and Student for trying the platform. Their passwords are public (they are in the
- * repository), so this never creates an administrator and is off unless SEED_DEMO_ACCOUNTS=true.
+ * Sample Admin, Teacher and Student for trying the platform. Their passwords are public (they are in the
+ * repository), so anyone can sign in as them: this is off unless SEED_DEMO_ACCOUNTS=true, and the
+ * sample accounts should be deactivated or the flag removed before real data is entered.
  */
 async function ensureDemoAccounts(): Promise<void> {
   const demo = [
+    { email: 'admin@eotc-andnet.org', password: 'AdminSecurePassword2026!', fullName: 'ሊቀ ጉባኤ Admin', role: 'ADMIN' as const },
     { email: 'teacher@eotc-andnet.org', password: 'TeacherPassword2026!', fullName: 'መምህር ሚካኤል (Teacher Michael)', role: 'TEACHER' as const },
     { email: 'student@eotc-andnet.org', password: 'StudentPassword2026!', fullName: 'ዮሐንስ ዳዊት (Yohannes Dawit)', role: 'STUDENT' as const },
   ];
