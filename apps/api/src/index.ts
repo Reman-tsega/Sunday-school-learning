@@ -1,6 +1,7 @@
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { prisma, checkDatabaseHealth } from './config/prisma.js';
+import { bootstrapFirstRun } from './config/bootstrap.js';
 
 async function main(): Promise<void> {
   const app = createApp();
@@ -10,6 +11,10 @@ async function main(): Promise<void> {
     console.warn('⚠️ Warning: Database connection could not be verified on startup.');
   } else {
     console.log('✅ PostgreSQL database connection established successfully.');
+  }
+
+  if (isDbReady) {
+    await bootstrapFirstRun().catch((err) => console.error('First-run bootstrap failed:', err));
   }
 
   const server = app.listen(env.PORT, env.HOST, () => {
