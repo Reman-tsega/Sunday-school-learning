@@ -31,6 +31,8 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   MAIL_FROM: z.string().default('EOTC Sunday School <no-reply@localhost>'),
+  // Creates the public sample Teacher and Student accounts used by the quick-login buttons (never an admin)
+  SEED_DEMO_ACCOUNTS: z.enum(['true', 'false']).default('false'),
   INITIAL_ADMIN_EMAIL: z.string().email().default('admin@eotc-andnet.org'),
   INITIAL_ADMIN_PASSWORD: z.string().default('AdminSecurePassword2026!'),
   INITIAL_ADMIN_NAME: z.string().default('ሊቀ ጉባኤ Admin'),

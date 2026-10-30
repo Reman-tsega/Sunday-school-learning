@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, Mail } from 'lucide-react';
-import { api, ApiError } from '@/lib/api';
+import { api } from '@/lib/api';
+import { friendlyAuthError } from '@/lib/auth-errors';
 import { useLanguage } from '@/lib/language-context';
 
 export default function ForgotPasswordPage() {
@@ -21,11 +22,7 @@ export default function ForgotPasswordPage() {
       await api.forgotPassword(email.trim());
       setSent(true);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(lang === 'am' && err.amharicMessage ? err.amharicMessage : err.message);
-      } else {
-        setError(lang === 'am' ? 'ጥያቄውን መላክ አልተቻለም። ግንኙነትዎን ያረጋግጡ።' : 'Could not send the request. Check your connection.');
-      }
+      setError(friendlyAuthError(err, lang, 'Could not send the request. Check your connection.'));
     } finally {
       setLoading(false);
     }

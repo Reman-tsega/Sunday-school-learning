@@ -8,7 +8,7 @@ import type { UserProfile, UserRole } from '@eotc/shared';
 function toUserProfile(user: any): UserProfile {
   return {
     id: user.id,
-    email: user.email,
+    email: user.email ?? user.username ?? '',
     fullName: user.fullName,
     role: user.role,
     isActive: user.isActive,
@@ -99,6 +99,7 @@ export class UserService {
     if (params.search) {
       where.OR = [
         { email: { contains: params.search, mode: 'insensitive' } },
+        { username: { contains: params.search, mode: 'insensitive' } },
         { fullName: { contains: params.search, mode: 'insensitive' } },
         { churchParish: { contains: params.search, mode: 'insensitive' } },
       ];

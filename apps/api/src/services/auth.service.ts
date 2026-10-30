@@ -16,7 +16,8 @@ import type { AuthResponseData, UserProfile } from '@eotc/shared';
 function toUserProfile(user: any): UserProfile {
   return {
     id: user.id,
-    email: user.email,
+    email: user.email ?? null,
+    username: user.username ?? null,
     fullName: user.fullName,
     role: user.role,
     isActive: user.isActive,
@@ -35,7 +36,8 @@ function toUserProfile(user: any): UserProfile {
 export class AuthService {
   async register(
     data: {
-      email: string;
+      email?: string | null | undefined;
+      username?: string | null | undefined;
       password: string;
       fullName: string;
       role?: 'ADMIN' | 'TEACHER' | 'STUDENT' | undefined;
@@ -50,17 +52,28 @@ export class AuthService {
     userAgent?: string,
     ipAddress?: string
   ): Promise<AuthResponseData> {
-    const existing = await prisma.user.findUnique({
-      where: { email: data.email.toLowerCase().trim() },
-    });
-    if (existing) {
-      throw new AppError(409, 'EMAIL_EXISTS', 'An account with this email already exists');
+    const email = data.email ? data.email.toLowerCase().trim() : null;
+    const username = data.username ? data.username.toLowerCase().trim() : null;
+    if (!email && !username) {
+      throw new AppError(400, 'IDENTIFIER_REQUIRED', 'Enter an email address or choose a username');
+    }
+    if (email) {
+      const existingEmail = await prisma.user.findUnique({ where: { email } });
+      if (existingEmail) {
+        throw new AppError(409, 'EMAIL_EXISTS', 'An account with this email already exists');
+      }
+    }
+    if (username) {
+      const existingUsername = await prisma.user.findUnique({ where: { username } });
+      if (existingUsername) {
+        throw new AppError(409, 'USERNAME_EXISTS', 'This username is already taken');
+      }
     }
 
     const { resolvedParishId, resolvedChurchParish } = await this.resolveParish(
       data.parishId,
       data.churchParish,
-      data.email.toLowerCase().trim()
+      (email ?? username) as string
     );
 
     const salt = await bcrypt.genSalt(12);
@@ -70,7 +83,8 @@ export class AuthService {
 
     const user = await prisma.user.create({
       data: {
-        email: data.email.toLowerCase().trim(),
+        email,
+        username,
         passwordHash,
         fullName: data.fullName.trim(),
         role,
@@ -95,7 +109,7 @@ export class AuthService {
 
     const accessToken = generateAccessToken({
       sub: user.id,
-      email: user.email,
+      email: user.email ?? user.username ?? '',
       role: user.role,
       fullName: user.fullName,
     });
@@ -130,15 +144,17 @@ export class AuthService {
     userAgent?: string,
     ipAddress?: string
   ): Promise<AuthResponseData> {
+    // The identifier is an email address or a username
+    const identifier = email.toLowerCase().trim();
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: identifier.includes('@') ? { email: identifier } : { username: identifier },
       include: {
         enrolledGrades: { select: { gradeId: true } },
       },
     });
 
     if (!user) {
-      throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
+      throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email/username or password');
     }
 
     if (!user.isActive) {
@@ -147,13 +163,13 @@ export class AuthService {
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
+      throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email/username or password');
     }
 
     // Issue tokens
     const accessToken = generateAccessToken({
       sub: user.id,
-      email: user.email,
+      email: user.email ?? user.username ?? '',
       role: user.role,
       fullName: user.fullName,
     });
@@ -245,7 +261,7 @@ export class AuthService {
     // Issue new access token
     const newAccessToken = generateAccessToken({
       sub: session.user.id,
-      email: session.user.email,
+      email: session.user.email ?? session.user.username ?? '',
       role: session.user.role,
       fullName: session.user.fullName,
     });
@@ -378,7 +394,7 @@ export class AuthService {
       const { resolvedParishId, resolvedChurchParish } = await this.resolveParish(
         data.parishId,
         data.churchParish,
-        existing.email
+        existing.email ?? existing.username ?? ''
       );
       updateData.churchParish = resolvedChurchParish;
       updateData.parishId = resolvedParishId;
@@ -419,6 +435,7 @@ export class AuthService {
     ]);
 
     const resetUrl = `${env.WEB_APP_URL.replace(/\/+$/, '')}/reset-password?token=${rawToken}`;
+    if (!user.email) return;
     void mailService.sendPasswordReset(user.email, user.fullName, resetUrl).catch((err) => {
       console.error('Failed to send password reset email:', err instanceof Error ? err.message : err);
     });
@@ -453,9 +470,11 @@ export class AuthService {
       prisma.passwordResetToken.deleteMany({ where: { userId } }),
     ]);
 
-    void mailService.sendPasswordChanged(user.email, user.fullName).catch((err) => {
-      console.error('Failed to send password changed email:', err instanceof Error ? err.message : err);
-    });
+    if (user.email) {
+      void mailService.sendPasswordChanged(user.email, user.fullName).catch((err) => {
+        console.error('Failed to send password changed email:', err instanceof Error ? err.message : err);
+      });
+    }
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
@@ -482,9 +501,11 @@ export class AuthService {
     });
     if (!changed) throw invalid();
 
-    void mailService.sendPasswordChanged(record.user.email, record.user.fullName).catch((err) => {
-      console.error('Failed to send password changed email:', err instanceof Error ? err.message : err);
-    });
+    if (record.user.email) {
+      void mailService.sendPasswordChanged(record.user.email, record.user.fullName).catch((err) => {
+        console.error('Failed to send password changed email:', err instanceof Error ? err.message : err);
+      });
+    }
   }
 }
 

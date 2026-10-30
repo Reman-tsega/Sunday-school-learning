@@ -25,7 +25,7 @@ export async function authenticate(
     // Verify user exists and is active in DB
     const user = await prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, email: true, fullName: true, role: true, isActive: true },
+      select: { id: true, email: true, username: true, fullName: true, role: true, isActive: true },
     });
 
     if (!user) {
@@ -38,7 +38,7 @@ export async function authenticate(
 
     req.user = {
       id: user.id,
-      email: user.email,
+      email: user.email ?? user.username ?? '',
       fullName: user.fullName,
       role: user.role,
     };

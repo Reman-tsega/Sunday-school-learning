@@ -9,7 +9,7 @@ import {
 import { api } from './api';
 import type { BatchSyncResponseData } from '@eotc/shared';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+import { API_BASE_URL } from '@/lib/api-base';
 
 export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'offline' | 'error';
 

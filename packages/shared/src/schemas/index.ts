@@ -2,8 +2,20 @@ import { z } from 'zod';
 
 export const UserRoleSchema = z.enum(['ADMIN', 'TEACHER', 'STUDENT']);
 
+// Students may sign up with a username instead of an email address
+export const UsernameSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3, 'Username must be at least 3 characters')
+  .max(30, 'Username must be at most 30 characters')
+  .regex(/^[a-z0-9][a-z0-9._-]*$/, 'Use letters, numbers, dots, dashes or underscores only');
+
+const emptyToUndefined = (v: unknown) => (typeof v === 'string' && v.trim() === '' ? undefined : v);
+
 export const LoginRequestSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  // Email address or username
+  email: z.string().trim().min(3, 'Enter your email or username').max(254),
   password: z.string().min(6, 'Password must be at least 6 characters long'),
 });
 
@@ -259,8 +271,11 @@ export const BatchSyncRequestSchema = z.object({
   ).max(50),
 });
 
-export const RegisterRequestSchema = z.object({
-  email: z.string().email('Invalid email address'),
+export const RegisterRequestSchema = z
+  .object({
+  // Optional for students: an email or a username is enough
+  email: z.preprocess(emptyToUndefined, z.string().trim().email('Invalid email address').optional().nullable()),
+  username: z.preprocess(emptyToUndefined, UsernameSchema.optional().nullable()),
   password: z.string().min(8, 'Password must be at least 8 characters long'),
   fullName: z.string().min(2, 'Full name is required'),
   role: UserRoleSchema.default('STUDENT'),
@@ -271,7 +286,11 @@ export const RegisterRequestSchema = z.object({
   churchParish: z.string().optional().nullable(),
   parishId: z.string().uuid().optional().nullable(),
   gradeIds: z.array(z.string()).optional(),
-});
+  })
+  .refine((d) => Boolean(d.email) || Boolean(d.username), {
+    message: 'Enter an email address or choose a username',
+    path: ['username'],
+  });
 
 export const CreateNotificationSchema = z.object({
   title: z.string().min(1, 'Notification title is required'),

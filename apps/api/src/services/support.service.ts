@@ -28,7 +28,7 @@ export class SupportService {
   ): Promise<SupportTicketItem> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, fullName: true, email: true, role: true, churchParish: true, phoneNumber: true },
+      select: { id: true, fullName: true, email: true, username: true, role: true, churchParish: true, phoneNumber: true },
     });
 
     if (!user) {
@@ -76,7 +76,7 @@ export class SupportService {
       ticketNumber: ticket.ticketNumber,
       userId: ticket.userId,
       userName: user.fullName,
-      userEmail: user.email,
+      userEmail: user.email ?? user.username ?? '',
       churchParish: user.churchParish,
       phoneNumber: user.phoneNumber,
       subject: ticket.subject,
@@ -99,7 +99,7 @@ export class SupportService {
       orderBy: { updatedAt: 'desc' },
       include: {
         user: {
-          select: { fullName: true, email: true, churchParish: true, phoneNumber: true },
+          select: { fullName: true, email: true, username: true, churchParish: true, phoneNumber: true },
         },
         messages: {
           orderBy: { createdAt: 'desc' },
@@ -116,7 +116,7 @@ export class SupportService {
       ticketNumber: t.ticketNumber,
       userId: t.userId,
       userName: t.user.fullName,
-      userEmail: t.user.email,
+      userEmail: t.user.email ?? t.user.username ?? '',
       churchParish: t.user.churchParish,
       phoneNumber: t.user.phoneNumber,
       subject: t.subject,
@@ -154,6 +154,7 @@ export class SupportService {
         { subject: { contains: term, mode: 'insensitive' } },
         { user: { fullName: { contains: term, mode: 'insensitive' } } },
         { user: { email: { contains: term, mode: 'insensitive' } } },
+        { user: { username: { contains: term, mode: 'insensitive' } } },
         { user: { churchParish: { contains: term, mode: 'insensitive' } } },
       ];
     }
@@ -167,7 +168,7 @@ export class SupportService {
         orderBy: { updatedAt: 'desc' },
         include: {
           user: {
-            select: { fullName: true, email: true, churchParish: true, phoneNumber: true },
+            select: { fullName: true, email: true, username: true, churchParish: true, phoneNumber: true },
           },
           messages: {
             orderBy: { createdAt: 'desc' },
@@ -185,7 +186,7 @@ export class SupportService {
       ticketNumber: t.ticketNumber,
       userId: t.userId,
       userName: t.user.fullName,
-      userEmail: t.user.email,
+      userEmail: t.user.email ?? t.user.username ?? '',
       churchParish: t.user.churchParish,
       phoneNumber: t.user.phoneNumber,
       subject: t.subject,
@@ -219,7 +220,7 @@ export class SupportService {
       where: { id: ticketId },
       include: {
         user: {
-          select: { fullName: true, email: true, churchParish: true, phoneNumber: true },
+          select: { fullName: true, email: true, username: true, churchParish: true, phoneNumber: true },
         },
         messages: {
           orderBy: { createdAt: 'asc' },
@@ -256,7 +257,7 @@ export class SupportService {
       ticketNumber: ticket.ticketNumber,
       userId: ticket.userId,
       userName: ticket.user.fullName,
-      userEmail: ticket.user.email,
+      userEmail: ticket.user.email ?? ticket.user.username ?? '',
       churchParish: ticket.user.churchParish,
       phoneNumber: ticket.user.phoneNumber,
       subject: ticket.subject,
@@ -347,7 +348,7 @@ export class SupportService {
     const existing = await prisma.supportTicket.findUnique({
       where: { id: ticketId },
       include: {
-        user: { select: { fullName: true, email: true, churchParish: true, phoneNumber: true } },
+        user: { select: { fullName: true, email: true, username: true, churchParish: true, phoneNumber: true } },
         _count: { select: { messages: true } },
       },
     });
@@ -360,7 +361,7 @@ export class SupportService {
       where: { id: ticketId },
       data: { status },
       include: {
-        user: { select: { fullName: true, email: true, churchParish: true, phoneNumber: true } },
+        user: { select: { fullName: true, email: true, username: true, churchParish: true, phoneNumber: true } },
         _count: { select: { messages: true } },
       },
     });
@@ -370,7 +371,7 @@ export class SupportService {
       ticketNumber: updated.ticketNumber,
       userId: updated.userId,
       userName: updated.user.fullName,
-      userEmail: updated.user.email,
+      userEmail: updated.user.email ?? updated.user.username ?? '',
       churchParish: updated.user.churchParish,
       phoneNumber: updated.user.phoneNumber,
       subject: updated.subject,

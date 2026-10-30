@@ -71,6 +71,7 @@ export class StudentService {
       where.OR = [
         { fullName: { contains: term, mode: 'insensitive' } },
         { email: { contains: term, mode: 'insensitive' } },
+        { username: { contains: term, mode: 'insensitive' } },
         { baptismalName: { contains: term, mode: 'insensitive' } },
         { phoneNumber: { contains: term, mode: 'insensitive' } },
         { churchParish: { contains: term, mode: 'insensitive' } },
@@ -131,7 +132,7 @@ export class StudentService {
 
       return {
         id: s.id,
-        email: s.email,
+        email: s.email ?? s.username ?? '',
         fullName: s.fullName,
         role: s.role,
         isActive: s.isActive,
@@ -304,7 +305,7 @@ export class StudentService {
 
     return {
       id: student.id,
-      email: student.email,
+      email: student.email ?? student.username ?? '',
       fullName: student.fullName,
       role: student.role,
       isActive: student.isActive,

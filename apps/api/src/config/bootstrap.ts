@@ -41,4 +41,32 @@ export async function bootstrapFirstRun(): Promise<void> {
     await prisma.grade.createMany({ data: DEFAULT_GRADES });
     console.log('Base grades 1-4 created.');
   }
+
+  if (env.SEED_DEMO_ACCOUNTS === 'true') await ensureDemoAccounts();
+}
+
+/**
+ * Sample Teacher and Student for trying the platform. Their passwords are public (they are in the
+ * repository), so this never creates an administrator and is off unless SEED_DEMO_ACCOUNTS=true.
+ */
+async function ensureDemoAccounts(): Promise<void> {
+  const demo = [
+    { email: 'teacher@eotc-andnet.org', password: 'TeacherPassword2026!', fullName: 'መምህር ሚካኤል (Teacher Michael)', role: 'TEACHER' as const },
+    { email: 'student@eotc-andnet.org', password: 'StudentPassword2026!', fullName: 'ዮሐንስ ዳዊት (Yohannes Dawit)', role: 'STUDENT' as const },
+  ];
+  const grade1 = await prisma.grade.findUnique({ where: { level: 1 } });
+  for (const d of demo) {
+    if (await prisma.user.findUnique({ where: { email: d.email } })) continue;
+    await prisma.user.create({
+      data: {
+        email: d.email,
+        passwordHash: await bcrypt.hash(d.password, 12),
+        fullName: d.fullName,
+        role: d.role,
+        isActive: true,
+        ...(d.role === 'STUDENT' && grade1 ? { enrolledGrades: { create: [{ gradeId: grade1.id }] } } : {}),
+      },
+    });
+    console.log('Demo account created:', d.email);
+  }
 }

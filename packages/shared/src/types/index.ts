@@ -6,7 +6,9 @@ export type UserRole = 'ADMIN' | 'TEACHER' | 'STUDENT';
 
 export interface UserProfile {
   id: string;
-  email: string;
+  /** Optional for students, who can sign in with a username instead */
+  email: string | null;
+  username?: string | null;
   fullName: string;
   role: UserRole;
   isActive: boolean;

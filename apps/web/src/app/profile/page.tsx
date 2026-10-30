@@ -232,9 +232,9 @@ export default function ProfilePage() {
                     {lang === 'am' ? 'ኢሜይል (መቀየር አይቻልም)' : 'Email (Cannot be changed)'}
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     disabled
-                    value={user.email}
+                    value={user.email ?? (user.username ? `@${user.username}` : '')}
                     className="w-full px-3 py-2 bg-stone-100 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-lg text-xs text-stone-500 dark:text-slate-400 cursor-not-allowed"
                   />
                 </div>

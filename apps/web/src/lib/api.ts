@@ -25,7 +25,7 @@ import type {
   UpdateParishInput,
 } from '@eotc/shared';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+import { API_BASE_URL } from '@/lib/api-base';
 
 export class ApiError extends Error {
   status: number;
@@ -48,6 +48,26 @@ export class ApiError extends Error {
       this.retryAfterSeconds = !isNaN(parsed) && parsed > 0 ? parsed : 60;
     }
   }
+}
+
+/** fetch for public auth calls: turns network failures and gateway errors into clear ApiErrors. */
+async function authFetch(input: string, init: RequestInit): Promise<Response> {
+  let res: Response;
+  try {
+    res = await fetch(input, init);
+  } catch {
+    throw new ApiError('Cannot reach the server. Check your internet connection and try again.', 0, {
+      code: 'NETWORK_ERROR',
+      amharicMessage: 'አገልጋዩን ማግኘት አልተቻለም። የኢንተርኔት ግንኙነትዎን ያረጋግጡና እንደገና ይሞክሩ።',
+    });
+  }
+  if (res.status >= 502 && res.status <= 504) {
+    // Hosting gateway answered instead of the API (for example a free-plan server that is still waking up)
+    throw new ApiError('The server is starting up or temporarily unavailable. Please try again in a moment.', res.status, {
+      code: 'SERVER_UNAVAILABLE',
+    });
+  }
+  return res;
 }
 
 export class ApiClient {
@@ -249,7 +269,7 @@ export class ApiClient {
   }
 
   async login(email: string, password: string): Promise<AuthResponseData> {
-    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+    const res = await authFetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -298,7 +318,7 @@ export class ApiClient {
   }
 
   async register(data: RegisterRequestInput): Promise<AuthResponseData> {
-    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+    const res = await authFetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -383,7 +403,7 @@ export class ApiClient {
 
   /** Signed-in user changes their own password; other devices are signed out. */
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
+    const res = await authFetch(`${API_BASE_URL}/auth/change-password`, {
       method: 'POST',
       headers: this.getAuthHeader(),
       body: JSON.stringify({ currentPassword, newPassword, refreshToken: this.getRefreshToken() ?? undefined }),
@@ -410,7 +430,7 @@ export class ApiClient {
   }
 
   private async postPublicAuth(path: string, body: unknown, fallbackMessage: string): Promise<void> {
-    const res = await fetch(`${API_BASE_URL}${path}`, {
+    const res = await authFetch(`${API_BASE_URL}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

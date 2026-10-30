@@ -1,19 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import Link from 'next/link';
-import {
-  HelpCircle,
-  Search,
-  ChevronDown,
-  ChevronUp,
-  MessageCircle,
-} from 'lucide-react';
+import { ArrowRight, ChevronDown, HelpCircle, MessageCircle, Search } from 'lucide-react';
+import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
+import { CrossDivider, Reveal } from '@/components/landing/Reveal';
+
+type Category = 'offline' | 'quizzes' | 'enrollment' | 'textbooks' | 'sync' | 'account';
 
 interface FAQItem {
   id: string;
-  category: 'offline' | 'quizzes' | 'enrollment' | 'textbooks' | 'sync';
+  category: Category;
   questionEn: string;
   questionAm: string;
   answerEn: string;
@@ -87,9 +85,9 @@ const FAQ_ITEMS: FAQItem[] = [
     questionEn: 'What information is required during student registration?',
     questionAm: 'በምዝገባ ወቅት ምን ዓይነት መረጃዎች ይጠየቃሉ?',
     answerEn:
-      'We ask for your Full Name, Email, Password, Age, Residence Address, and desired Grades to enroll. You may optionally provide your Christian/Baptismal name, Phone number, and Sunday School name.',
+      'We ask for your Full Name, Password, Age, Residence Address, and the grades you want to enroll in. Email is optional for students (see the question below). You may optionally provide your Christian/Baptismal name, Phone number, and Sunday School name.',
     answerAm:
-      'ሙሉ ስም፣ ኢሜይል፣ የይለፍ ቃል፣ ዕድሜ፣ የመኖሪያ አድራሻ እና የሚማሩባቸው ክፍሎች ይጠየቃሉ። በተጨማሪም የክርስትና ስም፣ ስልክ ቁጥር እና የሰንበት ት/ቤት ወይም የአጥቢያ ቤተክርስቲያን ስም እንደ አማራጭ ማስገባት ይችላሉ።',
+      'ሙሉ ስም፣ የይለፍ ቃል፣ ዕድሜ፣ የመኖሪያ አድራሻ እና የሚማሩባቸው ክፍሎች ይጠየቃሉ። ለተማሪዎች ኢሜይል አማራጭ ነው (ከታች ያለውን ጥያቄ ይመልከቱ)። በተጨማሪም የክርስትና ስም፣ ስልክ ቁጥር እና የሰንበት ት/ቤት ወይም የአጥቢያ ቤተክርስቲያን ስም እንደ አማራጭ ማስገባት ይችላሉ።',
   },
   {
     id: '8',
@@ -101,24 +99,59 @@ const FAQ_ITEMS: FAQItem[] = [
     answerAm:
       'ተማሪዎች በቀላሉ እንዲማሩ መለያቸው ለሙሉ 1 ቀን ክፍት ሆኖ ይቆያል። የአስተዳዳሪ እና የመምህራን መለያዎች ግን የደህንነት ጥበቃን ለማረጋገጥ ለ15 ደቂቃዎች ምንም እንቅስቃሴ ካልተደረገባቸው በራስ-ሰር ይዘጋሉ።',
   },
+  {
+    id: '9',
+    category: 'account',
+    questionEn: 'Do I need an email address to register as a student?',
+    questionAm: 'ተማሪ ሆኜ ለመመዝገብ ኢሜይል ያስፈልገኛል?',
+    answerEn:
+      'No. Email is optional for students; a username is enough to register and sign in. Teachers and administrators still need an email address. Note that without an email you cannot receive a password reset link.',
+    answerAm:
+      'አያስፈልግዎትም። ለተማሪዎች ኢሜይል አማራጭ ነው፤ ለመመዝገብና ለመግባት የተጠቃሚ ስም (username) በቂ ነው። መምህራንና አስተዳዳሪዎች ግን ኢሜይል ያስፈልጋቸዋል። ኢሜይል ካላስገቡ የይለፍ ቃል መቀየሪያ አገናኝ መቀበል እንደማይችሉ ያስታውሱ።',
+  },
+  {
+    id: '10',
+    category: 'account',
+    questionEn: 'I forgot my password. How do I reset it?',
+    questionAm: 'የይለፍ ቃሌን ረሳሁት። እንዴት ልቀይረው እችላለሁ?',
+    answerEn:
+      'On the Sign in page choose "Forgot password?", enter your email and we will send you a link that works once for a limited time. If you registered with only a username and no email, ask a teacher or an administrator to reset your password for you.',
+    answerAm:
+      'በመግቢያ ገጹ ላይ "የይለፍ ቃል ረስተዋል?" የሚለውን ይምረጡ፤ ኢሜይልዎን ያስገቡ፤ ለተወሰነ ጊዜ ብቻና ለአንድ ጊዜ የሚሰራ አገናኝ እንልክልዎታለን። የተጠቃሚ ስም ብቻ ተጠቅመው ከተመዘገቡ (ኢሜይል ከሌለዎት) የይለፍ ቃልዎን እንዲቀይሩልዎ መምህርዎን ወይም አስተዳዳሪን ይጠይቁ።',
+  },
+];
+
+const CATEGORIES: { id: 'all' | Category; labelEn: string; labelAm: string }[] = [
+  { id: 'all', labelEn: 'All Questions', labelAm: 'ሁሉም ጥያቄዎች' },
+  { id: 'offline', labelEn: 'Offline & Downloads', labelAm: 'ከመስመር ውጭ' },
+  { id: 'textbooks', labelEn: 'Textbooks', labelAm: 'መጻሕፍት' },
+  { id: 'quizzes', labelEn: 'Quizzes & Grading', labelAm: 'ፈተናዎች' },
+  { id: 'enrollment', labelEn: 'Grades & Enrollment', labelAm: 'የክፍል ምዝገባ' },
+  { id: 'sync', labelEn: 'Sync & Data', labelAm: 'ማመሳሰል' },
+  { id: 'account', labelEn: 'Account & Password', labelAm: 'መለያ እና የይለፍ ቃል' },
 ];
 
 export default function FAQPage() {
   const { lang } = useLanguage();
+  const t = (en: string, am: string) => (lang === 'am' ? am : en);
+  const baseId = useId();
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | Category>('all');
   const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({ '1': true, '2': true });
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    setSignedIn(Boolean(api.getUser()));
+    return api.onAuthChange((u) => setSignedIn(Boolean(u)));
+  }, []);
 
   const toggleItem = (id: string) => {
-    setExpandedIds((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const query = search.toLowerCase().trim();
   const filteredItems = FAQ_ITEMS.filter((item) => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    const query = search.toLowerCase().trim();
     const matchesSearch =
       !query ||
       item.questionEn.toLowerCase().includes(query) ||
@@ -129,138 +162,207 @@ export default function FAQPage() {
   });
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-slate-950 py-10 px-4 sm:px-6 lg:px-8 transition-colors">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-            <HelpCircle className="w-6 h-6" />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 dark:text-white">
-            {lang === 'am' ? 'ተደጋጋሚ ጥያቄዎች እና መልሶች' : 'Frequently Asked Questions'}
-          </h1>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-slate-400 max-w-lg mx-auto">
-            {lang === 'am'
-              ? 'ስለ ሰንበት ት/ቤት መማሪያ መድረክ፣ ከመስመር ውጭ አጠቃቀም እና ምዝገባ የተለመዱ ጥያቄዎች'
-              : 'Answers to common questions regarding offline study, downloads, quizzes, and curriculum'}
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative max-w-xl mx-auto">
-          <Search className="w-4 h-4 text-stone-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={
-              lang === 'am'
-                ? 'ጥያቄዎችን እዚህ ይፈልጉ (ምሳሌ፡ ከመስመር ውጭ፣ መጽሐፍ፣ ውጤት)...'
-                : 'Search questions (e.g. offline, download, quizzes, sync)...'
-            }
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-stone-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
+    <div className="bg-stone-50 transition-colors dark:bg-slate-950">
+      <div className="mx-auto max-w-4xl space-y-10 px-4 py-8 sm:space-y-12 sm:px-6 sm:py-10 lg:px-8">
+        {/* Hero with search */}
+        <section
+          aria-labelledby="faq-title"
+          className="relative isolate overflow-hidden rounded-[1.75rem] bg-[#0C2340] text-white shadow-2xl ring-1 ring-amber-400/20 sm:rounded-[2rem]"
+        >
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(1200px_600px_at_85%_-10%,rgba(251,191,36,0.20),transparent_60%),radial-gradient(900px_500px_at_-10%_110%,rgba(56,189,248,0.12),transparent_55%),linear-gradient(135deg,#0C2340_0%,#0b1b33_55%,#2a1606_100%)]" />
+          <div
+            className="absolute inset-0 -z-10 opacity-[0.18] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+            style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.7) 1px, transparent 1px)', backgroundSize: '22px 22px' }}
+            aria-hidden="true"
           />
+          <span
+            className="pointer-events-none absolute -bottom-10 -right-6 -z-10 select-none text-[14rem] leading-none text-amber-300/[0.05] sm:text-[20rem]"
+            aria-hidden="true"
+          >
+            ✞
+          </span>
+
+          <div className="mx-auto max-w-2xl space-y-5 px-5 py-10 text-center sm:px-10 sm:py-14">
+            <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-200 sm:text-xs">
+              <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" />
+              {t('FAQ', 'ጥያቄዎች')}
+            </span>
+            <h1 id="faq-title" className="text-[1.9rem] font-black leading-[1.15] tracking-tight sm:text-5xl">
+              {lang === 'am' ? (
+                <>
+                  ተደጋጋሚ{' '}
+                  <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-300 bg-clip-text text-transparent">
+                    ጥያቄዎች እና መልሶች
+                  </span>
+                </>
+              ) : (
+                <>
+                  Frequently{' '}
+                  <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-300 bg-clip-text text-transparent">
+                    Asked Questions
+                  </span>
+                </>
+              )}
+            </h1>
+            <p className="text-sm leading-relaxed text-slate-200 sm:text-lg">
+              {t(
+                'Answers to common questions regarding offline study, downloads, quizzes, and curriculum',
+                'ስለ ሰንበት ት/ቤት መማሪያ መድረክ፣ ከመስመር ውጭ አጠቃቀም እና ምዝገባ የተለመዱ ጥያቄዎች'
+              )}
+            </p>
+
+            <div className="relative mx-auto max-w-xl pt-1">
+              <label htmlFor={`${baseId}-search`} className="sr-only">
+                {t('Search questions', 'ጥያቄዎችን ፈልግ')}
+              </label>
+              <Search className="pointer-events-none absolute left-4 top-1/2 mt-0.5 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
+              <input
+                id={`${baseId}-search`}
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t(
+                  'Search questions (e.g. offline, download, quizzes, sync)...',
+                  'ጥያቄዎችን እዚህ ይፈልጉ (ምሳሌ፡ ከመስመር ውጭ፣ መጽሐፍ፣ ውጤት)...'
+                )}
+                className="min-h-[48px] w-full rounded-2xl border border-white/20 bg-white py-3 pl-11 pr-4 text-sm text-stone-900 shadow-lg placeholder:text-stone-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Category chips */}
+        <div role="group" aria-label={t('Filter by topic', 'በርዕስ አጣራ')} className="flex flex-wrap items-center justify-center gap-2">
+          {CATEGORIES.map((cat) => {
+            const active = selectedCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`min-h-[40px] cursor-pointer rounded-full px-4 py-2 text-xs font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 sm:text-sm ${
+                  active
+                    ? 'bg-[#0C2340] font-bold text-amber-300 shadow-sm dark:bg-amber-500 dark:text-slate-950'
+                    : 'border border-stone-200 bg-white text-stone-700 hover:border-amber-400/60 hover:bg-amber-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800'
+                }`}
+              >
+                {lang === 'am' ? cat.labelAm : cat.labelEn}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Category Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {[
-            { id: 'all', labelEn: 'All Questions', labelAm: 'ሁሉም ጥያቄዎች' },
-            { id: 'offline', labelEn: 'Offline & Downloads', labelAm: 'ከመስመር ውጭ' },
-            { id: 'textbooks', labelEn: 'Textbooks', labelAm: 'መጻሕፍት' },
-            { id: 'quizzes', labelEn: 'Quizzes & Grading', labelAm: 'ፈተናዎች' },
-            { id: 'enrollment', labelEn: 'Grades & Enrollment', labelAm: 'የክፍል ምዝገባ' },
-            { id: 'sync', labelEn: 'Sync & Data', labelAm: 'ማመሳሰል' },
-          ].map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition ${
-                selectedCategory === cat.id
-                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                  : 'bg-white dark:bg-slate-900 text-stone-600 dark:text-slate-300 border border-stone-200 dark:border-slate-800 hover:bg-stone-100 dark:hover:bg-slate-800'
-              }`}
-            >
-              {lang === 'am' ? cat.labelAm : cat.labelEn}
-            </button>
-          ))}
-        </div>
+        {/* Accordion */}
+        <section aria-label={t('Questions and answers', 'ጥያቄዎችና መልሶች')} className="space-y-3">
+          <p className="sr-only" role="status" aria-live="polite">
+            {t(`${filteredItems.length} questions shown`, `${filteredItems.length} ጥያቄዎች ታይተዋል`)}
+          </p>
 
-        {/* FAQ Accordion List */}
-        <div className="space-y-3">
           {filteredItems.length === 0 ? (
-            <div className="py-12 text-center text-stone-400 bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 space-y-2">
-              <HelpCircle className="w-8 h-8 mx-auto text-stone-300 dark:text-slate-600" />
-              <p className="text-xs font-semibold text-stone-600 dark:text-slate-300">
-                {lang === 'am' ? 'የተፈለገው ጥያቄ አልተገኘም' : 'No matching questions found'}
+            <div className="space-y-2 rounded-3xl border border-stone-200 bg-white py-12 text-center dark:border-slate-800 dark:bg-slate-900">
+              <HelpCircle className="mx-auto h-8 w-8 text-stone-300 dark:text-slate-600" aria-hidden="true" />
+              <p className="text-sm font-semibold text-stone-700 dark:text-slate-200">
+                {t('No matching questions found', 'የተፈለገው ጥያቄ አልተገኘም')}
               </p>
               <button
-                onClick={() => { setSearch(''); setSelectedCategory('all'); }}
-                className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
+                type="button"
+                onClick={() => {
+                  setSearch('');
+                  setSelectedCategory('all');
+                }}
+                className="cursor-pointer text-sm font-bold text-amber-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:text-amber-400"
               >
-                {lang === 'am' ? 'ሁሉንም አሳይ' : 'Clear filters'}
+                {t('Clear filters', 'ሁሉንም አሳይ')}
               </button>
             </div>
           ) : (
-            filteredItems.map((item) => {
+            filteredItems.map((item, i) => {
               const isOpen = !!expandedIds[item.id];
               const question = lang === 'am' ? item.questionAm : item.questionEn;
               const answer = lang === 'am' ? item.answerAm : item.answerEn;
+              const panelId = `${baseId}-panel-${item.id}`;
+              const buttonId = `${baseId}-btn-${item.id}`;
 
               return (
-                <div
-                  key={item.id}
-                  className="bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 shadow-sm overflow-hidden transition"
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleItem(item.id)}
-                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 hover:bg-stone-50 dark:hover:bg-slate-800/60 transition"
+                <Reveal key={item.id} delayMs={Math.min(i, 4) * 40}>
+                  <div
+                    className={`overflow-hidden rounded-2xl border bg-white transition dark:bg-slate-900 ${
+                      isOpen
+                        ? 'border-amber-400/60 shadow-sm dark:border-amber-500/40'
+                        : 'border-stone-200 dark:border-slate-800'
+                    }`}
                   >
-                    <span className="font-bold text-xs sm:text-sm text-stone-900 dark:text-white leading-snug">
-                      {question}
-                    </span>
-                    <div className="p-1 rounded-full bg-stone-100 dark:bg-slate-800 text-stone-500 dark:text-slate-400 shrink-0">
-                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </div>
-                  </button>
-
-                  {isOpen && (
-                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-2 text-xs text-stone-600 dark:text-slate-300 leading-relaxed border-t border-stone-100 dark:border-slate-850 bg-stone-50/50 dark:bg-slate-950/50">
-                      {answer}
-                    </div>
-                  )}
-                </div>
+                    <h2 className="m-0">
+                      <button
+                        id={buttonId}
+                        type="button"
+                        aria-expanded={isOpen}
+                        aria-controls={panelId}
+                        onClick={() => toggleItem(item.id)}
+                        className="flex min-h-[56px] w-full cursor-pointer items-center justify-between gap-4 px-4 py-3.5 text-left transition hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500 dark:hover:bg-slate-800/60 sm:px-5"
+                      >
+                        <span className="text-sm font-bold leading-snug text-stone-900 dark:text-white sm:text-base">{question}</span>
+                        <ChevronDown
+                          className={`h-4 w-4 shrink-0 text-stone-500 transition-transform dark:text-slate-400 ${isOpen ? 'rotate-180' : ''}`}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </h2>
+                    {isOpen && (
+                      <div
+                        id={panelId}
+                        role="region"
+                        aria-labelledby={buttonId}
+                        className="border-t border-stone-100 bg-stone-50/60 px-4 pb-4 pt-3 text-sm leading-relaxed text-stone-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-300 sm:px-5 sm:pb-5"
+                      >
+                        {answer}
+                      </div>
+                    )}
+                  </div>
+                </Reveal>
               );
             })
           )}
-        </div>
+        </section>
 
-        {/* Need More Help Box */}
-        <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
-              <MessageCircle className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-white">
-                {lang === 'am' ? 'ሌላ ተጨማሪ ጥያቄ አለዎት?' : 'Have more questions?'}
-              </h3>
-              <p className="text-[11px] text-stone-500 dark:text-slate-400">
-                {lang === 'am'
-                  ? 'ስለ መድረኩ የበለጠ ለመረዳት የመድረኩን መረጃ ገጽ ይመልከቱ'
-                  : 'Learn more about the platform architecture and ecclesiastical mission'}
-              </p>
-            </div>
+        <CrossDivider />
+
+        {/* Still need help */}
+        <section
+          aria-labelledby="faq-help-title"
+          className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-br from-[#0C2340] via-slate-900 to-amber-950 px-5 py-9 text-center text-white sm:px-10 sm:py-12"
+        >
+          <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-amber-400/10 blur-3xl" aria-hidden="true" />
+          <div className="relative mx-auto max-w-xl space-y-4">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-amber-400/15 text-amber-300">
+              <MessageCircle className="h-6 w-6" aria-hidden="true" />
+            </span>
+            <h2 id="faq-help-title" className="text-2xl font-black leading-tight sm:text-3xl">
+              {t('Still need help?', 'አሁንም እርዳታ ይፈልጋሉ?')}
+            </h2>
+            <p className="text-sm leading-relaxed text-stone-200 sm:text-base">
+              {signedIn
+                ? t('Send a message to the support team and we will get back to you.', 'ለድጋፍ ቡድኑ መልእክት ይላኩ፤ እንመልስልዎታለን።')
+                : t('Sign in to contact the support team.', 'የድጋፍ ቡድኑን ለማነጋገር ይግቡ።')}
+            </p>
+            <Link
+              href={signedIn ? '/support' : '/login'}
+              className="group inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-amber-500 px-6 text-sm font-extrabold text-slate-950 transition hover:bg-amber-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 sm:text-base"
+            >
+              {signedIn ? t('Contact support', 'ድጋፍ ያነጋግሩ') : t('Sign in', 'ግባ')}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </Link>
+            <p className="text-xs text-stone-300">
+              <Link
+                href="/about"
+                className="rounded font-semibold text-amber-300 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              >
+                {t('Learn more about the platform', 'ስለ መድረኩ ተጨማሪ ይወቁ')}
+              </Link>
+            </p>
           </div>
-
-          <Link
-            href="/about"
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 font-bold rounded-xl text-xs transition shrink-0"
-          >
-            {lang === 'am' ? 'ስለ መድረኩ ይመልከቱ' : 'View About Page'}
-          </Link>
-        </div>
+        </section>
       </div>
     </div>
   );

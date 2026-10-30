@@ -14,6 +14,7 @@ export class TeacherService {
         id: true,
         fullName: true,
         email: true,
+        username: true,
         role: true,
         churchParish: true,
       },
@@ -96,7 +97,7 @@ export class TeacherService {
 
     const recentStudents = recentStudentsRaw.map((s) => ({
       id: s.id,
-      email: s.email,
+      email: s.email ?? s.username ?? '',
       fullName: s.fullName,
       role: s.role,
       isActive: s.isActive,
@@ -158,6 +159,7 @@ export class TeacherService {
         { fullName: { contains: query.search, mode: 'insensitive' } },
         { baptismalName: { contains: query.search, mode: 'insensitive' } },
         { email: { contains: query.search, mode: 'insensitive' } },
+        { username: { contains: query.search, mode: 'insensitive' } },
         { phoneNumber: { contains: query.search, mode: 'insensitive' } },
       ];
     }
@@ -196,7 +198,7 @@ export class TeacherService {
 
     const items = students.map((s) => ({
       id: s.id,
-      email: s.email,
+      email: s.email ?? s.username ?? '',
       fullName: s.fullName,
       role: s.role,
       isActive: s.isActive,
@@ -282,7 +284,7 @@ export class TeacherService {
       student: {
         id: student.id,
         fullName: student.fullName,
-        email: student.email,
+        email: student.email ?? student.username ?? '',
         baptismalName: student.baptismalName,
         churchParish: student.churchParish,
         age: student.age,

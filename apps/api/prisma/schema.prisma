@@ -53,7 +53,8 @@ enum QuestionType {
 
 model User {
   id           String          @id @default(uuid())
-  email        String          @unique
+  email        String?         @unique
+  username     String?         @unique
   passwordHash String
   fullName     String
   role         Role            @default(STUDENT)

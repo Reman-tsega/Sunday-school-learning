@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { api, ApiError } from '@/lib/api';
+import { friendlyAuthError } from '@/lib/auth-errors';
 import { useLanguage } from '@/lib/language-context';
 import type { UserProfile } from '@eotc/shared';
 import ParishCombobox from '@/components/ParishCombobox';
@@ -64,6 +65,7 @@ function LoginContent() {
   // Register form state
   const [regFullName, setRegFullName] = useState('');
   const [regEmail, setRegEmail] = useState('');
+  const [regUsername, setRegUsername] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regAge, setRegAge] = useState<string>('');
   const [regAddress, setRegAddress] = useState('');
@@ -138,7 +140,7 @@ function LoginContent() {
       });
   }, []);
 
-  const handleLoginSubmit = async (loginEmail: string, loginPass: string) => {
+  const handleLoginSubmit = async (loginEmail: string, loginPass: string, isDemo = false) => {
     if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
     setLoading(true);
     setError(null);
@@ -162,7 +164,15 @@ function LoginContent() {
             : err.message
         );
       } else {
-        setError((err as Error).message || (lang === 'am' ? 'መግባት አልተቻለም' : 'Login failed'));
+        if (isDemo && err instanceof ApiError && err.code === 'INVALID_CREDENTIALS') {
+          setError(
+            lang === 'am'
+              ? 'ይህ የናሙና መለያ በዚህ አገልጋይ ላይ አይገኝም። በራስዎ ኢሜይል/የተጠቃሚ ስም ይግቡ።'
+              : 'This sample account is not available on this server. Sign in with your own email or username.'
+          );
+        } else {
+          setError(friendlyAuthError(err, lang, 'Login failed'));
+        }
       }
     } finally {
       setLoading(false);
@@ -182,6 +192,12 @@ function LoginContent() {
       return;
     }
 
+    if (!regEmail.trim() && !regUsername.trim()) {
+      setError(lang === 'am' ? 'ኢሜይል ያስገቡ ወይም የተጠቃሚ ስም ይምረጡ' : 'Enter an email address or choose a username');
+      setLoading(false);
+      return;
+    }
+
     if (selectedGradeIds.length === 0) {
       setError(lang === 'am' ? 'እባክዎ ቢያንስ አንድ የሚማሩበትን ክፍል ይምረጡ' : 'Please select at least one grade to enroll in');
       setLoading(false);
@@ -190,7 +206,8 @@ function LoginContent() {
 
     try {
       const auth = await api.register({
-        email: regEmail,
+        email: regEmail.trim() || undefined,
+        username: regUsername.trim() || undefined,
         password: regPassword,
         fullName: regFullName,
         role: 'STUDENT',
@@ -220,7 +237,7 @@ function LoginContent() {
             : err.message
         );
       } else {
-        setError((err as Error).message || (lang === 'am' ? 'ምዝገባ አልተሳካም' : 'Registration failed'));
+        setError(friendlyAuthError(err, lang, 'Registration failed'));
       }
     } finally {
       setLoading(false);
@@ -231,21 +248,21 @@ function LoginContent() {
     if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
     setEmail('admin@eotc-andnet.org');
     setPassword('AdminSecurePassword2026!');
-    handleLoginSubmit('admin@eotc-andnet.org', 'AdminSecurePassword2026!');
+    handleLoginSubmit('admin@eotc-andnet.org', 'AdminSecurePassword2026!', true);
   };
 
   const handleQuickTeacher = () => {
     if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
     setEmail('teacher@eotc-andnet.org');
     setPassword('TeacherPassword2026!');
-    handleLoginSubmit('teacher@eotc-andnet.org', 'TeacherPassword2026!');
+    handleLoginSubmit('teacher@eotc-andnet.org', 'TeacherPassword2026!', true);
   };
 
   const handleQuickStudent = () => {
     if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
     setEmail('student@eotc-andnet.org');
     setPassword('StudentPassword2026!');
-    handleLoginSubmit('student@eotc-andnet.org', 'StudentPassword2026!');
+    handleLoginSubmit('student@eotc-andnet.org', 'StudentPassword2026!', true);
   };
 
   const toggleGradeSelection = (gradeId: string) => {
@@ -456,15 +473,18 @@ function LoginContent() {
           <form onSubmit={(e) => { e.preventDefault(); handleLoginSubmit(email, password); }} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                {lang === 'am' ? 'ኢሜይል' : 'Email Address'}
+                {lang === 'am' ? 'ኢሜይል ወይም የተጠቃሚ ስም' : 'Email or username'}
               </label>
               <input
-                type="email"
+                type="text"
                 required
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-lg text-sm text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                placeholder="student@eotc-andnet.org"
+                placeholder={lang === 'am' ? 'ኢሜይል ወይም የተጠቃሚ ስም' : 'you@example.com or username'}
               />
             </div>
 
@@ -540,16 +560,44 @@ function LoginContent() {
             {/* Email */}
             <div>
               <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                {lang === 'am' ? 'ኢሜይል *' : 'Email Address *'}
+                {lang === 'am' ? 'ኢሜይል (አማራጭ)' : 'Email Address (optional)'}
               </label>
               <input
                 type="email"
-                required
+                autoComplete="email"
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-lg text-sm text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 placeholder="student@example.com"
               />
+            </div>
+
+            {/* Username (needed when no email is given) */}
+            <div>
+              <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
+                {lang === 'am'
+                  ? `የተጠቃሚ ስም ${regEmail.trim() ? '(አማራጭ)' : '*'}`
+                  : `Username ${regEmail.trim() ? '(optional)' : '*'}`}
+              </label>
+              <input
+                type="text"
+                required={!regEmail.trim()}
+                minLength={3}
+                maxLength={30}
+                pattern="[A-Za-z0-9][A-Za-z0-9._\-]*"
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
+                value={regUsername}
+                onChange={(e) => setRegUsername(e.target.value.toLowerCase())}
+                className="w-full px-3 py-2 border border-stone-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-lg text-sm text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                placeholder="abebe.bikila"
+              />
+              <p className="mt-1 text-[11px] text-stone-500 dark:text-slate-400">
+                {lang === 'am'
+                  ? 'ኢሜይል ከሌለዎት በተጠቃሚ ስም ይገባሉ። ፊደል፣ ቁጥር፣ ነጥብ፣ ሰረዝ ብቻ (3-30)። ኢሜይል ሳይኖር የይለፍ ቃል ማስመለስ በመምህር ወይም በአስተዳዳሪ በኩል ነው።'
+                  : 'No email? You can sign in with a username. Letters, numbers, dots, dashes (3-30). Without an email, a teacher or administrator must reset a forgotten password.'}
+              </p>
             </div>
 
             {/* Password */}
