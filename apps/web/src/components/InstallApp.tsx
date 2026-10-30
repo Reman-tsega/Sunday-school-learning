@@ -8,22 +8,20 @@ import { usePwaInstall } from '@/lib/pwa-install';
 
 const SEEN_KEY = 'eotc_install_prompt_seen';
 
-/** Compact download icon that creates the app shortcut. Hidden when install isn't possible/needed. */
-export function InstallButton({ className = '' }: { className?: string }) {
+/** Labeled "Install app" link for the footer. Hidden when the app is already installed or cannot be installed. */
+export function InstallLink({ className = '' }: { className?: string }) {
   const { canInstall, install } = usePwaInstall();
   const { lang } = useLanguage();
   if (!canInstall) return null;
 
-  const label = lang === 'am' ? 'መተግበሪያውን ጫን' : 'Install app';
   return (
     <button
       type="button"
       onClick={() => void install()}
-      title={label}
-      aria-label={label}
-      className={`p-1.5 sm:p-2 rounded-full bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition cursor-pointer ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 transition hover:bg-amber-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 cursor-pointer ${className}`}
     >
-      <Download className="w-4 h-4" />
+      <Download className="w-3.5 h-3.5" aria-hidden="true" />
+      {lang === 'am' ? 'መተግበሪያውን ጫን' : 'Install app'}
     </button>
   );
 }

@@ -244,6 +244,9 @@ function LoginContent() {
     }
   };
 
+  // The sample admin has a public password, so it only exists on local development databases
+  const showDemoAdmin = process.env.NODE_ENV !== 'production';
+
   const handleQuickAdmin = () => {
     if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
     setEmail('admin@eotc-andnet.org');
@@ -423,7 +426,8 @@ function LoginContent() {
             <span className="block text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-slate-400 text-center">
               {lang === 'am' ? 'ፈጣን የሙከራ መግቢያ' : 'Quick 1-Click Test Logins'}
             </span>
-            <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-2">
+            <div className={`grid grid-cols-1 gap-2 ${showDemoAdmin ? 'min-[420px]:grid-cols-3' : 'min-[420px]:grid-cols-2'}`}>
+              {showDemoAdmin && (
               <button
                 type="button"
                 onClick={handleQuickAdmin}
@@ -434,6 +438,7 @@ function LoginContent() {
                 <span>{lang === 'am' ? 'አስተዳዳሪ (Admin)' : 'Admin Test'}</span>
                 <span className="text-[10px] text-stone-500 dark:text-slate-400 font-normal">admin@eotc-andnet.org</span>
               </button>
+              )}
 
               <button
                 type="button"

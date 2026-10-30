@@ -30,7 +30,6 @@ import { syncManager, type SyncState } from '@/lib/sync-manager';
 import { useLanguage } from '@/lib/language-context';
 import { NotificationBell } from './NotificationBell';
 import { ThemeToggle } from './ThemeToggle';
-import { InstallButton } from './InstallApp';
 
 export function Navbar() {
   const router = useRouter();
@@ -338,7 +337,6 @@ export function Navbar() {
                   <Download className="w-3.5 h-3.5" />
                 </Link>
               )}
-              <InstallButton />
               <ThemeToggle variant="icon" />
               <button
                 onClick={toggleLang}
@@ -440,7 +438,6 @@ export function Navbar() {
             ) : null}
 
             {/* Mobile Theme & Language Buttons */}
-            <InstallButton />
             <ThemeToggle variant="compact" />
             <button
               onClick={toggleLang}
