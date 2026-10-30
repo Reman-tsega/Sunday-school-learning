@@ -19,6 +19,7 @@ import { api } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import { ChurchLoader } from '@/components/ChurchLoader';
 import ParishCombobox from '@/components/ParishCombobox';
+import ChangePasswordSection from '@/components/ChangePasswordSection';
 import type { UserProfile, StudentEnrollmentItem } from '@eotc/shared';
 
 export default function ProfilePage() {
@@ -332,6 +333,8 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
+
+            {user.role === 'ADMIN' ? <ChangePasswordSection /> : null}
           </div>
 
           {/* Enrolled Grades Sidebar (1 Col) */}

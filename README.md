@@ -62,6 +62,8 @@ Deploy the API first, because the web app needs its URL.
 2. When prompted, fill in:
    - `CORS_ORIGIN`: your Vercel URL, for example `https://your-app.vercel.app` (comma separated for several, no trailing slash)
    - `INITIAL_ADMIN_EMAIL` and `INITIAL_ADMIN_PASSWORD`: the first administrator
+   - `WEB_APP_URL`: your Vercel URL (used in password reset links)
+   - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`: your email provider (see Password reset emails below)
 3. `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` are generated automatically.
 4. Once live, check `https://<your-api>.onrender.com/api/health`.
 5. Seed the first admin and base data once from your computer, using the database's **External Database URL** from the Render dashboard:
@@ -96,10 +98,23 @@ API (`.env` at the repository root locally, Render dashboard in production):
 | `DATABASE_URL` | PostgreSQL connection string |
 | `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Token signing keys, at least 16 characters, use long random values |
 | `CORS_ORIGIN` | Allowed web origins, comma separated |
+| `WEB_APP_URL` | Public web URL used to build password reset links |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Outgoing email (password reset) |
+| `PASSWORD_RESET_EXPIRES_MINUTES` | Reset link lifetime, default 30 |
 | `PORT`, `HOST` | Server binding (Render sets `PORT`) |
 | `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD`, `INITIAL_ADMIN_NAME` | First administrator created by the seed |
 
 Web (`apps/web/.env.local`, Vercel project settings): `NEXT_PUBLIC_API_URL`, `API_ORIGIN`.
+
+## Password reset emails
+
+Users reset a forgotten password from **Sign in > Forgot password?**:
+
+1. They enter their email. The API always answers the same way, whether or not the account exists.
+2. If it exists, a single-use link valid for 30 minutes is emailed (only a SHA-256 hash of the token is stored; a newer request invalidates older links; one email per minute per account; 8 requests per hour per IP).
+3. The link opens `/reset-password` on the web app. Setting a new password signs the account out on every device and sends a confirmation email.
+
+Configure any SMTP provider (Gmail app password, Brevo, Mailgun, Resend SMTP, SendGrid). Example for Gmail: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER=you@gmail.com`, `SMTP_PASS=<app password>`, `MAIL_FROM="EOTC Sunday School <you@gmail.com>"`. Without `SMTP_HOST`, development prints the link in the API console and production logs an error instead of sending. Render's free plan blocks some outbound SMTP ports; if sending times out, use a provider that offers port 2525 or 465.
 
 ## Security notes
 

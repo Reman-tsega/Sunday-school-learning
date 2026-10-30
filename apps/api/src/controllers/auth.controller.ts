@@ -1,6 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import {
+  ChangePasswordRequestSchema,
+  ForgotPasswordRequestSchema,
   LoginRequestSchema,
+  ResetPasswordRequestSchema,
   RefreshTokenRequestSchema,
   RegisterRequestSchema,
   UpdateProfileSchema,
@@ -50,6 +53,72 @@ export async function login(
       meta: {
         timestamp: new Date().toISOString(),
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function changePassword(
+  req: Request,
+  res: Response<ApiResponse<{ message: string }>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        error: { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+        meta: { timestamp: new Date().toISOString() },
+      });
+      return;
+    }
+    const { currentPassword, newPassword, refreshToken } = ChangePasswordRequestSchema.parse(req.body);
+    await authService.changePassword(req.user.id, currentPassword, newPassword, refreshToken);
+
+    res.status(200).json({
+      success: true,
+      data: { message: 'Password changed successfully' },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function forgotPassword(
+  req: Request,
+  res: Response<ApiResponse<{ message: string }>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { email } = ForgotPasswordRequestSchema.parse(req.body);
+    await authService.requestPasswordReset(email);
+
+    // Same answer whether or not the account exists, so emails cannot be enumerated
+    res.status(200).json({
+      success: true,
+      data: { message: 'If an account exists for this email, a password reset link has been sent.' },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function resetPassword(
+  req: Request,
+  res: Response<ApiResponse<{ message: string }>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { token, password } = ResetPasswordRequestSchema.parse(req.body);
+    await authService.resetPassword(token, password);
+
+    res.status(200).json({
+      success: true,
+      data: { message: 'Your password has been reset. You can now sign in.' },
+      meta: { timestamp: new Date().toISOString() },
     });
   } catch (error) {
     next(error);

@@ -325,6 +325,22 @@ export const UpdateTicketStatusSchema = z.object({
   status: TicketStatusSchema,
 });
 
+export const ChangePasswordRequestSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required').max(128),
+  newPassword: z.string().min(8, 'Password must be at least 8 characters long').max(128),
+  // Lets the server keep this device signed in while revoking the others
+  refreshToken: z.string().max(256).optional(),
+});
+
+export const ForgotPasswordRequestSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+export const ResetPasswordRequestSchema = z.object({
+  token: z.string().min(32, 'Invalid reset token').max(256),
+  password: z.string().min(8, 'Password must be at least 8 characters long').max(128),
+});
+
 export type RegisterRequestInput = z.input<typeof RegisterRequestSchema>;
 export type CreateNotificationInput = z.input<typeof CreateNotificationSchema>;
 export type EnrollGradesRequestInput = z.input<typeof EnrollGradesRequestSchema>;

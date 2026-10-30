@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../config/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
@@ -7,6 +8,8 @@ import {
   hashToken,
   calculateRefreshTokenExpiry,
 } from '../utils/token.js';
+import { env } from '../config/env.js';
+import { mailService } from './mail.service.js';
 import type { AuthResponseData, UserProfile } from '@eotc/shared';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -390,6 +393,98 @@ export class AuthService {
     });
 
     return toUserProfile(updated);
+  }
+
+  /**
+   * Starts a password reset. Never reveals whether the email has an account:
+   * the caller always gets the same answer and the email is sent in the background.
+   */
+  async requestPasswordReset(email: string): Promise<void> {
+    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
+    if (!user || !user.isActive) return;
+
+    // Cooldown: at most one email per minute per account
+    const recent = await prisma.passwordResetToken.findFirst({
+      where: { userId: user.id, createdAt: { gt: new Date(Date.now() - 60_000) } },
+    });
+    if (recent) return;
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + env.PASSWORD_RESET_EXPIRES_MINUTES * 60_000);
+
+    // Only the newest link is valid; only a hash of the token is stored
+    await prisma.$transaction([
+      prisma.passwordResetToken.deleteMany({ where: { userId: user.id } }),
+      prisma.passwordResetToken.create({ data: { tokenHash: hashToken(rawToken), userId: user.id, expiresAt } }),
+    ]);
+
+    const resetUrl = `${env.WEB_APP_URL.replace(/\/+$/, '')}/reset-password?token=${rawToken}`;
+    void mailService.sendPasswordReset(user.email, user.fullName, resetUrl).catch((err) => {
+      console.error('Failed to send password reset email:', err instanceof Error ? err.message : err);
+    });
+  }
+
+  /** Changes the password of a signed-in user after verifying the current one. */
+  async changePassword(userId: string, currentPassword: string, newPassword: string, keepRefreshToken?: string): Promise<void> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.isActive) {
+      throw new AppError(401, 'USER_NOT_FOUND', 'Account not found');
+    }
+
+    // 400 (not 401) so the client does not mistake a typo for an expired session
+    const matches = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!matches) {
+      throw new AppError(400, 'INVALID_CURRENT_PASSWORD', 'The current password is incorrect');
+    }
+    if (currentPassword === newPassword) {
+      throw new AppError(400, 'PASSWORD_UNCHANGED', 'The new password must be different from the current one');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, await bcrypt.genSalt(12));
+    const keepHash = keepRefreshToken ? hashToken(keepRefreshToken) : null;
+
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: userId }, data: { passwordHash } }),
+      // Sign out every other device but keep the one that made the change
+      prisma.refreshSession.updateMany({
+        where: { userId, isRevoked: false, ...(keepHash ? { tokenHash: { not: keepHash } } : {}) },
+        data: { isRevoked: true },
+      }),
+      prisma.passwordResetToken.deleteMany({ where: { userId } }),
+    ]);
+
+    void mailService.sendPasswordChanged(user.email, user.fullName).catch((err) => {
+      console.error('Failed to send password changed email:', err instanceof Error ? err.message : err);
+    });
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const invalid = () => new AppError(400, 'INVALID_RESET_TOKEN', 'This reset link is invalid or has expired. Please request a new one.');
+    const tokenHash = hashToken(token);
+
+    const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash }, include: { user: true } });
+    if (!record || record.usedAt || record.expiresAt <= new Date() || !record.user.isActive) throw invalid();
+
+    const passwordHash = await bcrypt.hash(newPassword, await bcrypt.genSalt(12));
+
+    // Atomically claim the token so two concurrent requests cannot both succeed
+    const changed = await prisma.$transaction(async (tx) => {
+      const claim = await tx.passwordResetToken.updateMany({
+        where: { id: record.id, usedAt: null, expiresAt: { gt: new Date() } },
+        data: { usedAt: new Date() },
+      });
+      if (claim.count !== 1) return false;
+      await tx.user.update({ where: { id: record.userId }, data: { passwordHash } });
+      await tx.passwordResetToken.deleteMany({ where: { userId: record.userId, id: { not: record.id } } });
+      // Sign the account out everywhere
+      await tx.refreshSession.updateMany({ where: { userId: record.userId, isRevoked: false }, data: { isRevoked: true } });
+      return true;
+    });
+    if (!changed) throw invalid();
+
+    void mailService.sendPasswordChanged(record.user.email, record.user.fullName).catch((err) => {
+      console.error('Failed to send password changed email:', err instanceof Error ? err.message : err);
+    });
   }
 }
 

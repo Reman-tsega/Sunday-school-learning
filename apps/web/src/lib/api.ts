@@ -381,6 +381,53 @@ export class ApiClient {
     return updatedUser;
   }
 
+  /** Signed-in user changes their own password; other devices are signed out. */
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
+      method: 'POST',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify({ currentPassword, newPassword, refreshToken: this.getRefreshToken() ?? undefined }),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errData: any = await res.json().catch(() => ({}));
+      throw new ApiError(errData.error?.message || 'Could not change the password', res.status, {
+        code: errData.error?.code,
+        amharicMessage: errData.error?.amharicMessage,
+        retryAfterSeconds: errData.error?.retryAfterSeconds,
+      });
+    }
+  }
+
+  /** Public: asks the server to email a reset link. Always resolves the same way for any email. */
+  async forgotPassword(email: string): Promise<void> {
+    await this.postPublicAuth('/auth/forgot-password', { email }, 'Could not send the reset email');
+  }
+
+  /** Public: sets a new password using the token from the emailed link. */
+  async resetPassword(token: string, password: string): Promise<void> {
+    await this.postPublicAuth('/auth/reset-password', { token, password }, 'Could not reset the password');
+  }
+
+  private async postPublicAuth(path: string, body: unknown, fallbackMessage: string): Promise<void> {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errData: any = await res.json().catch(() => ({}));
+      const retryHeader = res.headers.get('retry-after');
+      const retryAfterSeconds = errData.error?.retryAfterSeconds || (retryHeader ? parseInt(retryHeader, 10) : undefined);
+      throw new ApiError(errData.error?.message || fallbackMessage, res.status, {
+        code: errData.error?.code,
+        amharicMessage: errData.error?.amharicMessage,
+        retryAfterSeconds,
+      });
+    }
+  }
+
   async logout(): Promise<void> {
     this.token = null;
     this.user = null;
@@ -1490,7 +1537,7 @@ function installAuthGuard() {
   w.__eotcAuthGuard = true;
 
   const originalFetch = window.fetch.bind(window);
-  const PUBLIC_AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+  const PUBLIC_AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout', '/auth/forgot-password', '/auth/reset-password'];
   let forcingLogout = false;
 
   const forceLogout = async (reason: string) => {

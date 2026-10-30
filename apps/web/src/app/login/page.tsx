@@ -13,6 +13,7 @@ import {
   Clock,
   Church,
 } from 'lucide-react';
+import Link from 'next/link';
 import { api, ApiError } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import type { UserProfile } from '@eotc/shared';
@@ -468,9 +469,17 @@ function LoginContent() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 dark:text-slate-300 mb-1">
-                {lang === 'am' ? 'የይለፍ ቃል' : 'Password'}
-              </label>
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <label className="block text-xs font-bold text-stone-700 dark:text-slate-300">
+                  {lang === 'am' ? 'የይለፍ ቃል' : 'Password'}
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded"
+                >
+                  {lang === 'am' ? 'የይለፍ ቃል ረስተዋል?' : 'Forgot password?'}
+                </Link>
+              </div>
               <input
                 type="password"
                 required

@@ -32,6 +32,19 @@ services:
       # Your Vercel URL(s), comma separated, no trailing slash
       - key: CORS_ORIGIN
         sync: false
+      # Password reset emails
+      - key: WEB_APP_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false
       - key: INITIAL_ADMIN_EMAIL
         sync: false
       - key: INITIAL_ADMIN_PASSWORD

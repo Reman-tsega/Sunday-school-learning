@@ -69,6 +69,7 @@ model User {
 
   parish               Parish?                 @relation(fields: [parishId], references: [id], onDelete: SetNull)
   sessions             RefreshSession[]
+  passwordResetTokens  PasswordResetToken[]
   quizAttempts         QuizAttempt[]
   progress             StudentProgress[]
   enrolledGrades       StudentGradeEnrollment[]
@@ -83,6 +84,20 @@ model User {
   reviewedReferences       ReferenceLink[]        @relation("ReviewedReferences")
 
   @@map("users")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 model RefreshSession {

@@ -56,6 +56,24 @@ export const registerRateLimiter = rateLimit({
 });
 
 /**
+ * Limiter for forgot/reset password (prevents email bombing and token guessing)
+ * 8 requests per hour per IP
+ */
+export const passwordResetRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 8,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) =>
+    createRateLimitResponse(
+      req,
+      res,
+      'Too many password reset requests. Please try again in 1 hour.',
+      'ብዙ የይለፍ ቃል ማስመለስ ጥያቄዎች ተልከዋል፤ እባክዎ ከ1 ሰዓት በኋላ እንደገና ይሞክሩ።'
+    ),
+});
+
+/**
  * Rate limiter for offline student batch sync (prevents database flooding)
  * 120 sync calls per 15 minutes per IP
  */

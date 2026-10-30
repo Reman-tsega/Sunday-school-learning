@@ -21,6 +21,16 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().default('dev-key'),
   CLOUDINARY_API_SECRET: z.string().default('dev-secret'),
   CLOUDINARY_FOLDER: z.string().default('eotc-learning-materials'),
+  // Public URL of the web app, used to build links in emails
+  WEB_APP_URL: z.string().url().default('http://localhost:3001'),
+  PASSWORD_RESET_EXPIRES_MINUTES: z.coerce.number().int().min(5).max(1440).default(30),
+  // SMTP (optional in development: without SMTP_HOST emails are printed to the API console)
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_SECURE: z.enum(['true', 'false']).default('false'),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  MAIL_FROM: z.string().default('EOTC Sunday School <no-reply@localhost>'),
   INITIAL_ADMIN_EMAIL: z.string().email().default('admin@eotc-andnet.org'),
   INITIAL_ADMIN_PASSWORD: z.string().default('AdminSecurePassword2026!'),
   INITIAL_ADMIN_NAME: z.string().default('ሊቀ ጉባኤ Admin'),
