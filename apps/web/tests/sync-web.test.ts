@@ -122,10 +122,11 @@ describe('Phase 6 — Web Client Sync Engine & Outbox Recovery Tests', () => {
       syncedAt: null,
     });
 
+    // Upload calls only: a successful sync also pulls server progress afterwards
     let calls = 0;
     // Fails on 1st call, succeeds on 2nd call (simulating transient glitch & recovery)
-    const mockFetch = vi.fn().mockImplementation(async () => {
-      calls++;
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      if (String(url).includes('/student/sync/batch')) calls++;
       if (calls === 1) {
         throw new Error('Network timeout (simulated interrupted request)');
       }
