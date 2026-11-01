@@ -34,6 +34,21 @@ export interface AuthResponseData {
   tokens: AuthTokens;
 }
 
+/** Outcome of a link code carried in the Mini App start parameter */
+export type TelegramLinkStatus = 'LINKED' | 'TELEGRAM_LINK_INVALID' | 'TELEGRAM_ALREADY_LINKED' | 'TELEGRAM_IN_USE';
+
+export interface TelegramAuthResponseData extends AuthResponseData {
+  /** True on the first ever Mini App sign-in, so the client can send the student to complete their profile */
+  isNewUser: boolean;
+  linkStatus?: TelegramLinkStatus;
+}
+
+export interface TelegramLinkCodeData {
+  /** Opens the Mini App and links it to the signed-in web account */
+  deepLink: string;
+  expiresAt: string;
+}
+
 export interface BatchSyncResultItem {
   clientAttemptUuid: string;
   serverAttemptId: string;

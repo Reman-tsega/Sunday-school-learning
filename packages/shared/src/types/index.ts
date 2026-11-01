@@ -19,6 +19,11 @@ export interface UserProfile {
   churchParish?: string | null;
   parishId?: string | null;
   enrolledGradeIds?: string[];
+  /** Telegram account linked for Mini App sign-in (BigInt sent as a string) */
+  telegramId?: string | null;
+  telegramUsername?: string | null;
+  /** False for students who only sign in through Telegram */
+  hasPassword?: boolean;
   createdAt: string;
   updatedAt: string;
 }

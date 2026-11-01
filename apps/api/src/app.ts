@@ -8,6 +8,12 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { generalApiRateLimiter } from './middlewares/rateLimiter.js';
 import { env } from './config/env.js';
 
+// users.telegramId is a BIGINT; JSON.stringify throws on BigInt, so any raw user row in a response
+// would crash it. Serialize BigInt as a string (Telegram ids exceed 32 bits but fit in 53).
+(BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function (this: bigint) {
+  return this.toString();
+};
+
 export function createApp(): express.Application {
   const app = express();
 

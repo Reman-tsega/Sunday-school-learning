@@ -13,7 +13,7 @@ import { mailService } from './mail.service.js';
 import type { AuthResponseData, UserProfile } from '@eotc/shared';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toUserProfile(user: any): UserProfile {
+export function toUserProfile(user: any): UserProfile {
   return {
     id: user.id,
     email: user.email ?? null,
@@ -28,6 +28,9 @@ function toUserProfile(user: any): UserProfile {
     churchParish: user.churchParish ?? null,
     parishId: user.parishId ?? null,
     enrolledGradeIds: user.enrolledGrades?.map((eg: any) => eg.gradeId) || [],
+    telegramId: user.telegramId != null ? String(user.telegramId) : null,
+    telegramUsername: user.telegramUsername ?? null,
+    hasPassword: user.passwordHash != null,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
   };
@@ -107,35 +110,7 @@ export class AuthService {
       },
     });
 
-    const accessToken = generateAccessToken({
-      sub: user.id,
-      email: user.email ?? user.username ?? '',
-      role: user.role,
-      fullName: user.fullName,
-    });
-
-    const rawRefreshToken = generateRefreshTokenString();
-    const tokenHash = hashToken(rawRefreshToken);
-    const expiresAt = calculateRefreshTokenExpiry();
-
-    await prisma.refreshSession.create({
-      data: {
-        tokenHash,
-        userId: user.id,
-        userAgent: userAgent ?? null,
-        ipAddress: ipAddress ?? null,
-        expiresAt,
-      },
-    });
-
-    return {
-      user: toUserProfile(user),
-      tokens: {
-        accessToken,
-        refreshToken: rawRefreshToken,
-        expiresInSeconds: user.role === 'STUDENT' ? 24 * 3600 : 15 * 60,
-      },
-    };
+    return this.issueSession(user, userAgent, ipAddress);
   }
 
   async login(
@@ -161,41 +136,13 @@ export class AuthService {
       throw new AppError(403, 'ACCOUNT_INACTIVE', 'Account is deactivated. Please contact an administrator.');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    // Telegram-only students have no password; answer exactly like a wrong password
+    const isPasswordValid = user.passwordHash ? await bcrypt.compare(password, user.passwordHash) : false;
     if (!isPasswordValid) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email/username or password');
     }
 
-    // Issue tokens
-    const accessToken = generateAccessToken({
-      sub: user.id,
-      email: user.email ?? user.username ?? '',
-      role: user.role,
-      fullName: user.fullName,
-    });
-
-    const rawRefreshToken = generateRefreshTokenString();
-    const tokenHash = hashToken(rawRefreshToken);
-    const expiresAt = calculateRefreshTokenExpiry();
-
-    await prisma.refreshSession.create({
-      data: {
-        tokenHash,
-        userId: user.id,
-        userAgent: userAgent ?? null,
-        ipAddress: ipAddress ?? null,
-        expiresAt,
-      },
-    });
-
-    return {
-      user: toUserProfile(user),
-      tokens: {
-        accessToken,
-        refreshToken: rawRefreshToken,
-        expiresInSeconds: user.role === 'STUDENT' ? 24 * 3600 : 15 * 60,
-      },
-    };
+    return this.issueSession(user, userAgent, ipAddress);
   }
 
   async refreshToken(
@@ -243,35 +190,39 @@ export class AuthService {
       data: { isRevoked: true },
     });
 
-    // Create a new session with new refresh token
-    const newRawRefreshToken = generateRefreshTokenString();
-    const newTokenHash = hashToken(newRawRefreshToken);
-    const newExpiresAt = calculateRefreshTokenExpiry();
+    return this.issueSession(session.user, userAgent ?? session.userAgent ?? undefined, ipAddress ?? session.ipAddress ?? undefined);
+  }
 
+  /**
+   * Issues an access token and a new refresh session. Every sign-in path (password, refresh, Telegram)
+   * goes through here so rotation, reuse detection and logout behave the same everywhere.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async issueSession(user: any, userAgent?: string, ipAddress?: string): Promise<AuthResponseData> {
+    const accessToken = generateAccessToken({
+      sub: user.id,
+      email: user.email ?? user.username ?? '',
+      role: user.role,
+      fullName: user.fullName,
+    });
+
+    const rawRefreshToken = generateRefreshTokenString();
     await prisma.refreshSession.create({
       data: {
-        tokenHash: newTokenHash,
-        userId: session.user.id,
-        userAgent: userAgent ?? session.userAgent ?? null,
-        ipAddress: ipAddress ?? session.ipAddress ?? null,
-        expiresAt: newExpiresAt,
+        tokenHash: hashToken(rawRefreshToken),
+        userId: user.id,
+        userAgent: userAgent ?? null,
+        ipAddress: ipAddress ?? null,
+        expiresAt: calculateRefreshTokenExpiry(),
       },
     });
 
-    // Issue new access token
-    const newAccessToken = generateAccessToken({
-      sub: session.user.id,
-      email: session.user.email ?? session.user.username ?? '',
-      role: session.user.role,
-      fullName: session.user.fullName,
-    });
-
     return {
-      user: toUserProfile(session.user),
+      user: toUserProfile(user),
       tokens: {
-        accessToken: newAccessToken,
-        refreshToken: newRawRefreshToken,
-        expiresInSeconds: session.user.role === 'STUDENT' ? 24 * 3600 : 15 * 60,
+        accessToken,
+        refreshToken: rawRefreshToken,
+        expiresInSeconds: user.role === 'STUDENT' ? 24 * 3600 : 15 * 60,
       },
     };
   }
@@ -446,6 +397,10 @@ export class AuthService {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user || !user.isActive) {
       throw new AppError(401, 'USER_NOT_FOUND', 'Account not found');
+    }
+
+    if (!user.passwordHash) {
+      throw new AppError(400, 'NO_PASSWORD', 'This account signs in with Telegram and has no password');
     }
 
     // 400 (not 401) so the client does not mistake a typo for an expired session

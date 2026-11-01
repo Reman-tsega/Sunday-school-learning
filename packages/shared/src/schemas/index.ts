@@ -447,3 +447,18 @@ export type UpdateParishInput = z.infer<typeof UpdateParishSchema>;
 export type ParishQueryInput = z.infer<typeof ParishQuerySchema>;
 
 
+
+// Telegram Mini App sign-in: the raw, signed Telegram.WebApp.initData string (never initDataUnsafe)
+export const TelegramAuthRequestSchema = z.object({
+  initData: z.string().min(1, 'Telegram launch data is required').max(4096),
+});
+
+// The `user` field inside initData, after its signature has been verified
+export const TelegramInitDataUserSchema = z.object({
+  id: z.number().int().positive(),
+  first_name: z.string().default(''),
+  last_name: z.string().optional(),
+  username: z.string().optional(),
+  language_code: z.string().optional(),
+  is_bot: z.boolean().optional(),
+});

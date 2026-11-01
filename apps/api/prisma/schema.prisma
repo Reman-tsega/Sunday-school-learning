@@ -52,37 +52,41 @@ enum QuestionType {
 }
 
 model User {
-  id           String          @id @default(uuid())
-  email        String?         @unique
-  username     String?         @unique
-  passwordHash String
-  fullName     String
-  role         Role            @default(STUDENT)
-  isActive     Boolean         @default(true)
-  age          Int?
-  address      String?
-  baptismalName String?
-  phoneNumber  String?
-  churchParish String?
-  parishId     String?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id               String    @id @default(uuid())
+  email            String?   @unique
+  username         String?   @unique
+  passwordHash     String? // null for students who only sign in through Telegram
+  fullName         String
+  role             Role      @default(STUDENT)
+  isActive         Boolean   @default(true)
+  age              Int?
+  address          String?
+  baptismalName    String?
+  phoneNumber      String?
+  churchParish     String?
+  parishId         String?
+  telegramId       BigInt?   @unique
+  telegramUsername String?
+  telegramLinkedAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  parish               Parish?                 @relation(fields: [parishId], references: [id], onDelete: SetNull)
-  sessions             RefreshSession[]
-  passwordResetTokens  PasswordResetToken[]
-  quizAttempts         QuizAttempt[]
-  progress             StudentProgress[]
-  enrolledGrades       StudentGradeEnrollment[]
-  auditLogs            AuditLog[]
-  sentNotifications    Notification[]          @relation("SentNotifications")
-  receivedNotifications NotificationRecipient[]
-  supportTickets       SupportTicket[]
-  ticketMessages       TicketMessage[]
-  createdPracticeQuestions PracticeQuestion[]     @relation("CreatedPracticeQuestions")
-  reviewedPracticeQuestions PracticeQuestion[]    @relation("ReviewedPracticeQuestions")
-  createdReferences        ReferenceLink[]        @relation("CreatedReferences")
-  reviewedReferences       ReferenceLink[]        @relation("ReviewedReferences")
+  parish                    Parish?                  @relation(fields: [parishId], references: [id], onDelete: SetNull)
+  sessions                  RefreshSession[]
+  passwordResetTokens       PasswordResetToken[]
+  telegramLinkCodes         TelegramLinkCode[]
+  quizAttempts              QuizAttempt[]
+  progress                  StudentProgress[]
+  enrolledGrades            StudentGradeEnrollment[]
+  auditLogs                 AuditLog[]
+  sentNotifications         Notification[]           @relation("SentNotifications")
+  receivedNotifications     NotificationRecipient[]
+  supportTickets            SupportTicket[]
+  ticketMessages            TicketMessage[]
+  createdPracticeQuestions  PracticeQuestion[]       @relation("CreatedPracticeQuestions")
+  reviewedPracticeQuestions PracticeQuestion[]       @relation("ReviewedPracticeQuestions")
+  createdReferences         ReferenceLink[]          @relation("CreatedReferences")
+  reviewedReferences        ReferenceLink[]          @relation("ReviewedReferences")
 
   @@map("users")
 }
@@ -95,37 +99,37 @@ model PasswordResetToken {
   usedAt    DateTime?
   createdAt DateTime  @default(now())
 
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("password_reset_tokens")
 }
 
 model RefreshSession {
-  id         String   @id @default(uuid())
-  tokenHash  String   @unique
-  userId     String
-  userAgent  String?
-  ipAddress  String?
-  expiresAt  DateTime
-  isRevoked  Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("refresh_sessions")
 }
 
 model Grade {
-  id          String    @id @default(uuid())
-  level       Int       @unique
+  id          String   @id @default(uuid())
+  level       Int      @unique
   name        String
   amharicName String?
   description String?
-  orderIndex  Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  orderIndex  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   subjects         Subject[]
   enrolledStudents StudentGradeEnrollment[]
@@ -135,16 +139,16 @@ model Grade {
 }
 
 model Subject {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   gradeId     String
   name        String
   amharicName String?
   code        String
   description String?
   iconUrl     String?
-  orderIndex  Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  orderIndex  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Master Textbook for Subject
   textbookUrl            String?
@@ -154,8 +158,8 @@ model Subject {
   textbookChecksumSha256 String?
   textbookTotalPages     Int?
 
-  grade       Grade     @relation(fields: [gradeId], references: [id], onDelete: Cascade)
-  chapters    Chapter[]
+  grade    Grade     @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  chapters Chapter[]
 
   @@unique([gradeId, code])
   @@index([gradeId])
@@ -163,20 +167,20 @@ model Subject {
 }
 
 model Chapter {
-  id            String             @id @default(uuid())
+  id            String   @id @default(uuid())
   subjectId     String
   chapterNumber Int
   title         String
   amharicTitle  String?
   description   String?
-  orderIndex    Int                @default(0)
-  isPublished   Boolean            @default(false)
-  version       Int                @default(1)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  orderIndex    Int      @default(0)
+  isPublished   Boolean  @default(false)
+  version       Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  subject       Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  textbook      TextbookDocument?
+  subject           Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  textbook          TextbookDocument?
   quizzes           Quiz[]
   references        ReferenceLink[]
   practiceQuestions PracticeQuestion[]
@@ -203,62 +207,62 @@ model TextbookDocument {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  chapter        Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@map("textbook_documents")
 }
 
 model Quiz {
-  id               String         @id @default(uuid())
+  id               String   @id @default(uuid())
   chapterId        String
   title            String
   amharicTitle     String?
   description      String?
   timeLimitMinutes Int?
-  passingScore     Int            @default(70)
-  isPractice       Boolean        @default(true)
-  isPublished      Boolean        @default(false)
-  version          Int            @default(1)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  passingScore     Int      @default(70)
+  isPractice       Boolean  @default(true)
+  isPublished      Boolean  @default(false)
+  version          Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  chapter          Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  questions        QuizQuestion[]
-  attempts         QuizAttempt[]
+  chapter   Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
 
   @@index([chapterId])
   @@map("quizzes")
 }
 
 model QuizQuestion {
-  id                 String           @id @default(uuid())
+  id                 String   @id @default(uuid())
   quizId             String
   prompt             String
   amharicPrompt      String?
-  orderIndex         Int              @default(0)
-  points             Int              @default(1)
+  orderIndex         Int      @default(0)
+  points             Int      @default(1)
   explanation        String?
   amharicExplanation String?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  quiz               Quiz             @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  choices            QuestionChoice[]
-  attemptAnswers     QuizAttemptAnswer[]
+  quiz           Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  choices        QuestionChoice[]
+  attemptAnswers QuizAttemptAnswer[]
 
   @@index([quizId])
   @@map("quiz_questions")
 }
 
 model QuestionChoice {
-  id             String              @id @default(uuid())
-  questionId     String
-  text           String
-  amharicText    String?
-  orderIndex     Int                 @default(0)
-  isCorrect      Boolean             @default(false)
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
+  id          String   @id @default(uuid())
+  questionId  String
+  text        String
+  amharicText String?
+  orderIndex  Int      @default(0)
+  isCorrect   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   question       QuizQuestion        @relation(fields: [questionId], references: [id], onDelete: Cascade)
   attemptAnswers QuizAttemptAnswer[]
@@ -286,9 +290,9 @@ model ReferenceLink {
   createdAt               DateTime         @default(now())
   updatedAt               DateTime         @updatedAt
 
-  chapter                 Chapter          @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  createdBy               User?            @relation("CreatedReferences", fields: [createdById], references: [id], onDelete: SetNull)
-  reviewedBy              User?            @relation("ReviewedReferences", fields: [reviewedById], references: [id], onDelete: SetNull)
+  chapter    Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  createdBy  User?   @relation("CreatedReferences", fields: [createdById], references: [id], onDelete: SetNull)
+  reviewedBy User?   @relation("ReviewedReferences", fields: [reviewedById], references: [id], onDelete: SetNull)
 
   @@index([chapterId])
   @@index([status])
@@ -316,10 +320,10 @@ model PracticeQuestion {
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
-  chapter            Chapter          @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  createdBy          User             @relation("CreatedPracticeQuestions", fields: [createdById], references: [id], onDelete: Cascade)
-  reviewedBy         User?            @relation("ReviewedPracticeQuestions", fields: [reviewedById], references: [id], onDelete: SetNull)
-  choices            PracticeChoice[]
+  chapter    Chapter          @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  createdBy  User             @relation("CreatedPracticeQuestions", fields: [createdById], references: [id], onDelete: Cascade)
+  reviewedBy User?            @relation("ReviewedPracticeQuestions", fields: [reviewedById], references: [id], onDelete: SetNull)
+  choices    PracticeChoice[]
 
   @@index([chapterId])
   @@index([status])
@@ -327,14 +331,14 @@ model PracticeQuestion {
 }
 
 model PracticeChoice {
-  id                 String           @id @default(uuid())
+  id                 String  @id @default(uuid())
   practiceQuestionId String
   text               String
   amharicText        String?
-  orderIndex         Int              @default(0)
-  isCorrect          Boolean          @default(false)
+  orderIndex         Int     @default(0)
+  isCorrect          Boolean @default(false)
 
-  practiceQuestion   PracticeQuestion @relation(fields: [practiceQuestionId], references: [id], onDelete: Cascade)
+  practiceQuestion PracticeQuestion @relation(fields: [practiceQuestionId], references: [id], onDelete: Cascade)
 
   @@index([practiceQuestionId])
   @@map("practice_choices")
@@ -352,7 +356,7 @@ model LearningPackage {
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
-  chapter          Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@unique([chapterId, version])
   @@index([chapterId])
@@ -360,8 +364,8 @@ model LearningPackage {
 }
 
 model QuizAttempt {
-  id                String              @id @default(uuid())
-  clientAttemptUuid String              @unique
+  id                String   @id @default(uuid())
+  clientAttemptUuid String   @unique
   userId            String
   quizId            String
   quizVersion       Int
@@ -370,14 +374,14 @@ model QuizAttempt {
   score             Int
   maxScore          Int
   passed            Boolean
-  clientDevice      String              @default("unknown")
-  isOffline         Boolean             @default(true)
-  syncedAt          DateTime            @default(now())
-  createdAt         DateTime            @default(now())
+  clientDevice      String   @default("unknown")
+  isOffline         Boolean  @default(true)
+  syncedAt          DateTime @default(now())
+  createdAt         DateTime @default(now())
 
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quiz              Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  answers           QuizAttemptAnswer[]
+  user    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz    Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers QuizAttemptAnswer[]
 
   @@index([userId])
   @@index([quizId])
@@ -385,16 +389,16 @@ model QuizAttempt {
 }
 
 model QuizAttemptAnswer {
-  id               String         @id @default(uuid())
+  id               String  @id @default(uuid())
   attemptId        String
   questionId       String
   selectedChoiceId String
   isCorrect        Boolean
-  pointsEarned     Int            @default(0)
+  pointsEarned     Int     @default(0)
 
-  attempt          QuizAttempt    @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question         QuizQuestion   @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  selectedChoice   QuestionChoice @relation(fields: [selectedChoiceId], references: [id], onDelete: Cascade)
+  attempt        QuizAttempt    @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       QuizQuestion   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedChoice QuestionChoice @relation(fields: [selectedChoiceId], references: [id], onDelete: Cascade)
 
   @@unique([attemptId, questionId])
   @@index([attemptId])
@@ -410,8 +414,8 @@ model StudentProgress {
   lastStudiedAt DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter       Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@unique([userId, chapterId])
   @@index([userId])
@@ -428,7 +432,7 @@ model AuditLog {
   ipAddress String?
   createdAt DateTime @default(now())
 
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([action])
@@ -441,8 +445,8 @@ model StudentGradeEnrollment {
   gradeId    String
   enrolledAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  grade      Grade    @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grade Grade @relation(fields: [gradeId], references: [id], onDelete: Cascade)
 
   @@unique([userId, gradeId])
   @@index([userId])
@@ -464,9 +468,9 @@ model Notification {
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
 
-  sender         User?                  @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)
-  targetGrade    Grade?                 @relation(fields: [targetGradeId], references: [id], onDelete: SetNull)
-  recipients     NotificationRecipient[]
+  sender      User?                   @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)
+  targetGrade Grade?                  @relation(fields: [targetGradeId], references: [id], onDelete: SetNull)
+  recipients  NotificationRecipient[]
 
   @@index([targetType])
   @@index([targetGradeId])
@@ -474,15 +478,15 @@ model Notification {
 }
 
 model NotificationRecipient {
-  id             String       @id @default(uuid())
+  id             String    @id @default(uuid())
   notificationId String
   userId         String
-  isRead         Boolean      @default(false)
+  isRead         Boolean   @default(false)
   readAt         DateTime?
-  createdAt      DateTime     @default(now())
+  createdAt      DateTime  @default(now())
 
-  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([notificationId, userId])
   @@index([userId, isRead])
@@ -499,8 +503,8 @@ model SupportTicket {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages     TicketMessage[]
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages TicketMessage[]
 
   @@index([userId])
   @@index([status])
@@ -509,15 +513,15 @@ model SupportTicket {
 }
 
 model TicketMessage {
-  id         String        @id @default(uuid())
+  id         String   @id @default(uuid())
   ticketId   String
   senderId   String
-  senderRole Role          @default(STUDENT)
+  senderRole Role     @default(STUDENT)
   message    String
-  createdAt  DateTime      @default(now())
+  createdAt  DateTime @default(now())
 
-  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  sender     User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([ticketId])
   @@index([senderId])
@@ -525,25 +529,38 @@ model TicketMessage {
 }
 
 model Parish {
-  id               String       @id @default(uuid())
+  id               String   @id @default(uuid())
   name             String
   amharicName      String
   diocese          String
   subCity          String?
   woreda           String?
-  city             String       @default("Addis Ababa")
+  city             String   @default("Addis Ababa")
   sundaySchoolName String?
-  parishType       String       @default("DEBRE") // CATHEDRAL, DEBRE, GEDAM, ATBIYA
-  isVerified       Boolean      @default(true)
+  parishType       String   @default("DEBRE") // CATHEDRAL, DEBRE, GEDAM, ATBIYA
+  isVerified       Boolean  @default(true)
   suggestedBy      String?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  users            User[]
+  users User[]
 
   @@index([diocese, subCity])
   @@index([isVerified])
   @@map("parishes")
 }
 
+// One-time code that lets a signed-in web student attach their Telegram account by opening the Mini App
+model TelegramLinkCode {
+  id        String    @id @default(uuid())
+  codeHash  String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("telegram_link_codes")
+}
