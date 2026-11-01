@@ -385,11 +385,12 @@ export function PdfViewer({
   // Fullscreen Management
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().catch(() => {});
+    // Follows our own state: WebViews (e.g. Telegram on iOS) refuse the Fullscreen API and get the CSS version
+    if (!isFullscreen) {
+      containerRef.current.requestFullscreen?.().catch(() => {});
       setIsFullscreen(true);
     } else {
-      document.exitFullscreen().catch(() => {});
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       setIsFullscreen(false);
     }
   };
@@ -412,7 +413,7 @@ export function PdfViewer({
       onTouchEnd={handleTouchEnd}
       className={`bg-stone-900 rounded-2xl shadow-xl border border-stone-800 overflow-hidden flex flex-col transition-all select-none ${
         isFullscreen
-          ? 'fixed inset-0 z-50 rounded-none h-screen w-screen'
+          ? 'fixed inset-0 z-50 rounded-none h-[var(--app-height)] w-screen'
           : 'min-h-[650px] sm:min-h-[750px] w-full'
       }`}
     >

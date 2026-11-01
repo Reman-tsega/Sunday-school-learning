@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { getAllOfflinePackages, deleteOfflinePackage, type StoredPackage } from '@/lib/offline-db';
 import { useLanguage } from '@/lib/language-context';
+import { uiConfirm } from '@/lib/telegram';
 import { Select } from '@/components/Select';
 
 export default function DownloadManagerPage() {
@@ -49,7 +50,7 @@ export default function DownloadManagerPage() {
       lang === 'am'
         ? 'ይህን የወረደ ትምህርት ከመሣሪያዎ ላይ ማስወገድ ይፈልጋሉ?'
         : 'Do you want to remove this downloaded lesson from your device?';
-    if (confirm(confirmMsg)) {
+    if (await uiConfirm(confirmMsg)) {
       await deleteOfflinePackage(chapterId);
       await loadPackages();
     }
@@ -60,7 +61,7 @@ export default function DownloadManagerPage() {
       lang === 'am'
         ? 'ሁሉንም የወረዱ ትምህርቶች ከመሣሪያዎ ላይ ማስወገድ ይፈልጋሉ? ይህ ተግባር አይመለስም።'
         : 'Are you sure you want to delete all offline downloaded lessons? This action cannot be undone.';
-    if (confirm(confirmMsg)) {
+    if (await uiConfirm(confirmMsg)) {
       for (const p of packages) {
         await deleteOfflinePackage(p.chapterId);
       }

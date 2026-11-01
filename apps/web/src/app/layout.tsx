@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/lib/theme-context';
 import { NavigationLoader } from '@/components/NavigationLoader';
 import { PwaInstallProvider } from '@/lib/pwa-install';
 import { InstallPrompt } from '@/components/InstallApp';
+import { TelegramProvider } from '@/lib/telegram-context';
 
 export const metadata: Metadata = {
   title: 'የሰንበት ትምህርት ቤት አንድነት የመማሪያ መድረክ',
@@ -69,14 +70,21 @@ export default function RootLayout({
                   document.documentElement.style.colorScheme = 'light';
                 }
               } catch (_) {}
+              // Mark Telegram Mini App launches before the first paint (see lib/telegram.ts)
+              try {
+                if (/tgWebAppData=/.test(location.hash) || sessionStorage.getItem('eotc_tg') === '1') {
+                  document.documentElement.setAttribute('data-tg', '');
+                }
+              } catch (_) {}
             `,
           }}
         />
       </head>
-      <body className="bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200 overflow-x-hidden">
+      <body className="bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 min-h-[var(--app-height)] flex flex-col transition-colors duration-200 overflow-x-hidden">
         <LanguageProvider>
           <ThemeProvider>
             <PwaInstallProvider>
+            <TelegramProvider>
             <Navbar />
             <Suspense fallback={null}>
               <NavigationLoader />
@@ -86,6 +94,7 @@ export default function RootLayout({
             </main>
             <Footer />
             <InstallPrompt />
+            </TelegramProvider>
             </PwaInstallProvider>
           </ThemeProvider>
         </LanguageProvider>

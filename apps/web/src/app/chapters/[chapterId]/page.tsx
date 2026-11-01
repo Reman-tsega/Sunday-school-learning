@@ -32,6 +32,7 @@ import { PracticeQuizPlayer } from '@/components/PracticeQuizPlayer';
 import { PracticeQuestionList } from '@/components/PracticeQuestionList';
 import { OfflineBadge } from '@/components/OfflineBadge';
 import { useLanguage } from '@/lib/language-context';
+import { uiAlert, getTelegramWebApp } from '@/lib/telegram';
 import { ChurchLoader } from '@/components/ChurchLoader';
 import type { LearningPackageManifest, PracticeQuestionDto } from '@eotc/shared';
 
@@ -221,7 +222,7 @@ export default function ChapterStudyPage() {
         await loadChapter();
       }
     } catch (err: any) {
-      alert(err.message || 'Enrollment failed');
+      void uiAlert(err.message || 'Enrollment failed');
     } finally {
       setEnrolling(false);
     }
@@ -240,7 +241,7 @@ export default function ChapterStudyPage() {
       setOfflinePkg(stored);
     } catch (err) {
       console.error('Download failed:', err);
-      alert(lang === 'am' ? 'ማውረድ አልተሳካም' : 'Download failed');
+      void uiAlert(lang === 'am' ? 'ማውረድ አልተሳካም' : 'Download failed');
     } finally {
       setDownloading(false);
       setDownloadProgress('');
@@ -255,6 +256,22 @@ export default function ChapterStudyPage() {
   };
 
   const openReferenceBlob = (ref: any) => {
+    // Telegram's in-app WebView cannot save or show downloaded files, so open the online copy in its browser
+    const webApp = getTelegramWebApp();
+    if (webApp) {
+      const onlineUrl = ref.downloadableDocUrl || ref.url;
+      if (navigator.onLine && onlineUrl) {
+        webApp.openLink(new URL(onlineUrl, window.location.href).href);
+      } else {
+        void uiAlert(
+          lang === 'am'
+            ? 'በቴሌግራም ውስጥ ይህን ሰነድ ለመክፈት ኢንተርኔት ያስፈልጋል።'
+            : 'Opening this document inside Telegram needs an internet connection.'
+        );
+      }
+      return;
+    }
+
     const blob = offlinePkg?.referenceBlobs?.[ref.id];
     if (blob) {
       const url = URL.createObjectURL(blob);

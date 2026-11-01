@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Download, Share, PlusSquare, X } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { usePwaInstall } from '@/lib/pwa-install';
+import { useTelegram } from '@/lib/telegram-context';
 
 const SEEN_KEY = 'eotc_install_prompt_seen';
 
@@ -30,11 +31,13 @@ export function InstallLink({ className = '' }: { className?: string }) {
 export function InstallPrompt() {
   const { canInstall, install, iosGuideOpen, closeIosGuide, isIOS } = usePwaInstall();
   const { lang } = useLanguage();
+  const { isTelegram } = useTelegram();
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!canInstall || pathname?.startsWith('/admin')) {
+    // A Mini App lives inside Telegram and cannot be installed
+    if (!canInstall || isTelegram || pathname?.startsWith('/admin')) {
       setVisible(false);
       return undefined;
     }
@@ -47,7 +50,7 @@ export function InstallPrompt() {
     if (seen) return undefined;
     const timer = setTimeout(() => setVisible(true), 3500);
     return () => clearTimeout(timer);
-  }, [canInstall, pathname]);
+  }, [canInstall, isTelegram, pathname]);
 
   const markSeen = () => {
     try {

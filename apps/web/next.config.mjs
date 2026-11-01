@@ -9,6 +9,20 @@ const nextConfig = {
     // Always defined so the build inlines it and drops the sample-login credentials unless set to 'true'
     NEXT_PUBLIC_SHOW_DEMO_LOGINS: process.env.NEXT_PUBLIC_SHOW_DEMO_LOGINS === 'true' ? 'true' : 'false',
   },
+  async headers() {
+    return [
+      {
+        // Only this site and Telegram Web (which shows Mini Apps in an iframe) may frame the app
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://web.telegram.org https://*.telegram.org",
+          },
+        ],
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

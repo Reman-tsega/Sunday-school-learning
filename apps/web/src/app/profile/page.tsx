@@ -20,11 +20,18 @@ import { useLanguage } from '@/lib/language-context';
 import { ChurchLoader } from '@/components/ChurchLoader';
 import ParishCombobox from '@/components/ParishCombobox';
 import ChangePasswordSection from '@/components/ChangePasswordSection';
+import TelegramLinkCard from '@/components/TelegramLinkCard';
+import { useTelegram } from '@/lib/telegram-context';
 import type { UserProfile, StudentEnrollmentItem } from '@eotc/shared';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { lang, pick } = useLanguage();
+  const { isTelegram } = useTelegram();
+  // Set when a student opens the Telegram app for the first time and lands here to finish their profile
+  const [isWelcome] = useState(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('welcome') === '1'
+  );
 
   const [user, setUser] = useState<UserProfile | null>(null);
   const [enrollments, setEnrollments] = useState<StudentEnrollmentItem[]>([]);
@@ -132,7 +139,7 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
+    <div className="min-h-[var(--app-height)] bg-stone-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
@@ -161,10 +168,12 @@ export default function ProfilePage() {
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-stone-500 dark:text-slate-400 mt-1">
-                <span className="flex items-center space-x-1">
-                  <Mail className="w-3.5 h-3.5 text-stone-400 dark:text-slate-500" />
-                  <span>{user.email}</span>
-                </span>
+                {(user.email || user.username || user.telegramUsername) && (
+                  <span className="flex items-center space-x-1">
+                    <Mail className="w-3.5 h-3.5 text-stone-400 dark:text-slate-500" />
+                    <span>{user.email || user.username || `@${user.telegramUsername}`}</span>
+                  </span>
+                )}
                 {user.churchParish && (
                   <span className="flex items-center space-x-1">
                     <Shield className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
@@ -175,6 +184,22 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {isWelcome && (
+          <div className="p-4 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200 space-y-2">
+            <p className="text-sm font-bold">
+              {lang === 'am' ? `እንኳን በደህና መጡ፣ ${user.fullName}!` : `Welcome, ${user.fullName}!`}
+            </p>
+            <p className="text-xs">
+              {lang === 'am'
+                ? 'ስምዎን ከቴሌግራም ወስደናል። እባክዎ የቀረውን መረጃዎን ሞልተው ያስቀምጡ፣ ከዚያ ክፍልዎን ይምረጡ።'
+                : 'We took your name from Telegram. Please fill in the rest of your details and save, then choose your grade.'}
+            </p>
+            <Link href="/" className="inline-block text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline">
+              {lang === 'am' ? 'ክፍል ለመምረጥ ይቀጥሉ →' : 'Continue to choose your grade →'}
+            </Link>
+          </div>
+        )}
 
         {/* Feedback Message */}
         {message && (
@@ -339,6 +364,9 @@ export default function ProfilePage() {
 
           {/* Enrolled Grades Sidebar (1 Col) */}
           <div className="space-y-4">
+            {user.role === 'STUDENT' && !isTelegram && (
+              <TelegramLinkCard user={user} onChange={() => setUser(api.getUser())} />
+            )}
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800 space-y-3">
               <h3 className="text-sm font-bold text-stone-900 dark:text-white flex items-center space-x-2">
                 <GraduationCap className="w-4 h-4 text-amber-600 dark:text-amber-400" />

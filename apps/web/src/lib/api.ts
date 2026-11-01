@@ -6,6 +6,8 @@ import {
 } from '@/lib/offline-db';
 import type {
   AuthResponseData,
+  TelegramAuthResponseData,
+  TelegramLinkCodeData,
   LearningPackageManifest,
   UserProfile,
   NotificationItem,
@@ -26,6 +28,7 @@ import type {
 } from '@eotc/shared';
 
 import { API_BASE_URL } from '@/lib/api-base';
+import { getTelegramWebApp } from '@/lib/telegram';
 
 export class ApiError extends Error {
   status: number;
@@ -160,7 +163,26 @@ export class ApiClient {
     return this.user;
   }
 
+  private telegramReauthInFlight: Promise<string | null> | null = null;
+
+  /** Inside the Mini App an expired session is renewed from the Telegram launch data; there is no login page there. */
+  private telegramReauth(): Promise<string | null> {
+    const initData = getTelegramWebApp()?.initData;
+    if (!initData) return Promise.resolve(null);
+    if (!this.telegramReauthInFlight) {
+      this.telegramReauthInFlight = this.loginWithTelegram(initData)
+        .then((auth) => auth.tokens.accessToken)
+        .catch(() => null)
+        .finally(() => {
+          this.telegramReauthInFlight = null;
+        });
+    }
+    return this.telegramReauthInFlight;
+  }
+
   async handleSessionExpired(reason: string = 'session_expired'): Promise<void> {
+    if (await this.telegramReauth()) return;
+
     // Only a user who actually had a session is "forced out"; visitors who are already signed out are left alone
     const hadSession =
       !!this.token ||
@@ -195,9 +217,12 @@ export class ApiClient {
 
       this.notifyAuthChange(null);
 
-      // Force navigate user to login page immediately, avoiding trapped expired state
+      // Force navigate user to login page immediately, avoiding trapped expired state.
+      // In Telegram, /tg explains what happened (e.g. a deactivated account) instead.
       const currentPath = window.location.pathname;
-      if (!currentPath.startsWith('/login')) {
+      if (getTelegramWebApp()) {
+        if (!currentPath.startsWith('/tg')) window.location.href = '/tg';
+      } else if (!currentPath.startsWith('/login')) {
         window.location.href = `/login?reason=${encodeURIComponent(reason)}`;
       }
     } else {
@@ -219,6 +244,8 @@ export class ApiClient {
     }
 
     if (!refreshToken) {
+      const renewed = await this.telegramReauth();
+      if (renewed) return renewed;
       if (this.user || this.token) {
         await this.handleSessionExpired('session_expired');
       }
@@ -233,6 +260,8 @@ export class ApiClient {
       });
 
       if (!res.ok) {
+        const renewed = await this.telegramReauth();
+        if (renewed) return renewed;
         await this.handleSessionExpired('session_expired');
         return null;
       }
@@ -295,24 +324,7 @@ export class ApiClient {
     const data: any = await res.json();
     const authData: AuthResponseData = data.data;
 
-    this.token = authData.tokens.accessToken;
-    this.user = authData.user;
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('eotc_auth_token', authData.tokens.accessToken);
-      localStorage.setItem('eotc_refresh_token', authData.tokens.refreshToken);
-      localStorage.setItem('eotc_user', JSON.stringify(authData.user));
-    }
-
-    // Cache session in IndexedDB for offline restart
-    await cacheAuthSession({
-      user: authData.user,
-      accessToken: authData.tokens.accessToken,
-      refreshToken: authData.tokens.refreshToken,
-      cachedAt: new Date().toISOString(),
-    });
-
-    this.notifyAuthChange(this.user);
+    await this.storeSession(authData);
 
     return authData;
   }
@@ -344,6 +356,12 @@ export class ApiClient {
     const resJson: any = await res.json();
     const authData: AuthResponseData = resJson.data;
 
+    await this.storeSession(authData);
+    return authData;
+  }
+
+  /** Keeps a new session in memory, localStorage and IndexedDB (for offline restarts), then notifies listeners. */
+  private async storeSession(authData: AuthResponseData): Promise<void> {
     this.token = authData.tokens.accessToken;
     this.user = authData.user;
 
@@ -362,7 +380,76 @@ export class ApiClient {
     });
 
     this.notifyAuthChange(this.user);
+  }
+
+  /**
+   * Exchanges the signed Telegram launch data for a normal session (Mini App only).
+   * The previous session on this device is revoked so a shared phone never keeps someone else's tokens.
+   */
+  async loginWithTelegram(initData: string): Promise<TelegramAuthResponseData> {
+    const res = await authFetch(`${API_BASE_URL}/auth/telegram`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData }),
+    });
+
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errData: any = await res.json().catch(() => ({}));
+      throw new ApiError(errData.error?.message || 'Telegram sign-in failed', res.status, {
+        code: errData.error?.code,
+        amharicMessage: errData.error?.amharicMessage,
+      });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const json: any = await res.json();
+    const authData: TelegramAuthResponseData = json.data;
+
+    const previousRefreshToken = this.getRefreshToken();
+    if (previousRefreshToken && previousRefreshToken !== authData.tokens.refreshToken) {
+      void fetch(`${API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: previousRefreshToken }),
+      }).catch(() => undefined);
+    }
+
+    await this.storeSession(authData);
     return authData;
+  }
+
+  /** One-time t.me link that opens the Mini App and connects it to this (web) student account. */
+  async createTelegramLinkCode(): Promise<TelegramLinkCodeData> {
+    const res = await fetch(`${API_BASE_URL}/auth/telegram/link-code`, {
+      method: 'POST',
+      headers: this.getAuthHeader(),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new ApiError(err.error?.message || `Could not create a Telegram link: HTTP ${res.status}`, res.status, { code: err.error?.code });
+    }
+    const json = await res.json();
+    return json.data;
+  }
+
+  async unlinkTelegram(): Promise<void> {
+    const res = await fetch(`${API_BASE_URL}/auth/telegram`, {
+      method: 'DELETE',
+      headers: this.getAuthHeader(),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new ApiError(err.error?.message || `Could not disconnect Telegram: HTTP ${res.status}`, res.status, { code: err.error?.code });
+    }
+    const current = this.user || this.getUser();
+    if (current) {
+      this.user = { ...current, telegramId: null, telegramUsername: null };
+      if (typeof window !== 'undefined') localStorage.setItem('eotc_user', JSON.stringify(this.user));
+      this.notifyAuthChange(this.user);
+    }
   }
 
   async updateProfile(data: UpdateProfileInput): Promise<UserProfile> {

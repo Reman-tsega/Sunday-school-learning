@@ -367,7 +367,7 @@ export function Navbar() {
                 <button
                   onClick={handleLogout}
                   title={lang === 'am' ? 'ውጣ' : 'Sign Out'}
-                  className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                  className="tg-hide p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -764,7 +764,7 @@ export function Navbar() {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="w-full flex items-center justify-center space-x-2 px-3 py-2.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-950/30 hover:bg-rose-950/60 border border-rose-900/50 rounded-xl transition font-semibold min-h-[44px]"
+                    className="tg-hide w-full flex items-center justify-center space-x-2 px-3 py-2.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-950/30 hover:bg-rose-950/60 border border-rose-900/50 rounded-xl transition font-semibold min-h-[44px]"
                   >
                     <LogOut className="w-4 h-4 shrink-0" />
                     <span>{lang === 'am' ? 'ውጣ' : 'Sign Out'}</span>

@@ -101,8 +101,8 @@ export function PracticeQuestionList({
         </div>
       </div>
 
-      {/* Export / Print */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
+      {/* Export / Print (printing is not available inside Telegram) */}
+      <div className="tg-hide flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
         <label className="inline-flex items-center space-x-2 text-xs font-semibold text-stone-700 dark:text-slate-300 cursor-pointer select-none">
           <input
             type="checkbox"

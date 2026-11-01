@@ -27,6 +27,7 @@ import { syncManager } from '@/lib/sync-manager';
 import { getOfflinePackage, getAllStudentProgress } from '@/lib/offline-db';
 import { OfflineBadge } from '@/components/OfflineBadge';
 import { useLanguage } from '@/lib/language-context';
+import { uiAlert } from '@/lib/telegram';
 import { ChurchLoader } from '@/components/ChurchLoader';
 import { LandingTop } from '@/components/landing/LandingTop';
 import { LandingBottom } from '@/components/landing/LandingBottom';
@@ -274,7 +275,7 @@ export default function CurriculumPage() {
     } catch (err) {
       console.error('Download error:', err);
       setDownloadStatuses((prev) => ({ ...prev, [chapterId]: 'FAILED' }));
-      alert(lang === 'am' ? 'ማውረድ አልተሳካም። እባክዎ እንደገና ይሞክሩ።' : 'Download failed. Please try again.');
+      void uiAlert(lang === 'am' ? 'ማውረድ አልተሳካም። እባክዎ እንደገና ይሞክሩ።' : 'Download failed. Please try again.');
     } finally {
       setDownloadingId(null);
     }
@@ -391,7 +392,7 @@ export default function CurriculumPage() {
   const handleSaveEnrollments = async () => {
     const validSelection = tempEnrollmentIds.filter((id): id is string => Boolean(id) && typeof id === 'string');
     if (validSelection.length === 0) {
-      alert(lang === 'am' ? 'እባክዎ ቢያንስ አንድ አዲስ ክፍል ይምረጡ' : 'Please select at least one new grade to enroll in');
+      void uiAlert(lang === 'am' ? 'እባክዎ ቢያንስ አንድ አዲስ ክፍል ይምረጡ' : 'Please select at least one new grade to enroll in');
       return;
     }
     setEnrollSaving(true);
@@ -410,7 +411,7 @@ export default function CurriculumPage() {
       setIsEnrollModalOpen(false);
       setTempEnrollmentIds([]);
     } catch (err: any) {
-      alert(err.message || 'Failed to update enrollments');
+      void uiAlert(err.message || 'Failed to update enrollments');
     } finally {
       setEnrollSaving(false);
     }

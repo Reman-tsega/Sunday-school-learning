@@ -5,6 +5,27 @@
 :root {
   --background: #FCFBF7;
   --foreground: #1A1A1A;
+  --app-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --app-height: 100dvh;
+  }
+}
+
+/* Telegram Mini App: Telegram sets --tg-viewport-stable-height, which ignores the on-screen keyboard and
+   expand animations; web-only UI (install prompts, sign out, print) is marked with .tg-hide */
+html[data-tg] {
+  --app-height: var(--tg-viewport-stable-height, 100dvh);
+}
+
+html[data-tg] body {
+  padding-bottom: var(--tg-safe-area-inset-bottom, 0px);
+}
+
+html[data-tg] .tg-hide {
+  display: none !important;
 }
 
 .dark {
@@ -16,7 +37,7 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Ethiopic", Nyala, sans-serif;
-  min-height: 100vh;
+  min-height: var(--app-height);
 }
 
 /* Custom scrollbars for PDF reader and quizzes */
