@@ -76,7 +76,7 @@ export const mobileApiClient = {
           const session: AuthSessionRecord = {
             id: 'current_session',
             studentId: user.id,
-            email: user.email,
+            email: user.email ?? user.username ?? '',
             fullName: user.fullName,
             role: user.role,
             accessToken: tokens.accessToken,
