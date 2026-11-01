@@ -253,8 +253,8 @@ export function NotificationBell({ variant = 'dark' }: { variant?: 'dark' | 'lig
               </div>
             ) : (
               notifications.map((n) => {
-                const title = pick(n.title, n.amharicTitle);
-                const content = pick(n.content, n.amharicContent);
+                const title = pick(n.amharicTitle, n.title);
+                const content = pick(n.amharicContent, n.content);
                 const linkTarget = getNotificationLink(n);
 
                 return (

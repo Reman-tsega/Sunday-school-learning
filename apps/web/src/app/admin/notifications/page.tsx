@@ -288,7 +288,7 @@ export default function AdminNotificationsPage() {
                 >
                   {grades.map((g) => (
                     <option key={g.id} value={g.id} className="bg-white dark:bg-slate-900 text-stone-900 dark:text-white">
-                      {pick(g.name, g.amharicName)} (Grade {g.level})
+                      {pick(g.amharicName, g.name)} (Grade {g.level})
                     </option>
                   ))}
                 </Select>
@@ -424,8 +424,8 @@ export default function AdminNotificationsPage() {
           ) : (
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
               {notifications.map((n) => {
-                const displayTitle = pick(n.title, n.amharicTitle);
-                const displayContent = pick(n.content, n.amharicContent);
+                const displayTitle = pick(n.amharicTitle, n.title);
+                const displayContent = pick(n.amharicContent, n.content);
                 const readCount = n.readCount ?? n._count?.recipients ?? 0;
                 const telegram: { sent: number; pending: number; failed: number } | undefined = n.telegram;
                 const telegramTotal = telegram ? telegram.sent + telegram.pending + telegram.failed : 0;
@@ -449,7 +449,7 @@ export default function AdminNotificationsPage() {
                             <GraduationCap className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                             <span>
                               {n.targetGrade?.name
-                                ? pick(n.targetGrade.name, n.targetGrade.amharicName)
+                                ? pick(n.targetGrade.amharicName, n.targetGrade.name)
                                 : n.targetGradeName || (lang === 'am' ? 'የተወሰነ ክፍል' : 'Grade Specific')}
                             </span>
                           </span>

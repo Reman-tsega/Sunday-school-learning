@@ -743,7 +743,7 @@ function LoginContent() {
                         )}
                       </div>
                       <span className="truncate">
-                        {pick(g.name, g.amharicName)}
+                        {pick(g.amharicName, g.name)}
                       </span>
                     </button>
                   );
