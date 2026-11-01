@@ -17,6 +17,8 @@ import { signInitData, launchFields } from './telegram-helpers.js';
 const TG = { newStudent: 990000001, inactive: 990000002, teacher: 990000003, merge: 990000004 };
 const TG_IDS = Object.values(TG).map(BigInt);
 const WEB_USERNAMES = ['tgtest-web-merge', 'tgtest-web-other'];
+// Own curriculum fixture: other test files create and delete grades while this one runs in parallel
+const FIXTURE_GRADE_LEVEL = 990;
 
 function launch(id: number, extra: Record<string, string> = {}, user: Record<string, string> = {}) {
   return signInitData(launchFields({ id, ...user }, extra));
@@ -26,6 +28,9 @@ async function cleanup() {
   await prisma.user.deleteMany({
     where: { OR: [{ telegramId: { in: TG_IDS } }, { username: { in: WEB_USERNAMES } }] },
   });
+  await prisma.chapter.deleteMany({ where: { subject: { grade: { level: FIXTURE_GRADE_LEVEL } } } });
+  await prisma.subject.deleteMany({ where: { grade: { level: FIXTURE_GRADE_LEVEL } } });
+  await prisma.grade.deleteMany({ where: { level: FIXTURE_GRADE_LEVEL } });
 }
 
 describe('Telegram Mini App sign-in', () => {
@@ -147,9 +152,13 @@ describe('Telegram Mini App sign-in', () => {
     let gradeId: string;
 
     beforeAll(async () => {
-      const chapter = await prisma.chapter.findFirstOrThrow({ include: { subject: true } });
+      const grade = await prisma.grade.create({ data: { level: FIXTURE_GRADE_LEVEL, name: 'Telegram test grade' } });
+      const subject = await prisma.subject.create({ data: { gradeId: grade.id, name: 'Telegram test subject', code: 'TG-990' } });
+      const chapter = await prisma.chapter.create({
+        data: { subjectId: subject.id, chapterNumber: 1, title: 'Telegram test chapter', isPublished: true },
+      });
       chapterId = chapter.id;
-      gradeId = chapter.subject.gradeId;
+      gradeId = grade.id;
 
       const web = await request(app)
         .post('/api/auth/register')
