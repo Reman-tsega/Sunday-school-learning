@@ -193,7 +193,8 @@ export default function ChapterStudyPage() {
         const drills = await api.getChapterPracticeQuestions(chapterId);
         setPracticeQuestions(drills || []);
       } catch (drillErr) {
-        console.error('Failed to load practice questions:', drillErr);
+        // Practice questions are online-only; offline this failure is expected
+        if (navigator.onLine) console.error('Failed to load practice questions:', drillErr);
       } finally {
         setLoadingDrills(false);
       }
