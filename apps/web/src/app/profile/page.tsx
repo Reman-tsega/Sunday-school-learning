@@ -29,10 +29,12 @@ export default function ProfilePage() {
   const router = useRouter();
   const { lang, pick } = useLanguage();
   const { isTelegram } = useTelegram();
-  // Set when a student opens the Telegram app for the first time and lands here to finish their profile
-  const [isWelcome] = useState(
-    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('welcome') === '1'
-  );
+  // Set when a student opens the Telegram app for the first time and lands here to finish their profile.
+  // Read after mount: on a client-side navigation the address bar only updates after the first render.
+  const [isWelcome, setIsWelcome] = useState(false);
+  useEffect(() => {
+    setIsWelcome(new URLSearchParams(window.location.search).get('welcome') === '1');
+  }, []);
 
   const [user, setUser] = useState<UserProfile | null>(null);
   const [enrollments, setEnrollments] = useState<StudentEnrollmentItem[]>([]);
@@ -252,18 +254,20 @@ export default function ProfilePage() {
                   />
                 </div>
 
-                {/* Email (Readonly) */}
-                <div>
-                  <label className="block text-xs font-bold text-stone-400 dark:text-slate-500 mb-1">
-                    {lang === 'am' ? 'ኢሜይል (መቀየር አይቻልም)' : 'Email (Cannot be changed)'}
-                  </label>
-                  <input
-                    type="text"
-                    disabled
-                    value={user.email ?? (user.username ? `@${user.username}` : '')}
-                    className="w-full px-3 py-2 bg-stone-100 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-lg text-xs text-stone-500 dark:text-slate-400 cursor-not-allowed"
-                  />
-                </div>
+                {/* Email (Readonly); Telegram-only students have neither email nor username */}
+                {(user.email || user.username) && (
+                  <div>
+                    <label className="block text-xs font-bold text-stone-400 dark:text-slate-500 mb-1">
+                      {lang === 'am' ? 'ኢሜይል (መቀየር አይቻልም)' : 'Email (Cannot be changed)'}
+                    </label>
+                    <input
+                      type="text"
+                      disabled
+                      value={user.email ?? `@${user.username}`}
+                      className="w-full px-3 py-2 bg-stone-100 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-lg text-xs text-stone-500 dark:text-slate-400 cursor-not-allowed"
+                    />
+                  </div>
+                )}
 
                 {/* Age */}
                 <div>
