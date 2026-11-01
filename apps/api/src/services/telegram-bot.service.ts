@@ -33,7 +33,7 @@ const STOPPED_EN = "You won't get announcements here any more. Send /start to tu
 export class TelegramBotService {
   async call(method: string, payload: Record<string, unknown>): Promise<TelegramCallResult> {
     try {
-      const res = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/${method}`, {
+      const res = await fetch(`${env.TELEGRAM_API_BASE_URL.replace(/\/+$/, '')}/bot${env.TELEGRAM_BOT_TOKEN}/${method}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

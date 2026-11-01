@@ -44,6 +44,8 @@ const envSchema = z.object({
   TELEGRAM_WEBAPP_URL: z.string().url().optional(),
   // How old a Mini App launch signature may be when it is exchanged for a session
   TELEGRAM_AUTH_MAX_AGE_SECONDS: z.coerce.number().int().min(60).default(86400),
+  // Bot API server; only changed to point end-to-end tests at a local mock
+  TELEGRAM_API_BASE_URL: z.string().url().default('https://api.telegram.org'),
 }).superRefine((e, ctx) => {
   // A configured bot must be fully configured, so a half-set deployment fails at startup instead of at runtime
   if (!e.TELEGRAM_BOT_TOKEN) return;
