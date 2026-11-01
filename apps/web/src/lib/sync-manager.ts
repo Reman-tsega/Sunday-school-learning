@@ -30,21 +30,69 @@ class SyncManager {
   private errorMessage: string | null = null;
   private listeners: Set<SyncListener> = new Set();
   private isSyncInProgress = false;
+  private autoSyncEnabled = true;
+  private autoSyncTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastAutoSyncFailureAt = 0;
 
   constructor() {
     if (typeof window !== 'undefined') {
-      // Syncing is user-driven: new progress only raises the pending count shown on the sync icon
-      // and is sent when the student taps Sync.
+      // Uploads happen automatically (students in the Telegram app rarely look for the Sync button);
+      // the button still syncs on demand.
       window.addEventListener('online', () => {
         this.notify();
+        this.scheduleAutoSync(1000);
       });
       window.addEventListener('eotc:progress-updated', () => {
         this.notify();
       });
-      // Any local save (progress, quiz attempt) refreshes the pending count
+      // Any local save (progress, quiz attempt) refreshes the pending count and queues an upload;
+      // the delay folds a burst of page turns into one request
       window.addEventListener('eotc:sync-state-changed', () => {
         this.notify();
+        this.scheduleAutoSync(5000);
       });
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') this.scheduleAutoSync(1000);
+      });
+      // Anything left over from an earlier visit
+      this.scheduleAutoSync(3000);
+    }
+  }
+
+  /** Tests turn this off so background uploads do not interfere with mocked network calls. */
+  setAutoSyncEnabled(enabled: boolean): void {
+    this.autoSyncEnabled = enabled;
+    if (!enabled && this.autoSyncTimer) {
+      clearTimeout(this.autoSyncTimer);
+      this.autoSyncTimer = null;
+    }
+  }
+
+  private scheduleAutoSync(delayMs: number): void {
+    if (!this.autoSyncEnabled) return;
+    if (this.autoSyncTimer) clearTimeout(this.autoSyncTimer);
+    this.autoSyncTimer = setTimeout(() => {
+      this.autoSyncTimer = null;
+      void this.autoSync();
+    }, delayMs);
+  }
+
+  /** Uploads pending results in the background when online and signed in. Never throws. */
+  private async autoSync(): Promise<void> {
+    if (!this.autoSyncEnabled || this.isSyncInProgress) return;
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+    // After a failure, wait a minute instead of retrying on every page turn
+    if (Date.now() - this.lastAutoSyncFailureAt < 60_000) return;
+    // Signed-out visitors have nothing to upload and must not trigger a session refresh
+    if (!api.getToken() && !api.getRefreshToken()) return;
+    if ((await this.getPendingCount()) === 0) return;
+
+    try {
+      await this.triggerSync();
+      this.lastAutoSyncFailureAt = 0;
+    } catch {
+      // The status and error are already published to the sync indicator
+      this.lastAutoSyncFailureAt = Date.now();
     }
   }
 

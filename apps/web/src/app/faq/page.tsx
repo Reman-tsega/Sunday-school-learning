@@ -55,9 +55,9 @@ const FAQ_ITEMS: FAQItem[] = [
     questionEn: 'Why do I see a sync button, and how does it work?',
     questionAm: 'የማመሳሰል (Sync) ቁልፍ የሚጠቅመው ለምንድን ነው?',
     answerEn:
-      'If you take quizzes or complete reading chapters while offline, your progress is recorded locally. When your device reconnects to the internet, clicking the "Sync / አመሳስል" button securely uploads all your completed scores and read pages to the central server so they are never lost.',
+      'If you take quizzes or complete reading chapters while offline, your progress is recorded locally. As soon as your device is back online, the app uploads your scores and read pages to the central server automatically so they are never lost. The "Sync / አመሳስል" button lets you do it right away and shows what is still waiting.',
     answerAm:
-      'ከመስመር ውጭ ሆነው ፈተና ሲመልሱ ወይም ምዕራፎችን ሲያነቡ ውጤትዎ በመሳሪያዎ ላይ ተይዞ ይቆያል። ኢንተርኔት ሲያገኙ "አመሳስል" የሚለውን ቁልፍ ሲጫኑ ሁሉም ውጤቶችዎ ወደ ዋናው ሰርቨር ተላልፈው በቋሚነት ይመዘገባሉ።',
+      'ከመስመር ውጭ ሆነው ፈተና ሲመልሱ ወይም ምዕራፎችን ሲያነቡ ውጤትዎ በመሳሪያዎ ላይ ተይዞ ይቆያል። ኢንተርኔት እንደተገኘ መተግበሪያው ሁሉንም ውጤቶችዎን በራሱ ወደ ዋናው ሰርቨር ይልካል። "አመሳስል" የሚለው ቁልፍ ወዲያውኑ ለመላክ እና ገና ያልተላኩትን ለማየት ይረዳል።',
   },
   {
     id: '5',

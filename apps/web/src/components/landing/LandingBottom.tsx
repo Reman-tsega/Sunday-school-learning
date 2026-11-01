@@ -114,8 +114,8 @@ function FaqTeaser() {
       am: ['ለተማሪዎች ነጻ ነው?', 'አዎ። የተማሪ መለያ መፍጠርና በመድረኩ መማር ነጻ ነው።'],
     },
     {
-      en: ['Does it work without internet?', 'Yes, for chapters you have downloaded. Your progress is saved on your device and uploaded when you tap Sync.'],
-      am: ['ያለ ኢንተርኔት ይሰራል?', 'አዎ፣ ላወረዷቸው ምዕራፎች። ሂደትዎ በመሣሪያዎ ላይ ይቀመጣል፤ «አመሳስል»ን ሲጫኑ ይላካል።'],
+      en: ['Does it work without internet?', 'Yes, for chapters you have downloaded. Your progress is saved on your device and uploaded automatically when you are back online.'],
+      am: ['ያለ ኢንተርኔት ይሰራል?', 'አዎ፣ ላወረዷቸው ምዕራፎች። ሂደትዎ በመሣሪያዎ ላይ ይቀመጣል፤ ኢንተርኔት ሲገኝ በራሱ ይላካል።'],
     },
     {
       en: ['Can I use it in Amharic?', 'Yes. Switch between አማርኛ and English at any time from the top bar.'],

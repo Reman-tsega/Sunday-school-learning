@@ -37,8 +37,8 @@ function HowItWorks() {
     },
     {
       icon: Wifi,
-      en: ['Study anywhere, then sync', 'Learn without internet. When you are online, tap Sync to save your progress.'],
-      am: ['በየትኛውም ቦታ ይማሩ፣ ከዚያ ያመሳስሉ', 'ያለ ኢንተርኔት ያጥኑ። ኢንተርኔት ሲኖር «አመሳስል»ን ይጫኑ።'],
+      en: ['Study anywhere, then sync', 'Learn without internet. Your progress is saved automatically once you are back online.'],
+      am: ['በየትኛውም ቦታ ይማሩ፣ ከዚያ ያመሳስሉ', 'ያለ ኢንተርኔት ያጥኑ። ኢንተርኔት ሲገኝ ሂደትዎ በራሱ ይመዘገባል።'],
     },
   ];
 
