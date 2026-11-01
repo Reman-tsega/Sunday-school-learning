@@ -41,21 +41,12 @@ export class WebDownloadManager {
         currentFile: manifest.textbook.title,
       });
 
-      let textbookBlob: Blob;
       const textbookUrl = manifest.textbook.chapterPdfUrl || manifest.textbook.fileUrl || `/api/chapters/${chapterId}/pdf`;
-      try {
-        const response = await fetch(textbookUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to download textbook: HTTP ${response.status}`);
-        }
-        textbookBlob = await response.blob();
-      } catch (fetchErr) {
-        // Fallback for mock/test URLs in offline/sandbox test environments
-        console.warn('Network fetch failed, generating verified mock blob:', fetchErr);
-        textbookBlob = new Blob([new ArrayBuffer(manifest.textbook.fileSize || 1024)], {
-          type: 'application/pdf',
-        });
+      const response = await fetch(textbookUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to download textbook: HTTP ${response.status}`);
       }
+      const textbookBlob = await response.blob();
 
       // Verify file size
       if (textbookBlob.size === 0) {
@@ -79,16 +70,12 @@ export class WebDownloadManager {
         if (ref.downloadableDocUrl) {
           try {
             const refRes = await fetch(ref.downloadableDocUrl);
-            if (refRes.ok) {
-              referenceBlobs[ref.id] = await refRes.blob();
-            } else {
-              throw new Error(`Failed to download reference doc: HTTP ${refRes.status}`);
-            }
-          } catch {
-            // Test fallback
-            referenceBlobs[ref.id] = new Blob([new ArrayBuffer(ref.downloadableDocSize || 512)], {
-              type: 'application/pdf',
-            });
+            if (!refRes.ok) throw new Error(`HTTP ${refRes.status}`);
+            const blob = await refRes.blob();
+            if (blob.size > 0) referenceBlobs[ref.id] = blob;
+          } catch (refErr) {
+            // A missing reference must not block the textbook; it stays online-only
+            console.warn(`Reference "${ref.title}" could not be saved offline:`, refErr);
           }
         }
       }

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   getOfflinePackage,
   deleteOfflinePackage,
@@ -75,8 +75,23 @@ describe('Phase 4 — Student Web Offline Storage & Quiz Evaluation', () => {
     ],
   };
 
+  it('0. A failed textbook download is stored as FAILED, never as available offline', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+    await expect(downloadManager.downloadPackage(mockManifest)).rejects.toThrow('Failed to fetch');
+    const failed = await getOfflinePackage('ch1');
+    expect(failed?.downloadStatus).toBe('FAILED');
+    expect(failed?.textbookBlob).toBeUndefined();
+    vi.unstubAllGlobals();
+  });
+
   it('1. Download Manager downloads and verifies learning package into IndexedDB', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(async () => new Response(new Uint8Array(2048).fill(1), { status: 200 }))
+    );
     const stored = await downloadManager.downloadPackage(mockManifest);
+    vi.unstubAllGlobals();
+    expect(stored.referenceBlobs?.['ref-1']?.size).toBe(2048);
 
     expect(stored.downloadStatus).toBe('AVAILABLE_OFFLINE');
     expect(stored.chapterId).toBe('ch1');
