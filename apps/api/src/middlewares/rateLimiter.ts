@@ -1,5 +1,7 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response } from 'express';
+import { env } from '../config/env.js';
+import { telegramSecretMatches } from '../utils/telegram.js';
 
 /**
  * Standard JSON response format for rate limit violations
@@ -98,6 +100,10 @@ export const syncRateLimiter = rateLimit({
 export const generalApiRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 600,
+  // Telegram delivers every bot update from a few shared IPs; genuine webhook calls carry our secret
+  skip: (req) =>
+    req.path === '/telegram/webhook' &&
+    telegramSecretMatches(req.header('x-telegram-bot-api-secret-token'), env.TELEGRAM_WEBHOOK_SECRET),
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) =>

@@ -83,3 +83,11 @@ export function validateTelegramInitData(
     startParam: params.get('start_param'),
   };
 }
+
+/** Constant-time check of the X-Telegram-Bot-Api-Secret-Token header Telegram sends with webhook calls. */
+export function telegramSecretMatches(received: string | undefined, expected: string | undefined): boolean {
+  if (!received || !expected) return false;
+  const a = Buffer.from(received);
+  const b = Buffer.from(expected);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}

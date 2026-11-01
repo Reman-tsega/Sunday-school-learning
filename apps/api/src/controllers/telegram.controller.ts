@@ -1,10 +1,10 @@
-import crypto from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
 import { TelegramAuthRequestSchema } from '@eotc/shared';
 import type { ApiResponse, TelegramAuthResponseData, TelegramLinkCodeData } from '@eotc/shared';
 import { env } from '../config/env.js';
 import { telegramAuthService } from '../services/telegram-auth.service.js';
 import { telegramBotService } from '../services/telegram-bot.service.js';
+import { telegramSecretMatches } from '../utils/telegram.js';
 
 export async function telegramSignIn(
   req: Request,
@@ -58,19 +58,12 @@ export async function unlinkTelegram(
   }
 }
 
-function secretMatches(received: string | undefined): boolean {
-  if (!received || !env.TELEGRAM_WEBHOOK_SECRET) return false;
-  const a = Buffer.from(received);
-  const b = Buffer.from(env.TELEGRAM_WEBHOOK_SECRET);
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
 export async function telegramWebhook(req: Request, res: Response): Promise<void> {
   if (!env.TELEGRAM_BOT_TOKEN) {
     res.sendStatus(404);
     return;
   }
-  if (!secretMatches(req.header('x-telegram-bot-api-secret-token'))) {
+  if (!telegramSecretMatches(req.header('x-telegram-bot-api-secret-token'), env.TELEGRAM_WEBHOOK_SECRET)) {
     res.sendStatus(401);
     return;
   }
