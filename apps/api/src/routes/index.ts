@@ -15,11 +15,13 @@ import { supportRouter, adminSupportRouter } from './support.route.js';
 import { teacherRouter } from './teacher.route.js';
 import { moderationRouter } from './moderation.route.js';
 import { parishRouter } from './parish.route.js';
+import { telegramRouter } from './telegram.route.js';
 
 export const apiRouter: Router = Router();
 
 apiRouter.use('/health', healthRouter);
 apiRouter.use('/auth', authRouter);
+apiRouter.use('/telegram', telegramRouter);
 apiRouter.use('/parishes', parishRouter);
 apiRouter.use('/admin/users', adminUserRouter);
 apiRouter.use('/admin/students', adminStudentRouter);

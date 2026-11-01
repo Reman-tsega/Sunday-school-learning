@@ -108,3 +108,22 @@ export const generalApiRateLimiter = rateLimit({
       'ከተፈቀደው በላይ ጥያቄ ተልኳል፤ እባክዎ ቀስ ብለው ይጠቀሙ።'
     ),
 });
+
+/**
+ * Limiter for Telegram Mini App sign-in. Signatures cannot be guessed, so this only guards against floods;
+ * it is looser than password login because many students share carrier-grade NAT IPs.
+ * 60 requests per 15 minutes per IP
+ */
+export const telegramAuthRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) =>
+    createRateLimitResponse(
+      req,
+      res,
+      'Too many sign-in attempts. Please try again in a few minutes.',
+      'ብዙ የመግቢያ ሙከራዎች ተደርገዋል፤ እባክዎ ከጥቂት ደቂቃዎች በኋላ እንደገና ይሞክሩ።'
+    ),
+});

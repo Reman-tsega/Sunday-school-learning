@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { login, refreshToken, logout, getMe, register, updateProfile, forgotPassword, resetPassword, changePassword } from '../controllers/auth.controller.js';
-import { authenticate } from '../middlewares/auth.middleware.js';
-import { loginRateLimiter, registerRateLimiter, passwordResetRateLimiter } from '../middlewares/rateLimiter.js';
+import { authenticate, requireRole } from '../middlewares/auth.middleware.js';
+import { loginRateLimiter, registerRateLimiter, passwordResetRateLimiter, telegramAuthRateLimiter } from '../middlewares/rateLimiter.js';
+import { telegramSignIn, createTelegramLinkCode, unlinkTelegram } from '../controllers/telegram.controller.js';
 
 export const authRouter: Router = Router();
 
@@ -15,3 +16,7 @@ authRouter.get('/me', authenticate, getMe);
 authRouter.post('/change-password', authenticate, loginRateLimiter, changePassword);
 authRouter.patch('/profile', authenticate, updateProfile);
 
+// Telegram Mini App (students only)
+authRouter.post('/telegram', telegramAuthRateLimiter, telegramSignIn);
+authRouter.post('/telegram/link-code', authenticate, requireRole(['STUDENT']), createTelegramLinkCode);
+authRouter.delete('/telegram', authenticate, unlinkTelegram);

@@ -1,0 +1,83 @@
+import crypto from 'crypto';
+import type { Request, Response, NextFunction } from 'express';
+import { TelegramAuthRequestSchema } from '@eotc/shared';
+import type { ApiResponse, TelegramAuthResponseData, TelegramLinkCodeData } from '@eotc/shared';
+import { env } from '../config/env.js';
+import { telegramAuthService } from '../services/telegram-auth.service.js';
+import { telegramBotService } from '../services/telegram-bot.service.js';
+
+export async function telegramSignIn(
+  req: Request,
+  res: Response<ApiResponse<TelegramAuthResponseData>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { initData } = TelegramAuthRequestSchema.parse(req.body);
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = req.ip || req.socket.remoteAddress;
+
+    const result = await telegramAuthService.signIn(initData, userAgent, ipAddress);
+
+    res.status(result.isNewUser ? 201 : 200).json({
+      success: true,
+      data: result,
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createTelegramLinkCode(
+  req: Request,
+  res: Response<ApiResponse<TelegramLinkCodeData>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const result = await telegramAuthService.createLinkCode(req.user!.id);
+    res.status(201).json({ success: true, data: result, meta: { timestamp: new Date().toISOString() } });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function unlinkTelegram(
+  req: Request,
+  res: Response<ApiResponse<{ message: string }>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    await telegramAuthService.unlink(req.user!.id);
+    res.status(200).json({
+      success: true,
+      data: { message: 'Telegram has been disconnected from your account' },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+function secretMatches(received: string | undefined): boolean {
+  if (!received || !env.TELEGRAM_WEBHOOK_SECRET) return false;
+  const a = Buffer.from(received);
+  const b = Buffer.from(env.TELEGRAM_WEBHOOK_SECRET);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+export async function telegramWebhook(req: Request, res: Response): Promise<void> {
+  if (!env.TELEGRAM_BOT_TOKEN) {
+    res.sendStatus(404);
+    return;
+  }
+  if (!secretMatches(req.header('x-telegram-bot-api-secret-token'))) {
+    res.sendStatus(401);
+    return;
+  }
+
+  // Acknowledge at once so Telegram does not retry; replies are sent in the background
+  res.sendStatus(200);
+  telegramBotService.handleUpdate(req.body).catch((err) => {
+    console.error('Telegram update failed:', err instanceof Error ? err.message : err);
+  });
+}

@@ -36,6 +36,34 @@ const envSchema = z.object({
   INITIAL_ADMIN_EMAIL: z.string().email().default('admin@eotc-andnet.org'),
   INITIAL_ADMIN_PASSWORD: z.string().default('AdminSecurePassword2026!'),
   INITIAL_ADMIN_NAME: z.string().default('ሊቀ ጉባኤ Admin'),
+  // Telegram Mini App (optional: without a bot token the Telegram endpoints answer 503 TELEGRAM_DISABLED)
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_BOT_USERNAME: z.string().optional(),
+  TELEGRAM_WEBHOOK_SECRET: z.string().optional(),
+  // Public URL the bot's "Open app" button points to, e.g. https://your-app.vercel.app/tg
+  TELEGRAM_WEBAPP_URL: z.string().url().optional(),
+  // How old a Mini App launch signature may be when it is exchanged for a session
+  TELEGRAM_AUTH_MAX_AGE_SECONDS: z.coerce.number().int().min(60).default(86400),
+}).superRefine((e, ctx) => {
+  // A configured bot must be fully configured, so a half-set deployment fails at startup instead of at runtime
+  if (!e.TELEGRAM_BOT_TOKEN) return;
+  if (!/^\d+:[\w-]{30,}$/.test(e.TELEGRAM_BOT_TOKEN)) {
+    ctx.addIssue({ code: 'custom', path: ['TELEGRAM_BOT_TOKEN'], message: 'Not a valid bot token from @BotFather' });
+  }
+  if (!e.TELEGRAM_BOT_USERNAME) {
+    ctx.addIssue({ code: 'custom', path: ['TELEGRAM_BOT_USERNAME'], message: 'Required when TELEGRAM_BOT_TOKEN is set' });
+  }
+  if (!e.TELEGRAM_WEBAPP_URL) {
+    ctx.addIssue({ code: 'custom', path: ['TELEGRAM_WEBAPP_URL'], message: 'Required when TELEGRAM_BOT_TOKEN is set' });
+  }
+  // Telegram allows 1-256 characters of A-Z, a-z, 0-9, _ and -
+  if (!e.TELEGRAM_WEBHOOK_SECRET || !/^[\w-]{16,256}$/.test(e.TELEGRAM_WEBHOOK_SECRET)) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['TELEGRAM_WEBHOOK_SECRET'],
+      message: 'Required when TELEGRAM_BOT_TOKEN is set: 16-256 letters, digits, _ or -',
+    });
+  }
 });
 
 const parsed = envSchema.safeParse(process.env);
