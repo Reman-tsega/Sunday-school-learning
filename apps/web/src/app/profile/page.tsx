@@ -21,6 +21,7 @@ import { ChurchLoader } from '@/components/ChurchLoader';
 import ParishCombobox from '@/components/ParishCombobox';
 import ChangePasswordSection from '@/components/ChangePasswordSection';
 import TelegramLinkCard from '@/components/TelegramLinkCard';
+import TelegramAnnouncementsSwitch from '@/components/TelegramAnnouncementsSwitch';
 import { useTelegram } from '@/lib/telegram-context';
 import type { UserProfile, StudentEnrollmentItem } from '@eotc/shared';
 
@@ -366,6 +367,9 @@ export default function ProfilePage() {
           <div className="space-y-4">
             {user.role === 'STUDENT' && !isTelegram && (
               <TelegramLinkCard user={user} onChange={() => setUser(api.getUser())} />
+            )}
+            {user.role === 'STUDENT' && user.telegramId && (
+              <TelegramAnnouncementsSwitch user={user} onChange={setUser} />
             )}
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800 space-y-3">
               <h3 className="text-sm font-bold text-stone-900 dark:text-white flex items-center space-x-2">

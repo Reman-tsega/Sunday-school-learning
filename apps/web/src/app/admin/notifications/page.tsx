@@ -426,7 +426,9 @@ export default function AdminNotificationsPage() {
               {notifications.map((n) => {
                 const displayTitle = pick(n.title, n.amharicTitle);
                 const displayContent = pick(n.content, n.amharicContent);
-                const readCount = n._count?.recipients || 0;
+                const readCount = n.readCount ?? n._count?.recipients ?? 0;
+                const telegram: { sent: number; pending: number; failed: number } | undefined = n.telegram;
+                const telegramTotal = telegram ? telegram.sent + telegram.pending + telegram.failed : 0;
 
                 return (
                   <div
@@ -448,7 +450,7 @@ export default function AdminNotificationsPage() {
                             <span>
                               {n.targetGrade?.name
                                 ? pick(n.targetGrade.name, n.targetGrade.amharicName)
-                                : (lang === 'am' ? 'የተወሰነ ክፍል' : 'Grade Specific')}
+                                : n.targetGradeName || (lang === 'am' ? 'የተወሰነ ክፍል' : 'Grade Specific')}
                             </span>
                           </span>
                         )}
@@ -463,6 +465,24 @@ export default function AdminNotificationsPage() {
                         <span className="text-[10px] text-stone-500 dark:text-slate-400 font-medium">
                           {readCount} {lang === 'am' ? 'ተጠቃሚዎች አንብበውታል' : 'readers'}
                         </span>
+
+                        {telegram && telegramTotal > 0 && (
+                          <span
+                            className="inline-flex items-center gap-1 text-[10px] font-medium text-sky-700 dark:text-sky-300"
+                            title={
+                              lang === 'am'
+                                ? 'ቦቱን ያገዱ ወይም ያልጀመሩ ተማሪዎች አይደርሳቸውም'
+                                : 'Students who blocked or never started the bot cannot be reached'
+                            }
+                          >
+                            <Send className="w-3 h-3" />
+                            {lang === 'am'
+                              ? `ቴሌግራም: ${telegram.sent}/${telegramTotal} ደርሷል`
+                              : `Telegram: ${telegram.sent}/${telegramTotal} delivered`}
+                            {telegram.pending > 0 && (lang === 'am' ? ` · ${telegram.pending} በመላክ ላይ` : ` · ${telegram.pending} sending`)}
+                            {telegram.failed > 0 && (lang === 'am' ? ` · ${telegram.failed} አልደረሰም` : ` · ${telegram.failed} failed`)}
+                          </span>
+                        )}
                       </div>
 
                       <button

@@ -33,6 +33,22 @@ The empty Telegram-only account is then deleted. A Telegram account that is alre
 
 The Mini App never asks for a password. No audit-log rows are written for student Telegram activity.
 
+### Announcements as bot messages
+
+When an admin sends an announcement, every student who uses the Telegram app and is in its audience (everyone, a grade, or a role, the same rules as in the app) also receives it as a message from the bot. The message has an **Open app** button. If the announcement has an Amharic version, it comes first, followed by the English one.
+
+- **Sending:** `telegram_deliveries` is an outbox with one row per announcement and student. A single worker in the API sends about 20 messages per second.
+  - When Telegram answers *too many requests*, it waits as long as Telegram asks.
+  - When Telegram or the network is down, it pauses for a minute.
+  - Messages still pending when the API stops are sent after it restarts.
+  - The API is assumed to run as **one instance**. Two instances would send duplicates.
+- **Students control it:**
+  - `/stop` in the bot chat turns announcements off and `/start` turns them back on.
+  - The profile page has an **Announcements in Telegram** switch.
+  - The Mini App asks once per device for permission to receive messages from the bot.
+- **Unreachable students:** Telegram refuses messages when the student blocked the bot or never started a chat with it. The student is then marked unreachable and skipped. They become reachable again when they send `/start`, unblock the bot, or open the Mini App with message permission.
+- **Admins** see *Telegram: delivered / sending / failed* counts under each announcement.
+
 ### Differences inside Telegram
 
 - **Hidden** (marked with `.tg-hide`): sign out, "Install app", and practice "Export / Print".
@@ -62,7 +78,7 @@ The Mini App never asks for a password. No audit-log rows are written for studen
    - **If the bot token is empty**, Telegram is turned off and the endpoints answer `503 TELEGRAM_DISABLED`.
    - **If the token is set**, the other three variables are required and the API refuses to start without them.
 4. **Deploy** the API. The migration `20261101090000_add_telegram_identity` runs through `prisma migrate deploy`. It only adds columns and a table and makes `passwordHash` nullable.
-5. **Register the webhook and menu button** once:
+5. **Register the webhook, the menu button and the `/start` and `/stop` commands** once. The webhook also subscribes to block and unblock events. Run it again after upgrading from an earlier version of this feature:
    ```bash
    node scripts/telegram-setup.mjs https://<your-api-host>
    ```
@@ -90,4 +106,5 @@ Telegram only opens `https://` URLs.
 Automated tests:
 - `apps/api/tests/telegram-initdata.test.ts`: signature validation
 - `apps/api/tests/telegram-auth.test.ts`: sign-in, sessions, linking and merging, webhook. These run against the local database.
+- `apps/api/tests/telegram-notify.test.ts`: announcement delivery, retries, outages, `/stop` and `/start`, blocked bots. Telegram is mocked.
 - `apps/web/tests/telegram-bootstrap.test.tsx`: Mini App bootstrap with a mocked `window.Telegram.WebApp`

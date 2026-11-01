@@ -3,7 +3,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2, WifiOff, ShieldAlert, RefreshCw, GraduationCap } from 'lucide-react';
-import type { TelegramLinkStatus } from '@eotc/shared';
+import type { TelegramLinkStatus, UserProfile } from '@eotc/shared';
 import { api, ApiError } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import { useTheme } from '@/lib/theme-context';
@@ -46,6 +46,23 @@ export function useTelegram(): TelegramContextValue {
 
 // Remembers which launch already signed in, so in-app reloads do not sign in again
 const AUTHED_LAUNCH_KEY = 'eotc_tg_authed_launch';
+// Telegram's "allow messages from this bot" prompt is shown at most once per device
+const WRITE_ACCESS_ASKED_KEY = 'eotc_tg_write_access_asked';
+
+/** Asks once for permission to send announcements as bot messages, unless already granted or turned off. */
+function requestAnnouncementPermission(wa: TelegramWebApp, user: UserProfile): void {
+  if (!wa.requestWriteAccess || !wa.isVersionAtLeast('6.9')) return;
+  if (wa.initDataUnsafe.user?.allows_write_to_pm || user.telegramNotify === false) return;
+  try {
+    if (localStorage.getItem(WRITE_ACCESS_ASKED_KEY)) return;
+    localStorage.setItem(WRITE_ACCESS_ASKED_KEY, '1');
+  } catch {
+    return;
+  }
+  wa.requestWriteAccess((granted) => {
+    if (granted) void api.setTelegramNotifications(true).catch(() => undefined);
+  });
+}
 
 function launchKey(initData: string): string {
   return new URLSearchParams(initData).get('hash') ?? '';
@@ -152,6 +169,7 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
         }
         setLaunch({ isNewUser: result.isNewUser, ...(result.linkStatus ? { linkStatus: result.linkStatus } : {}) });
         setStatus('ready');
+        if (wa) requestAnnouncementPermission(wa, result.user);
         if (result.linkStatus) {
           const msg = LINK_MESSAGES[result.linkStatus];
           void uiAlert(langRef.current === 'am' ? msg.am : msg.en);

@@ -62,6 +62,7 @@ function mockWebApp() {
     openTelegramLink: vi.fn(),
     showAlert: vi.fn((_m: string, cb?: () => void) => cb?.()),
     showConfirm: vi.fn((_m: string, cb?: (ok: boolean) => void) => cb?.(true)),
+    requestWriteAccess: vi.fn(),
     BackButton: { show: vi.fn(), hide: vi.fn(), onClick: vi.fn(), offClick: vi.fn() },
     MainButton: {} as never,
     HapticFeedback: { impactOccurred: vi.fn(), notificationOccurred: vi.fn(), selectionChanged: vi.fn() },
@@ -199,6 +200,43 @@ describe('Telegram Mini App bootstrap', () => {
     expect(token).toBe('renewed');
     expect(api.getUser()).not.toBeNull();
     expect(window.location.pathname).not.toBe('/login');
+  });
+
+  it('asks once for permission to send announcements, and turns them on when granted', async () => {
+    const webApp = mockWebApp();
+    webApp.requestWriteAccess.mockImplementation((cb?: (granted: boolean) => void) => cb?.(true));
+    const fetchMock = vi.fn(async (url: string, _init?: RequestInit) => {
+      if (String(url).endsWith('/auth/telegram')) return json(201, { success: true, data: studentAuth() });
+      if (String(url).endsWith('/auth/telegram/notifications')) {
+        return json(200, { success: true, data: { ...studentAuth().user, telegramNotify: true } });
+      }
+      return json(200, {});
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp();
+    await waitFor(() => expect(webApp.requestWriteAccess).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      const call = fetchMock.mock.calls.find(([url]) => String(url).endsWith('/auth/telegram/notifications'));
+      expect(JSON.parse(call![1]!.body as string)).toEqual({ enabled: true });
+    });
+
+    // A later launch on the same device does not ask again
+    cleanup();
+    sessionStorage.clear();
+    renderApp();
+    await waitFor(() => expect(screen.getByTestId('probe').textContent).toBe('ready:new'));
+    expect(webApp.requestWriteAccess).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not ask when the student already allowed messages', async () => {
+    const webApp = mockWebApp();
+    webApp.initDataUnsafe.user = { ...webApp.initDataUnsafe.user, allows_write_to_pm: true } as never;
+    vi.stubGlobal('fetch', vi.fn(async () => json(201, { success: true, data: studentAuth() })));
+
+    renderApp();
+    await waitFor(() => expect(screen.getByTestId('probe').textContent).toBe('ready:new'));
+    expect(webApp.requestWriteAccess).not.toHaveBeenCalled();
   });
 
   it('uses Telegram’s native confirm dialog inside the Mini App', async () => {

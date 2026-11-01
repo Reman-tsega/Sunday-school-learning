@@ -434,6 +434,28 @@ export class ApiClient {
     return json.data;
   }
 
+  /** Turns announcements as Telegram bot messages on or off for the signed-in student. */
+  async setTelegramNotifications(enabled: boolean): Promise<UserProfile> {
+    const res = await fetch(`${API_BASE_URL}/auth/telegram/notifications`, {
+      method: 'PATCH',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify({ enabled }),
+    });
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err: any = await res.json().catch(() => ({}));
+      throw new ApiError(err.error?.message || `Could not update Telegram announcements: HTTP ${res.status}`, res.status, {
+        code: err.error?.code,
+      });
+    }
+    const json = await res.json();
+    const user: UserProfile = json.data;
+    this.user = user;
+    if (typeof window !== 'undefined') localStorage.setItem('eotc_user', JSON.stringify(user));
+    this.notifyAuthChange(user);
+    return user;
+  }
+
   async unlinkTelegram(): Promise<void> {
     const res = await fetch(`${API_BASE_URL}/auth/telegram`, {
       method: 'DELETE',
