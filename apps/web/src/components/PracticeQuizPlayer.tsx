@@ -9,7 +9,7 @@ import { useLanguage } from '@/lib/language-context';
 interface PracticeQuizPlayerProps {
   quiz: OfflineQuiz;
   chapterId?: string;
-  userId?: string;
+  userId?: string | undefined;
 }
 
 export function PracticeQuizPlayer({ quiz, chapterId, userId }: PracticeQuizPlayerProps) {

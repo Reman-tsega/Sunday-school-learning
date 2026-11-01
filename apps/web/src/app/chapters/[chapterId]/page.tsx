@@ -706,6 +706,7 @@ export default function ChapterStudyPage() {
             <PracticeQuizPlayer
               quiz={manifest.quizzes[0]!}
               chapterId={manifest.chapterId}
+              userId={api.getUser()?.id}
             />
           ) : (
             <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center text-stone-500 dark:text-slate-400 border border-stone-200 dark:border-slate-800 space-y-3">
