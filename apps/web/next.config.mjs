@@ -5,6 +5,10 @@ const apiOrigin = (process.env.API_ORIGIN || 'http://localhost:4000').replace(/\
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@eotc/shared'],
+  env: {
+    // Always defined so the build inlines it and drops the sample-login credentials unless set to 'true'
+    NEXT_PUBLIC_SHOW_DEMO_LOGINS: process.env.NEXT_PUBLIC_SHOW_DEMO_LOGINS === 'true' ? 'true' : 'false',
+  },
   async rewrites() {
     return [
       {

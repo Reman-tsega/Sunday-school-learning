@@ -27,6 +27,17 @@ interface AvailableGrade {
   amharicName?: string;
 }
 
+// Sample accounts have public passwords and only exist when the API runs with SEED_DEMO_ACCOUNTS=true.
+// The flag is inlined at build time, so production builds without it ship none of these credentials.
+const DEMO_LOGINS =
+  process.env.NEXT_PUBLIC_SHOW_DEMO_LOGINS === 'true'
+    ? ({
+        admin: ['admin@eotc-andnet.org', 'AdminSecurePassword2026!'],
+        teacher: ['teacher@eotc-andnet.org', 'TeacherPassword2026!'],
+        student: ['student@eotc-andnet.org', 'StudentPassword2026!'],
+      } as const)
+    : null;
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -244,25 +255,12 @@ function LoginContent() {
     }
   };
 
-  const handleQuickAdmin = () => {
-    if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
-    setEmail('admin@eotc-andnet.org');
-    setPassword('AdminSecurePassword2026!');
-    handleLoginSubmit('admin@eotc-andnet.org', 'AdminSecurePassword2026!', true);
-  };
-
-  const handleQuickTeacher = () => {
-    if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
-    setEmail('teacher@eotc-andnet.org');
-    setPassword('TeacherPassword2026!');
-    handleLoginSubmit('teacher@eotc-andnet.org', 'TeacherPassword2026!', true);
-  };
-
-  const handleQuickStudent = () => {
-    if (rateLimitSeconds !== null && rateLimitSeconds > 0) return;
-    setEmail('student@eotc-andnet.org');
-    setPassword('StudentPassword2026!');
-    handleLoginSubmit('student@eotc-andnet.org', 'StudentPassword2026!', true);
+  const handleQuickLogin = (role: keyof NonNullable<typeof DEMO_LOGINS>) => {
+    if (!DEMO_LOGINS || (rateLimitSeconds !== null && rateLimitSeconds > 0)) return;
+    const [identifier, demoPassword] = DEMO_LOGINS[role];
+    setEmail(identifier);
+    setPassword(demoPassword);
+    handleLoginSubmit(identifier, demoPassword, true);
   };
 
   const toggleGradeSelection = (gradeId: string) => {
@@ -418,6 +416,8 @@ function LoginContent() {
       {/* LOGIN TAB */}
       {tab === 'login' ? (
         <div>
+          {DEMO_LOGINS && (
+          <>
           {/* Quick 1-Click Role Switcher */}
           <div className="mb-6 space-y-2">
             <span className="block text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-slate-400 text-center">
@@ -426,7 +426,7 @@ function LoginContent() {
             <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={handleQuickAdmin}
+                onClick={() => handleQuickLogin('admin')}
                 disabled={loading || (rateLimitSeconds !== null && rateLimitSeconds > 0)}
                 className="p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-900 dark:text-amber-300 rounded-lg text-xs font-bold transition flex flex-col items-center justify-center space-y-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -437,7 +437,7 @@ function LoginContent() {
 
               <button
                 type="button"
-                onClick={handleQuickTeacher}
+                onClick={() => handleQuickLogin('teacher')}
                 disabled={loading || (rateLimitSeconds !== null && rateLimitSeconds > 0)}
                 className="p-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-900 dark:text-emerald-300 rounded-lg text-xs font-bold transition flex flex-col items-center justify-center space-y-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -448,7 +448,7 @@ function LoginContent() {
 
               <button
                 type="button"
-                onClick={handleQuickStudent}
+                onClick={() => handleQuickLogin('student')}
                 disabled={loading || (rateLimitSeconds !== null && rateLimitSeconds > 0)}
                 className="p-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/40 text-blue-900 dark:text-blue-300 rounded-lg text-xs font-bold transition flex flex-col items-center justify-center space-y-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -469,6 +469,8 @@ function LoginContent() {
               </span>
             </div>
           </div>
+          </>
+          )}
 
           <form onSubmit={(e) => { e.preventDefault(); handleLoginSubmit(email, password); }} className="space-y-4">
             <div>
