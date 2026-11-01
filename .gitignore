@@ -53,3 +53,6 @@ apps/api/uploads/*
 !apps/api/uploads/.gitkeep
 backups/
 scratch/
+
+# Copied from pdfjs-dist at dev/build time
+apps/web/public/pdfjs/

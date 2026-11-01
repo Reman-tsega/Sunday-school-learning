@@ -88,7 +88,8 @@ export function PdfViewer({
           const arrayBuffer = await blob.arrayBuffer();
           const loadingTask = pdfjs.getDocument({
             data: arrayBuffer,
-            cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/cmaps/',
+            cMapUrl: '/pdfjs/cmaps/',
+            standardFontDataUrl: '/pdfjs/standard_fonts/',
             cMapPacked: true,
           });
           doc = await loadingTask.promise;
@@ -103,7 +104,8 @@ export function PdfViewer({
 
           const loadingTask = pdfjs.getDocument({
             url,
-            cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/cmaps/',
+            cMapUrl: '/pdfjs/cmaps/',
+            standardFontDataUrl: '/pdfjs/standard_fonts/',
             cMapPacked: true,
           });
           doc = await loadingTask.promise;
