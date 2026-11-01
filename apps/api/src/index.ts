@@ -2,6 +2,7 @@ import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { prisma, checkDatabaseHealth } from './config/prisma.js';
 import { bootstrapFirstRun } from './config/bootstrap.js';
+import { telegramNotifyService } from './services/telegram-notify.service.js';
 
 async function main(): Promise<void> {
   const app = createApp();
@@ -15,6 +16,8 @@ async function main(): Promise<void> {
 
   if (isDbReady) {
     await bootstrapFirstRun().catch((err) => console.error('First-run bootstrap failed:', err));
+    // Resume Telegram announcements that were still queued when the server last stopped
+    telegramNotifyService.kick();
   }
 
   const server = app.listen(env.PORT, env.HOST, () => {

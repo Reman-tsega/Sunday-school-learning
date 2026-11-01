@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
-import { TelegramAuthRequestSchema } from '@eotc/shared';
-import type { ApiResponse, TelegramAuthResponseData, TelegramLinkCodeData } from '@eotc/shared';
+import { TelegramAuthRequestSchema, TelegramNotificationsRequestSchema } from '@eotc/shared';
+import type { ApiResponse, TelegramAuthResponseData, TelegramLinkCodeData, UserProfile } from '@eotc/shared';
 import { env } from '../config/env.js';
 import { telegramAuthService } from '../services/telegram-auth.service.js';
 import { telegramBotService } from '../services/telegram-bot.service.js';
@@ -36,6 +36,20 @@ export async function createTelegramLinkCode(
   try {
     const result = await telegramAuthService.createLinkCode(req.user!.id);
     res.status(201).json({ success: true, data: result, meta: { timestamp: new Date().toISOString() } });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function setTelegramNotifications(
+  req: Request,
+  res: Response<ApiResponse<UserProfile>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { enabled } = TelegramNotificationsRequestSchema.parse(req.body);
+    const user = await telegramAuthService.setNotifications(req.user!.id, enabled);
+    res.status(200).json({ success: true, data: user, meta: { timestamp: new Date().toISOString() } });
   } catch (error) {
     next(error);
   }

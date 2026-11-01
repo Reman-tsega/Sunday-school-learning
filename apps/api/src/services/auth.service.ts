@@ -30,6 +30,7 @@ export function toUserProfile(user: any): UserProfile {
     enrolledGradeIds: user.enrolledGrades?.map((eg: any) => eg.gradeId) || [],
     telegramId: user.telegramId != null ? String(user.telegramId) : null,
     telegramUsername: user.telegramUsername ?? null,
+    telegramNotify: user.telegramNotify ?? true,
     hasPassword: user.passwordHash != null,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),

@@ -461,4 +461,11 @@ export const TelegramInitDataUserSchema = z.object({
   username: z.string().optional(),
   language_code: z.string().optional(),
   is_bot: z.boolean().optional(),
+  // True when the student has allowed the bot to message them
+  allows_write_to_pm: z.boolean().optional(),
+});
+
+// Turns announcements as Telegram bot messages on or off for the signed-in student
+export const TelegramNotificationsRequestSchema = z.object({
+  enabled: z.boolean(),
 });

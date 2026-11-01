@@ -11,7 +11,7 @@ vi.hoisted(() => {
 
 import { createApp } from '../src/app.js';
 import { prisma } from '../src/config/prisma.js';
-import { signInitData, launchFields } from './telegram-helpers.js';
+import { signInitData, launchFields, clearTestBotEnv } from './telegram-helpers.js';
 
 // Telegram ids reserved for this file
 const TG = { newStudent: 990000001, inactive: 990000002, teacher: 990000003, merge: 990000004 };
@@ -42,6 +42,7 @@ describe('Telegram Mini App sign-in', () => {
   afterAll(async () => {
     await cleanup();
     await prisma.$disconnect();
+    clearTestBotEnv();
   });
 
   describe('Automatic account creation and sign-in', () => {

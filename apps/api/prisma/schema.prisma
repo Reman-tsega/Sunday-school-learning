@@ -52,24 +52,28 @@ enum QuestionType {
 }
 
 model User {
-  id               String    @id @default(uuid())
-  email            String?   @unique
-  username         String?   @unique
-  passwordHash     String? // null for students who only sign in through Telegram
-  fullName         String
-  role             Role      @default(STUDENT)
-  isActive         Boolean   @default(true)
-  age              Int?
-  address          String?
-  baptismalName    String?
-  phoneNumber      String?
-  churchParish     String?
-  parishId         String?
-  telegramId       BigInt?   @unique
-  telegramUsername String?
-  telegramLinkedAt DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                String    @id @default(uuid())
+  email             String?   @unique
+  username          String?   @unique
+  passwordHash      String? // null for students who only sign in through Telegram
+  fullName          String
+  role              Role      @default(STUDENT)
+  isActive          Boolean   @default(true)
+  age               Int?
+  address           String?
+  baptismalName     String?
+  phoneNumber       String?
+  churchParish      String?
+  parishId          String?
+  telegramId        BigInt?   @unique
+  telegramUsername  String?
+  telegramLinkedAt  DateTime?
+  // The student wants announcements in Telegram (/stop, /start or the profile switch)
+  telegramNotify    Boolean   @default(true)
+  // False after Telegram refuses delivery (bot blocked or never started); true again on /start
+  telegramReachable Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   parish                    Parish?                  @relation(fields: [parishId], references: [id], onDelete: SetNull)
   sessions                  RefreshSession[]
@@ -87,6 +91,7 @@ model User {
   reviewedPracticeQuestions PracticeQuestion[]       @relation("ReviewedPracticeQuestions")
   createdReferences         ReferenceLink[]          @relation("CreatedReferences")
   reviewedReferences        ReferenceLink[]          @relation("ReviewedReferences")
+  telegramDeliveries        TelegramDelivery[]
 
   @@map("users")
 }
@@ -468,9 +473,10 @@ model Notification {
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
 
-  sender      User?                   @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)
-  targetGrade Grade?                  @relation(fields: [targetGradeId], references: [id], onDelete: SetNull)
-  recipients  NotificationRecipient[]
+  sender             User?                   @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)
+  targetGrade        Grade?                  @relation(fields: [targetGradeId], references: [id], onDelete: SetNull)
+  recipients         NotificationRecipient[]
+  telegramDeliveries TelegramDelivery[]
 
   @@index([targetType])
   @@index([targetGradeId])
@@ -563,4 +569,31 @@ model TelegramLinkCode {
 
   @@index([userId])
   @@map("telegram_link_codes")
+}
+
+enum TelegramDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+// Outbox for announcements sent as Telegram bot messages; pending rows survive restarts
+model TelegramDelivery {
+  id             String                 @id @default(uuid())
+  notificationId String
+  userId         String
+  status         TelegramDeliveryStatus @default(PENDING)
+  attempts       Int                    @default(0)
+  lastError      String?
+  sentAt         DateTime?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+  @@index([status, createdAt])
+  @@map("telegram_deliveries")
 }

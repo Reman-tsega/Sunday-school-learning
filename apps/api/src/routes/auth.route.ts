@@ -10,7 +10,12 @@ import {
   passwordResetRateLimiter,
   telegramAuthRateLimiter,
 } from '../middlewares/rateLimiter.js';
-import { telegramSignIn, createTelegramLinkCode, unlinkTelegram } from '../controllers/telegram.controller.js';
+import {
+  telegramSignIn,
+  createTelegramLinkCode,
+  unlinkTelegram,
+  setTelegramNotifications,
+} from '../controllers/telegram.controller.js';
 
 export const authRouter: Router = Router();
 
@@ -28,3 +33,4 @@ authRouter.patch('/profile', authenticate, updateProfile);
 authRouter.post('/telegram', telegramAuthRateLimiter, telegramSignIn);
 authRouter.post('/telegram/link-code', authenticate, requireRole(['STUDENT']), createTelegramLinkCode);
 authRouter.delete('/telegram', authenticate, unlinkTelegram);
+authRouter.patch('/telegram/notifications', authenticate, setTelegramNotifications);

@@ -1,6 +1,7 @@
 import { prisma } from '../config/prisma.js';
 import { Role, NotificationTargetType } from '@prisma/client';
 import type { NotificationItem } from '@eotc/shared';
+import { telegramNotifyService } from './telegram-notify.service.js';
 
 export class NotificationService {
   /**
@@ -38,6 +39,11 @@ export class NotificationService {
       },
     });
 
+    // Students using the Telegram app also get it as a bot message; a queueing failure must not fail the announcement
+    await telegramNotifyService.enqueue(notification).catch((err) => {
+      console.error('Could not queue Telegram announcement:', err instanceof Error ? err.message : err);
+    });
+
     return notification;
   }
 
@@ -58,6 +64,8 @@ export class NotificationService {
       },
     });
 
+    const telegram = await telegramNotifyService.statsFor(notifications.map((n) => n.id));
+
     return notifications.map((n) => ({
       id: n.id,
       title: n.title,
@@ -74,6 +82,7 @@ export class NotificationService {
       senderId: n.senderId,
       senderName: n.sender?.fullName || 'Administrator',
       readCount: n._count.recipients,
+      telegram: telegram.get(n.id) ?? { sent: 0, pending: 0, failed: 0 },
       createdAt: n.createdAt.toISOString(),
     }));
   }

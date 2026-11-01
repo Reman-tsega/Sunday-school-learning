@@ -33,11 +33,16 @@ async function call(method, body) {
 await call('setWebhook', {
   url: `${apiOrigin}/api/telegram/webhook`,
   secret_token: secret,
-  allowed_updates: ['message'],
+  allowed_updates: ['message', 'my_chat_member'],
   drop_pending_updates: true,
 });
 await call('setChatMenuButton', {
   menu_button: { type: 'web_app', text: 'Open app', web_app: { url: webAppUrl } },
 });
-await call('setMyCommands', { commands: [{ command: 'start', description: 'Open the learning app' }] });
+await call('setMyCommands', {
+  commands: [
+    { command: 'start', description: 'Open the learning app and turn announcements on' },
+    { command: 'stop', description: 'Stop receiving announcements here' },
+  ],
+});
 console.log('Done. Also set the Main Mini App URL in @BotFather (see docs/telegram-mini-app.md).');

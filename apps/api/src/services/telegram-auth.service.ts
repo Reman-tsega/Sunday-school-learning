@@ -5,7 +5,7 @@ import { env } from '../config/env.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { hashToken } from '../utils/token.js';
 import { TelegramInitDataError, validateTelegramInitData, type TelegramInitDataUser } from '../utils/telegram.js';
-import { authService } from './auth.service.js';
+import { authService, toUserProfile } from './auth.service.js';
 import type { TelegramAuthResponseData, TelegramLinkCodeData, TelegramLinkStatus } from '@eotc/shared';
 
 const LINK_CODE_PREFIX = 'link_';
@@ -73,12 +73,19 @@ export class TelegramAuthService {
         if ((err as { code?: string }).code !== 'P2002') throw err;
         user = await prisma.user.findUniqueOrThrow({ where: { telegramId }, include: userInclude });
       }
-    } else if ((launch.user.username ?? null) !== user.telegramUsername) {
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: { telegramUsername: launch.user.username ?? null },
-        include: userInclude,
-      });
+    } else {
+      // Opening the Mini App with permission to receive messages means the bot can reach the student again
+      const reachableAgain = launch.user.allows_write_to_pm === true && !user.telegramReachable;
+      if ((launch.user.username ?? null) !== user.telegramUsername || reachableAgain) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            telegramUsername: launch.user.username ?? null,
+            ...(reachableAgain ? { telegramReachable: true } : {}),
+          },
+          include: userInclude,
+        });
+      }
     }
 
     if (!user.isActive) {
@@ -117,6 +124,22 @@ export class TelegramAuthService {
       deepLink: `https://t.me/${env.TELEGRAM_BOT_USERNAME}?startapp=${LINK_CODE_PREFIX}${code}`,
       expiresAt: expiresAt.toISOString(),
     };
+  }
+
+  /** The student's switch for receiving announcements as Telegram messages. */
+  async setNotifications(userId: string, enabled: boolean) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new AppError(401, 'UNAUTHORIZED', 'User not found');
+    if (user.telegramId == null) {
+      throw new AppError(400, 'TELEGRAM_NOT_LINKED', 'Connect Telegram to your account first');
+    }
+    // Turning it on also retries a chat Telegram refused before; the next failed delivery marks it again
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: { telegramNotify: enabled, ...(enabled ? { telegramReachable: true } : {}) },
+      include: userInclude,
+    });
+    return toUserProfile(updated);
   }
 
   /** Detaches Telegram from a web account. Accounts without a password would be locked out, so they cannot. */

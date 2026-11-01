@@ -28,3 +28,10 @@ export function launchFields(
     ...extra,
   };
 }
+
+/** Test files share worker processes; remove the test bot so later files run with Telegram turned off. */
+export function clearTestBotEnv(): void {
+  for (const key of ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_BOT_USERNAME', 'TELEGRAM_WEBHOOK_SECRET', 'TELEGRAM_WEBAPP_URL']) {
+    delete process.env[key];
+  }
+}

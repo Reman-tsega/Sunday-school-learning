@@ -22,6 +22,8 @@ export interface UserProfile {
   /** Telegram account linked for Mini App sign-in (BigInt sent as a string) */
   telegramId?: string | null;
   telegramUsername?: string | null;
+  /** Announcements are also sent as Telegram bot messages */
+  telegramNotify?: boolean;
   /** False for students who only sign in through Telegram */
   hasPassword?: boolean;
   createdAt: string;
