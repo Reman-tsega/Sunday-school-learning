@@ -83,13 +83,20 @@ describe('Senior QA End-to-End Test Suite — Positive & Negative Scenarios, Bou
       expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
     });
 
-    it('1C: Login with malformed email is rejected with 400 Bad Request', async () => {
+    // The identifier may be a username, so a value without "@" is a normal (unknown) account, not a format error
+    it('1C: Login with an unknown username is rejected with 401 INVALID_CREDENTIALS', async () => {
       const res = await request(app).post('/api/auth/login').send({
         email: 'not-an-email',
         password: 'ValidPassword123!',
       });
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
+    });
+
+    it('1C-2: Login with a too-short identifier is rejected with 400 VALIDATION_ERROR', async () => {
+      const res = await request(app).post('/api/auth/login').send({ email: 'ab', password: 'ValidPassword123!' });
+      expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
     });
 
