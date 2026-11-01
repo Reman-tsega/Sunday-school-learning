@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { Request, Response } from 'express';
 import { env } from '../config/env.js';
 import { telegramSecretMatches } from '../utils/telegram.js';
@@ -21,13 +21,24 @@ function createRateLimitResponse(_req: Request, res: Response, messageEn: string
   });
 }
 
+// Many students share one carrier-grade NAT address (a whole classroom on the same mobile network),
+// so login limits count failures per account, not every request from an IP.
+function clientIp(req: Request): string {
+  return ipKeyGenerator(req.ip || req.socket.remoteAddress || 'unknown');
+}
+
 /**
- * Strict limiter for authentication login (prevents brute-force / credential stuffing)
- * 10 attempts per 15 minutes per IP
+ * Brute-force guard for one account: 10 failed sign-ins per 15 minutes per IP and identifier.
+ * Successful sign-ins do not count, so classmates signing in from the same network never block each other.
  */
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
+  skipSuccessfulRequests: true,
+  keyGenerator: (req) => {
+    const identifier = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    return `${clientIp(req)}|${identifier}`;
+  },
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) =>
@@ -40,12 +51,69 @@ export const loginRateLimiter = rateLimit({
 });
 
 /**
+ * Backstop against credential stuffing across many accounts from one address:
+ * 100 failed sign-ins per 15 minutes per IP (successful ones do not count)
+ */
+export const loginIpRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  skipSuccessfulRequests: true,
+  keyGenerator: (req) => clientIp(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) =>
+    createRateLimitResponse(
+      req,
+      res,
+      'Too many failed sign-in attempts from this network. Please try again in 15 minutes.',
+      'ከዚህ አውታረ መረብ ብዙ ያልተሳኩ የመግቢያ ሙከራዎች ተደርገዋል፤ እባክዎ ከ15 ደቂቃ በኋላ እንደገና ይሞክሩ።'
+    ),
+});
+
+/**
+ * Session refresh: refresh tokens are 80 random hex characters and cannot be guessed, so this only
+ * guards against floods. 300 per 15 minutes per IP
+ */
+export const refreshRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  keyGenerator: (req) => clientIp(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) =>
+    createRateLimitResponse(
+      req,
+      res,
+      'Too many session refresh requests. Please try again shortly.',
+      'ብዙ ጥያቄዎች ተልከዋል፤ እባክዎ ትንሽ ቆይተው እንደገና ይሞክሩ።'
+    ),
+});
+
+/**
+ * Change password for a signed-in user: 10 attempts per 15 minutes per account (runs after authenticate)
+ */
+export const changePasswordRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) =>
+    createRateLimitResponse(
+      req,
+      res,
+      'Too many password change attempts. Please try again in 15 minutes.',
+      'ብዙ የይለፍ ቃል መቀየሪያ ሙከራዎች ተደርገዋል፤ እባክዎ ከ15 ደቂቃ በኋላ እንደገና ይሞክሩ።'
+    ),
+});
+
+/**
  * Rate limiter for new user registration (prevents account generation bots)
- * 15 accounts per 1 hour per IP
+ * 60 accounts per 1 hour per IP: a whole class may sign up together from one shared network address
  */
 export const registerRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 15,
+  max: 60,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) =>

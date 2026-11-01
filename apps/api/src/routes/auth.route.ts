@@ -1,19 +1,27 @@
 import { Router } from 'express';
 import { login, refreshToken, logout, getMe, register, updateProfile, forgotPassword, resetPassword, changePassword } from '../controllers/auth.controller.js';
 import { authenticate, requireRole } from '../middlewares/auth.middleware.js';
-import { loginRateLimiter, registerRateLimiter, passwordResetRateLimiter, telegramAuthRateLimiter } from '../middlewares/rateLimiter.js';
+import {
+  loginRateLimiter,
+  loginIpRateLimiter,
+  refreshRateLimiter,
+  changePasswordRateLimiter,
+  registerRateLimiter,
+  passwordResetRateLimiter,
+  telegramAuthRateLimiter,
+} from '../middlewares/rateLimiter.js';
 import { telegramSignIn, createTelegramLinkCode, unlinkTelegram } from '../controllers/telegram.controller.js';
 
 export const authRouter: Router = Router();
 
 authRouter.post('/register', registerRateLimiter, register);
-authRouter.post('/login', loginRateLimiter, login);
-authRouter.post('/refresh', loginRateLimiter, refreshToken);
+authRouter.post('/login', loginIpRateLimiter, loginRateLimiter, login);
+authRouter.post('/refresh', refreshRateLimiter, refreshToken);
 authRouter.post('/forgot-password', passwordResetRateLimiter, forgotPassword);
 authRouter.post('/reset-password', passwordResetRateLimiter, resetPassword);
 authRouter.post('/logout', logout);
 authRouter.get('/me', authenticate, getMe);
-authRouter.post('/change-password', authenticate, loginRateLimiter, changePassword);
+authRouter.post('/change-password', authenticate, changePasswordRateLimiter, changePassword);
 authRouter.patch('/profile', authenticate, updateProfile);
 
 // Telegram Mini App (students only)
