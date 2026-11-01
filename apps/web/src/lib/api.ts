@@ -449,6 +449,16 @@ export class ApiClient {
   }
 
   async logout(): Promise<void> {
+    // Revoke the refresh token on the server too; a failure (e.g. offline) must not block signing out locally
+    const refreshToken = this.getRefreshToken();
+    if (refreshToken) {
+      void fetch(`${API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      }).catch(() => undefined);
+    }
+
     this.token = null;
     this.user = null;
 
