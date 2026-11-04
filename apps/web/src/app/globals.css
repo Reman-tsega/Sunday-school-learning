@@ -69,3 +69,40 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .eotc-float, .eotc-float-slow { animation: none; }
 }
+
+/* Practice questions: instant feedback when an answer is picked */
+@keyframes eotc-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+@keyframes eotc-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+@keyframes eotc-confetti {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(0.6); opacity: 0; }
+}
+@keyframes eotc-rise {
+  0% { transform: translateY(6px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.eotc-pop { animation: eotc-pop 0.45s ease-out; }
+.eotc-shake { animation: eotc-shake 0.4s ease-in-out; }
+.eotc-rise { animation: eotc-rise 0.3s ease-out; }
+.eotc-confetti-piece {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 10px;
+  border-radius: 2px;
+  pointer-events: none;
+  animation: eotc-confetti 0.9s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .eotc-pop, .eotc-shake, .eotc-rise { animation: none; }
+  .eotc-confetti-piece { display: none; }
+}

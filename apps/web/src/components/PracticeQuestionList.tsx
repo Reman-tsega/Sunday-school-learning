@@ -11,10 +11,13 @@ import {
   BookOpen,
   Check,
   Printer,
+  RotateCcw,
+  PartyPopper,
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { QuestionTypeFilter, type QuestionTypeFilterValue } from '@/components/QuestionTypeFilter';
 import { printPracticeQuestions } from '@/lib/practice-export';
+import { haptic } from '@/lib/telegram';
 import type { PracticeQuestionDto } from '@eotc/shared';
 
 interface PracticeQuestionListProps {
@@ -26,6 +29,42 @@ interface PracticeQuestionListProps {
   exportSubheading?: string;
 }
 
+/**
+ * The correct True/False key. Older questions store it in answerText ("TRUE"/"FALSE");
+ * questions created in the admin and teacher forms mark the "True"/"False" choice instead.
+ */
+function trueFalseKey(q: PracticeQuestionDto): 'TRUE' | 'FALSE' | null {
+  const fromText = q.answerText?.trim().toUpperCase();
+  if (fromText === 'TRUE' || fromText === 'FALSE') return fromText;
+  const correct = q.choices?.find((c) => c.isCorrect);
+  if (!correct) return null;
+  const label = correct.text.trim().toUpperCase();
+  if (label === 'TRUE' || label === 'FALSE') return label;
+  return correct.orderIndex === 1 ? 'TRUE' : 'FALSE';
+}
+
+const CONFETTI_COLORS = ['#f59e0b', '#10b981', '#0C2340', '#f43f5e', '#C59B27', '#38bdf8'];
+
+/** A short burst of confetti from the middle of the correct answer. */
+function ConfettiBurst() {
+  return (
+    <span aria-hidden="true">
+      {Array.from({ length: 16 }, (_, i) => {
+        const angle = (i / 16) * Math.PI * 2;
+        const distance = 46 + (i % 3) * 18;
+        const style = {
+          '--dx': `${Math.round(Math.cos(angle) * distance * 1.6)}px`,
+          '--dy': `${Math.round(Math.sin(angle) * distance)}px`,
+          '--rot': `${(i % 2 ? 1 : -1) * (180 + i * 25)}deg`,
+          background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+          animationDelay: `${(i % 4) * 25}ms`,
+        } as React.CSSProperties;
+        return <span key={i} className="eotc-confetti-piece" style={style} />;
+      })}
+    </span>
+  );
+}
+
 export function PracticeQuestionList({
   questions,
   loading = false,
@@ -33,13 +72,21 @@ export function PracticeQuestionList({
   exportSubheading,
 }: PracticeQuestionListProps) {
   const { lang } = useLanguage();
+  // The first pick on a multiple-choice or true/false question locks it until "Try again"
   const [selectedChoices, setSelectedChoices] = useState<Record<string, string>>({});
   const [revealedAnswers, setRevealedAnswers] = useState<Record<string, boolean>>({});
   const [shortAnswers, setShortAnswers] = useState<Record<string, string>>({});
+  const [bursts, setBursts] = useState<Record<string, number>>({});
   const [typeFilter, setTypeFilter] = useState<QuestionTypeFilterValue>('ALL');
   const [exportWithAnswers, setExportWithAnswers] = useState(true);
   const visibleQuestions =
     typeFilter === 'ALL' ? questions : questions.filter((q) => q.questionType === typeFilter);
+
+  const correctKeyOf = (q: PracticeQuestionDto): string | null =>
+    q.questionType === 'TRUE_FALSE' ? trueFalseKey(q) : q.choices?.find((c) => c.isCorrect)?.id ?? null;
+
+  const answered = questions.filter((q) => q.questionType !== 'SHORT_ANSWER' && selectedChoices[q.id]);
+  const correctCount = answered.filter((q) => selectedChoices[q.id] === correctKeyOf(q)).length;
 
   const toggleRevealAnswer = (questionId: string) => {
     setRevealedAnswers((prev) => ({
@@ -48,11 +95,23 @@ export function PracticeQuestionList({
     }));
   };
 
-  const handleSelectChoice = (questionId: string, choiceId: string) => {
-    setSelectedChoices((prev) => ({
-      ...prev,
-      [questionId]: choiceId,
-    }));
+  const handleSelectChoice = (q: PracticeQuestionDto, key: string) => {
+    if (selectedChoices[q.id]) return;
+    setSelectedChoices((prev) => ({ ...prev, [q.id]: key }));
+    const correctKey = correctKeyOf(q);
+    if (!correctKey) return;
+    if (key === correctKey) {
+      haptic('success');
+      setBursts((prev) => ({ ...prev, [q.id]: Date.now() }));
+    } else {
+      haptic('error');
+    }
+  };
+
+  const tryAgain = (questionId: string) => {
+    setSelectedChoices(({ [questionId]: _, ...rest }) => rest);
+    setRevealedAnswers(({ [questionId]: _, ...rest }) => rest);
+    setBursts(({ [questionId]: _, ...rest }) => rest);
   };
 
   if (loading) {
@@ -95,8 +154,8 @@ export function PracticeQuestionList({
           </p>
           <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5">
             {lang === 'am'
-              ? 'እነዚህ ጥያቄዎች እራስዎትን ለመፈተሽ የሚረዱ ሲሆኑ፣ የክፍል ውጤትዎን ወይም የማለፊያ ነጥብዎን አይወስኑም። መልሱን ለማየት «መልሱን አሳይ» የሚለውን ይጫኑ።'
-              : 'These questions are formative exercises for personal self-assessment. They do not affect your graded scores or completion records. Tap "Show Answer" at any time to verify.'}
+              ? 'እነዚህ ጥያቄዎች እራስዎትን ለመፈተሽ የሚረዱ ሲሆኑ፣ የክፍል ውጤትዎን ወይም የማለፊያ ነጥብዎን አይወስኑም። መልስ ሲመርጡ ትክክል መሆኑ ወዲያውኑ ይታያል።'
+              : 'These questions are formative exercises for personal self-assessment. They do not affect your graded scores or completion records. Pick an answer to see right away whether it is correct.'}
           </p>
         </div>
       </div>
@@ -134,18 +193,65 @@ export function PracticeQuestionList({
         <QuestionTypeFilter questions={questions} value={typeFilter} onChange={setTypeFilter} lang={lang} />
       )}
 
+      {/* Running score for the questions answered so far */}
+      {answered.length > 0 && (
+        <div
+          key={answered.length}
+          className="eotc-rise flex items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 text-xs sm:text-sm"
+          aria-live="polite"
+        >
+          <span className="font-bold text-stone-800 dark:text-slate-100">
+            {lang === 'am' ? 'የእርስዎ ውጤት' : 'Your score'}
+          </span>
+          <span className="inline-flex items-center gap-1.5 font-extrabold text-emerald-700 dark:text-emerald-400">
+            <CheckCircle2 className="w-4 h-4" />
+            {correctCount} / {answered.length}
+            <span className="font-semibold text-stone-500 dark:text-slate-400">
+              {lang === 'am' ? 'ትክክል' : 'correct'}
+            </span>
+          </span>
+        </div>
+      )}
+
       {/* Questions List */}
       <div className="space-y-4">
         {visibleQuestions.map((q, idx) => {
           const isRevealed = !!revealedAnswers[q.id];
+          const picked = selectedChoices[q.id];
+          const isChoiceQuestion = q.questionType !== 'SHORT_ANSWER';
+          const correctKey = isChoiceQuestion ? correctKeyOf(q) : null;
+          // Picking an answer shows the result straight away
+          const showResult = isRevealed || (!!picked && !!correctKey);
+          const pickedCorrect = !!picked && picked === correctKey;
           const questionPrompt = q.prompt;
           const explanation = q.explanation;
           const answerText = q.answerText;
+          const tfLabel = (key: string | null) =>
+            key === 'TRUE' ? (lang === 'am' ? 'እውነት' : 'True') : key === 'FALSE' ? (lang === 'am' ? 'ሐሰት' : 'False') : '';
+
+          const optionStyle = (key: string, isSelected: boolean) => {
+            if (!showResult) {
+              return 'bg-stone-50 dark:bg-slate-950 hover:bg-stone-100 dark:hover:bg-slate-800 border-stone-200 dark:border-slate-800 text-stone-800 dark:text-slate-200 cursor-pointer';
+            }
+            if (key === correctKey) {
+              return `bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 dark:border-emerald-500 text-emerald-950 dark:text-emerald-200 font-bold ring-2 ring-emerald-400/60 ${isSelected ? 'eotc-pop' : ''}`;
+            }
+            if (isSelected) {
+              return 'bg-rose-50 dark:bg-rose-950/60 border-rose-400 dark:border-rose-600 text-rose-900 dark:text-rose-200 font-semibold ring-2 ring-rose-300/60 eotc-shake';
+            }
+            return 'bg-stone-50 dark:bg-slate-950 border-stone-200 dark:border-slate-800 text-stone-500 dark:text-slate-500 opacity-70';
+          };
 
           return (
             <div
               key={q.id}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-stone-200 dark:border-slate-800 p-4 sm:p-6 shadow-xs space-y-4 transition"
+              className={`bg-white dark:bg-slate-900 rounded-2xl border p-4 sm:p-6 shadow-xs space-y-4 transition-colors ${
+                picked && correctKey
+                  ? pickedCorrect
+                    ? 'border-emerald-300 dark:border-emerald-800'
+                    : 'border-rose-300 dark:border-rose-900'
+                  : 'border-stone-200 dark:border-slate-800'
+              }`}
             >
               {/* Question Header */}
               <div className="flex items-start justify-between gap-3">
@@ -174,36 +280,24 @@ export function PracticeQuestionList({
               {q.questionType === 'MULTIPLE_CHOICE' && q.choices && q.choices.length > 0 && (
                 <div className="space-y-2 pt-1">
                   {q.choices.map((choice) => {
-                    const isSelected = selectedChoices[q.id] === choice.id;
-                    const isChoiceCorrect = choice.isCorrect;
-
-                    let choiceStyle = 'bg-stone-50 dark:bg-slate-950 hover:bg-stone-100/80 dark:hover:bg-slate-850 border-stone-200 dark:border-slate-800 text-stone-800 dark:text-slate-200';
-                    if (isSelected && !isRevealed) {
-                      choiceStyle = 'bg-amber-50 dark:bg-amber-950/60 border-amber-400 dark:border-amber-500 text-amber-950 dark:text-amber-200 font-semibold ring-1 ring-amber-400';
-                    } else if (isRevealed) {
-                      if (isChoiceCorrect) {
-                        choiceStyle = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-600 text-emerald-950 dark:text-emerald-200 font-bold';
-                      } else if (isSelected && !isChoiceCorrect) {
-                        choiceStyle = 'bg-rose-50 dark:bg-rose-950/60 border-rose-300 dark:border-rose-700 text-rose-900 dark:text-rose-200';
-                      }
-                    }
-
+                    const key = choice.id || '';
+                    const isSelected = picked === key;
                     return (
                       <button
-                        key={choice.id}
+                        key={key}
                         type="button"
-                        onClick={() => handleSelectChoice(q.id, choice.id || '')}
-                        className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm flex items-center justify-between gap-2 transition cursor-pointer ${choiceStyle}`}
+                        onClick={() => handleSelectChoice(q, key)}
+                        disabled={!!picked}
+                        className={`relative w-full text-left p-3 rounded-xl border text-xs sm:text-sm flex items-center justify-between gap-2 transition-colors ${optionStyle(key, isSelected)}`}
                       >
-                        <span className="leading-relaxed">
-                          {choice.text}
-                        </span>
-                        {isRevealed && isChoiceCorrect && (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span className="leading-relaxed">{choice.text}</span>
+                        {showResult && key === correctKey && (
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         )}
-                        {isRevealed && isSelected && !isChoiceCorrect && (
-                          <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                        {showResult && isSelected && key !== correctKey && (
+                          <XCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
                         )}
+                        {isSelected && pickedCorrect && bursts[q.id] && <ConfettiBurst key={bursts[q.id]} />}
                       </button>
                     );
                   })}
@@ -213,36 +307,63 @@ export function PracticeQuestionList({
               {/* True / False Selection */}
               {q.questionType === 'TRUE_FALSE' && (
                 <div className="grid grid-cols-2 gap-3 pt-1">
-                  {[
-                    { key: 'TRUE', label: lang === 'am' ? 'እውነት' : 'True' },
-                    { key: 'FALSE', label: lang === 'am' ? 'ሐሰት' : 'False' },
-                  ].map((tf) => {
-                    const isSelected = selectedChoices[q.id] === tf.key;
-                    const isCorrect = answerText?.trim().toUpperCase() === tf.key;
-
-                    let tfStyle = 'bg-stone-50 dark:bg-slate-950 hover:bg-stone-100 dark:hover:bg-slate-850 border-stone-200 dark:border-slate-800 text-stone-800 dark:text-slate-200';
-                    if (isSelected && !isRevealed) {
-                      tfStyle = 'bg-amber-50 dark:bg-amber-950/60 border-amber-400 dark:border-amber-500 text-amber-950 dark:text-amber-200 font-bold ring-1 ring-amber-400';
-                    } else if (isRevealed) {
-                      if (isCorrect) {
-                        tfStyle = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-600 text-emerald-950 dark:text-emerald-200 font-bold';
-                      } else if (isSelected && !isCorrect) {
-                        tfStyle = 'bg-rose-50 dark:bg-rose-950/60 border-rose-300 dark:border-rose-700 text-rose-900 dark:text-rose-200';
-                      }
-                    }
-
+                  {(['TRUE', 'FALSE'] as const).map((key) => {
+                    const isSelected = picked === key;
                     return (
                       <button
-                        key={tf.key}
+                        key={key}
                         type="button"
-                        onClick={() => handleSelectChoice(q.id, tf.key)}
-                        className={`py-3 px-4 rounded-xl border text-center font-bold text-xs sm:text-sm transition cursor-pointer flex items-center justify-center space-x-2 ${tfStyle}`}
+                        onClick={() => handleSelectChoice(q, key)}
+                        disabled={!!picked}
+                        className={`relative py-3 px-4 rounded-xl border text-center font-bold text-xs sm:text-sm transition-colors flex items-center justify-center space-x-2 ${optionStyle(key, isSelected)}`}
                       >
-                        <span>{tf.label}</span>
-                        {isRevealed && isCorrect && <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                        <span>{tfLabel(key)}</span>
+                        {showResult && key === correctKey && <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                        {showResult && isSelected && key !== correctKey && <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />}
+                        {isSelected && pickedCorrect && bursts[q.id] && <ConfettiBurst key={bursts[q.id]} />}
                       </button>
                     );
                   })}
+                </div>
+              )}
+
+              {/* Instant feedback once an answer is picked */}
+              {picked && correctKey && (
+                <div
+                  className={`eotc-rise p-3.5 rounded-xl border text-xs sm:text-sm space-y-2 ${
+                    pickedCorrect
+                      ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/70 text-emerald-900 dark:text-emerald-200'
+                      : 'bg-rose-50/90 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/70 text-rose-900 dark:text-rose-200'
+                  }`}
+                  role="status"
+                >
+                  <div className="flex items-center gap-2 font-extrabold">
+                    {pickedCorrect ? (
+                      <>
+                        <PartyPopper className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>{lang === 'am' ? 'ጎበዝ! ትክክለኛ መልስ ነው።' : 'Well done! That is correct.'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
+                        <span>{lang === 'am' ? 'ትክክል አይደለም።' : 'Not quite.'}</span>
+                      </>
+                    )}
+                  </div>
+                  {!pickedCorrect && (
+                    <p className="pl-7 font-semibold text-emerald-800 dark:text-emerald-300">
+                      {lang === 'am' ? 'ትክክለኛው መልስ፦ ' : 'Correct answer: '}
+                      {q.questionType === 'TRUE_FALSE'
+                        ? tfLabel(correctKey)
+                        : q.choices?.find((c) => c.id === correctKey)?.text}
+                    </p>
+                  )}
+                  {explanation && (
+                    <p className="pl-7 flex items-start gap-1.5 text-stone-700 dark:text-slate-300">
+                      <BookOpen className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                      <span>{explanation}</span>
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -265,29 +386,40 @@ export function PracticeQuestionList({
                 </div>
               )}
 
-              {/* Show Answer / Reveal Toggle */}
+              {/* Show Answer / Try Again */}
               <div className="pt-2 border-t border-stone-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={() => toggleRevealAnswer(q.id)}
-                  className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                    isRevealed
-                      ? 'bg-stone-200 dark:bg-slate-800 hover:bg-stone-300 dark:hover:bg-slate-700 text-stone-800 dark:text-slate-200'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs'
-                  }`}
-                >
-                  {isRevealed ? (
-                    <>
-                      <EyeOff className="w-3.5 h-3.5" />
-                      <span>{lang === 'am' ? 'መልሱን ደብቅ' : 'Hide Answer'}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>{lang === 'am' ? 'መልሱን አሳይ' : 'Show Answer'}</span>
-                    </>
-                  )}
-                </button>
+                {picked && correctKey ? (
+                  <button
+                    type="button"
+                    onClick={() => tryAgain(q.id)}
+                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-stone-200 dark:bg-slate-800 hover:bg-stone-300 dark:hover:bg-slate-700 text-stone-800 dark:text-slate-200"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>{lang === 'am' ? 'እንደገና ሞክር' : 'Try again'}</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => toggleRevealAnswer(q.id)}
+                    className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                      isRevealed
+                        ? 'bg-stone-200 dark:bg-slate-800 hover:bg-stone-300 dark:hover:bg-slate-700 text-stone-800 dark:text-slate-200'
+                        : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs'
+                    }`}
+                  >
+                    {isRevealed ? (
+                      <>
+                        <EyeOff className="w-3.5 h-3.5" />
+                        <span>{lang === 'am' ? 'መልሱን ደብቅ' : 'Hide Answer'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>{lang === 'am' ? 'መልሱን አሳይ' : 'Show Answer'}</span>
+                      </>
+                    )}
+                  </button>
+                )}
 
                 {q.hasAnswer === false && (
                   <span className="text-[11px] text-stone-400 dark:text-slate-500 italic">
@@ -298,16 +430,20 @@ export function PracticeQuestionList({
                 )}
               </div>
 
-              {/* Revealed Answer & Spiritual Explanation */}
-              {isRevealed && (
-                <div className="p-3.5 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/70 text-xs sm:text-sm space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+              {/* Revealed Answer & Spiritual Explanation (when shown without picking) */}
+              {isRevealed && !picked && (
+                <div className="eotc-rise p-3.5 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/70 text-xs sm:text-sm space-y-2">
                   <div className="flex items-center space-x-2 text-emerald-950 dark:text-emerald-200 font-bold">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>{lang === 'am' ? 'ትክክለኛ መልስ / ማብራሪያ' : 'Answer & Explanation'}</span>
                   </div>
 
-                  {answerText ? (
+                  {q.questionType === 'TRUE_FALSE' && correctKey ? (
                     <div className="text-emerald-900 dark:text-emerald-300 leading-relaxed font-semibold pl-6">
+                      {tfLabel(correctKey)}
+                    </div>
+                  ) : answerText ? (
+                    <div className="text-emerald-900 dark:text-emerald-300 leading-relaxed font-semibold pl-6 whitespace-pre-line">
                       {answerText}
                     </div>
                   ) : q.choices?.some((c) => c.isCorrect) ? (

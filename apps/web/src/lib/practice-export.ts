@@ -28,6 +28,9 @@ const T = {
 function buildDocument({ questions, heading, subheading, includeAnswers, lang }: PracticeExportOptions): string {
   const t = (k: keyof typeof T) => T[k][lang];
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const TF_AM: Record<string, string> = { True: 'እውነት', False: 'ሐሰት' };
+  const choiceText = (c: { text: string; amharicText?: string | null }) =>
+    lang === 'am' ? c.amharicText || TF_AM[c.text.trim()] || c.text : c.text;
 
   const body = questions
     .map((q, i) => {
@@ -41,7 +44,7 @@ function buildDocument({ questions, heading, subheading, includeAnswers, lang }:
           q.choices
             .map(
               (c, ci) =>
-                `<li class="${includeAnswers && c.isCorrect ? 'correct' : ''}"><span class="letter">${letters[ci] ?? ci + 1}.</span> ${escapeHtml(c.text)}${
+                `<li class="${includeAnswers && c.isCorrect ? 'correct' : ''}"><span class="letter">${letters[ci] ?? ci + 1}.</span> ${escapeHtml(choiceText(c))}${
                   includeAnswers && c.isCorrect ? ' <span class="tick">✓</span>' : ''
                 }</li>`
             )
@@ -52,7 +55,7 @@ function buildDocument({ questions, heading, subheading, includeAnswers, lang }:
       }
 
       if (includeAnswers) {
-        const answer = q.answerText || correct.map((c) => c.text).join(' | ');
+        const answer = q.answerText || correct.map(choiceText).join(' | ');
         answerBlock =
           '<div class="answer">' +
           (answer
