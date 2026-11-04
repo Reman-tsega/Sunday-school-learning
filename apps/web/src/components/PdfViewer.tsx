@@ -46,6 +46,8 @@ export function PdfViewer({
   const [isLoadingDoc, setIsLoadingDoc] = useState<boolean>(true);
   const [isRenderingPage, setIsRenderingPage] = useState<boolean>(false);
   const [docError, setDocError] = useState<string | null>(null);
+  const [docErrorDetail, setDocErrorDetail] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   // Reader Controls & View Modes
   // 'width' = fill comfortable width (ideal for reading lines)
@@ -73,6 +75,7 @@ export function PdfViewer({
       try {
         setIsLoadingDoc(true);
         setDocError(null);
+        setDocErrorDetail(null);
 
         // Dynamically load pdfjs-dist in client
         const pdfjs = await import('pdfjs-dist');
@@ -85,15 +88,23 @@ export function PdfViewer({
 
         if (blob) {
           // Offline mode: load directly from IndexedDB ArrayBuffer
-          const arrayBuffer = await blob.arrayBuffer();
-          const loadingTask = pdfjs.getDocument({
-            data: arrayBuffer,
-            cMapUrl: '/pdfjs/cmaps/',
-            standardFontDataUrl: '/pdfjs/standard_fonts/',
-            cMapPacked: true,
-          });
-          doc = await loadingTask.promise;
-        } else {
+          try {
+            const arrayBuffer = await blob.arrayBuffer();
+            const loadingTask = pdfjs.getDocument({
+              data: arrayBuffer,
+              cMapUrl: '/pdfjs/cmaps/',
+              standardFontDataUrl: '/pdfjs/standard_fonts/',
+              cMapPacked: true,
+            });
+            doc = await loadingTask.promise;
+          } catch (blobErr) {
+            // A damaged saved copy should not lock the student out while they are online
+            if (!navigator.onLine) throw blobErr;
+            console.warn('Saved textbook could not be read; opening the online copy:', blobErr);
+          }
+        }
+
+        if (!doc) {
           // Online mode: Stream from chapter-isolated PDF endpoint
           let url = textbook.chapterPdfUrl || textbook.fileUrl;
           if (url.includes('/uploads/')) {
@@ -140,10 +151,22 @@ export function PdfViewer({
       } catch (err: any) {
         if (!isCancelled) {
           console.error('Failed to load chapter PDF document:', err);
+          const offline = typeof navigator !== 'undefined' && !navigator.onLine;
+          const missing = err?.name === 'MissingPDFException' || /missing pdf|404/i.test(String(err?.message));
           setDocError(
-            err.message ||
-              (lang === 'am' ? 'መጽሐፉን መጫን አልተቻለም' : 'Failed to load chapter PDF')
+            offline
+              ? lang === 'am'
+                ? 'ኢንተርኔት የለም። ይህን ምዕራፍ ያለ ኢንተርኔት ለማንበብ መጀመሪያ ያውርዱት፤ ወይም ሲገናኙ እንደገና ይሞክሩ።'
+                : 'You are offline. Download this chapter to read it without internet, or try again once you are connected.'
+              : missing
+                ? lang === 'am'
+                  ? 'የዚህ ምዕራፍ መጽሐፍ ለጊዜው አልተገኘም። እባክዎ ትንሽ ቆይተው እንደገና ይሞክሩ።'
+                  : "This chapter's textbook is not available right now. Please try again in a little while."
+                : lang === 'am'
+                  ? 'መጽሐፉን መጫን አልተቻለም። እባክዎ እንደገና ይሞክሩ።'
+                  : 'The textbook could not be loaded. Please try again.'
           );
+          setDocErrorDetail(err?.message ? String(err.message) : null);
         }
       } finally {
         if (!isCancelled) {
@@ -157,7 +180,7 @@ export function PdfViewer({
     return () => {
       isCancelled = true;
     };
-  }, [chapterId, textbook.fileUrl, textbook.chapterPdfUrl, blob, lang]);
+  }, [chapterId, textbook.fileUrl, textbook.chapterPdfUrl, blob, lang, reloadKey]);
 
   // 2. Render Page on Canvas with Robust Scaling
   const renderCurrentPage = useCallback(
@@ -576,7 +599,16 @@ export function PdfViewer({
               <h4 className="text-base font-bold text-white">
                 {lang === 'am' ? 'መጽሐፉን መክፈት አልተቻለም' : "Couldn't open textbook"}
               </h4>
-              <p className="text-xs text-red-200">{docError}</p>
+              <p className="text-sm text-red-100 leading-relaxed">{docError}</p>
+              <button
+                type="button"
+                onClick={() => setReloadKey((k) => k + 1)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold transition cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>{lang === 'am' ? 'እንደገና ሞክር' : 'Try again'}</span>
+              </button>
+              {docErrorDetail && <p className="text-[10px] text-red-300/70 break-all">{docErrorDetail}</p>}
             </div>
           </div>
         )}
