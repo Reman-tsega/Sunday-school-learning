@@ -469,3 +469,14 @@ export const TelegramInitDataUserSchema = z.object({
 export const TelegramNotificationsRequestSchema = z.object({
   enabled: z.boolean(),
 });
+
+// Inside the Mini App files cannot be saved, so the bot sends them to the student's own chat instead
+export const TelegramSendReferenceRequestSchema = z.object({
+  referenceId: z.string().uuid(),
+});
+
+export const TelegramSendExportRequestSchema = z.object({
+  fileName: z.string().trim().min(1).max(120),
+  html: z.string().min(1).max(1_800_000), // stays under the API's 2 MB JSON body limit
+  caption: z.string().max(1000).optional(),
+});

@@ -184,6 +184,24 @@ export const generalApiRateLimiter = rateLimit({
 });
 
 /**
+ * Files the bot sends to a student's own Telegram chat: 30 per 10 minutes per account (runs after authenticate)
+ */
+export const telegramFileRateLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 30,
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) =>
+    createRateLimitResponse(
+      req,
+      res,
+      'Too many files sent to Telegram. Please try again in a few minutes.',
+      'ብዙ ፋይሎች ወደ ቴሌግራም ተልከዋል፤ እባክዎ ከጥቂት ደቂቃዎች በኋላ እንደገና ይሞክሩ።'
+    ),
+});
+
+/**
  * Limiter for Telegram Mini App sign-in. Signatures cannot be guessed, so this only guards against floods;
  * it is looser than password login because many students share carrier-grade NAT IPs.
  * 60 requests per 15 minutes per IP

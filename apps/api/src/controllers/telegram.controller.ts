@@ -1,9 +1,15 @@
 import type { Request, Response, NextFunction } from 'express';
-import { TelegramAuthRequestSchema, TelegramNotificationsRequestSchema } from '@eotc/shared';
+import {
+  TelegramAuthRequestSchema,
+  TelegramNotificationsRequestSchema,
+  TelegramSendExportRequestSchema,
+  TelegramSendReferenceRequestSchema,
+} from '@eotc/shared';
 import type { ApiResponse, TelegramAuthResponseData, TelegramLinkCodeData, UserProfile } from '@eotc/shared';
 import { env } from '../config/env.js';
 import { telegramAuthService } from '../services/telegram-auth.service.js';
 import { telegramBotService } from '../services/telegram-bot.service.js';
+import { telegramFilesService } from '../services/telegram-files.service.js';
 import { telegramSecretMatches } from '../utils/telegram.js';
 
 export async function telegramSignIn(
@@ -87,4 +93,34 @@ export async function telegramWebhook(req: Request, res: Response): Promise<void
   telegramBotService.handleUpdate(req.body).catch((err) => {
     console.error('Telegram update failed:', err instanceof Error ? err.message : err);
   });
+}
+
+/** Sends an approved reference document to the student's own Telegram chat */
+export async function sendReferenceToTelegram(
+  req: Request,
+  res: Response<ApiResponse<{ sent: 'document' | 'link' }>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { referenceId } = TelegramSendReferenceRequestSchema.parse(req.body);
+    const result = await telegramFilesService.sendReference(req.user!.id, req.user!.role, referenceId);
+    res.status(200).json({ success: true, data: result, meta: { timestamp: new Date().toISOString() } });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** Sends a printable export (e.g. practice questions) to the student's own Telegram chat */
+export async function sendExportToTelegram(
+  req: Request,
+  res: Response<ApiResponse<{ sent: true }>>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { fileName, html, caption } = TelegramSendExportRequestSchema.parse(req.body);
+    await telegramFilesService.sendExport(req.user!.id, fileName, html, caption);
+    res.status(200).json({ success: true, data: { sent: true }, meta: { timestamp: new Date().toISOString() } });
+  } catch (error) {
+    next(error);
+  }
 }

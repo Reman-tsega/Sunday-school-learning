@@ -58,6 +58,32 @@ export class TelegramBotService {
     }
   }
 
+  /** Uploads a file to a chat (multipart, up to Telegram's 50 MB bot limit). */
+  async sendDocument(
+    chatId: bigint,
+    file: { data: Buffer; fileName: string; mimeType: string },
+    caption?: string
+  ): Promise<TelegramCallResult> {
+    try {
+      const form = new FormData();
+      form.append('chat_id', chatId.toString());
+      form.append('document', new Blob([new Uint8Array(file.data)], { type: file.mimeType }), file.fileName);
+      if (caption) {
+        form.append('caption', caption);
+        form.append('parse_mode', 'HTML');
+      }
+      const res = await fetch(`${env.TELEGRAM_API_BASE_URL.replace(/\/+$/, '')}/bot${env.TELEGRAM_BOT_TOKEN}/sendDocument`, {
+        method: 'POST',
+        body: form,
+      });
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; description?: string };
+      if (!res.ok || !json.ok) console.error(`Telegram sendDocument failed with HTTP ${res.status}: ${json.description ?? ''}`);
+      return { ok: res.ok && json.ok === true, status: res.status, ...(json.description ? { description: json.description } : {}) };
+    } catch (err) {
+      return { ok: false, status: 0, description: err instanceof Error ? err.message : 'Network error' };
+    }
+  }
+
   openAppKeyboard(amharic: boolean) {
     return {
       inline_keyboard: [
