@@ -597,3 +597,17 @@ model TelegramDelivery {
   @@index([status, createdAt])
   @@map("telegram_deliveries")
 }
+
+// Durable copy of every uploaded file. The API's disk is wiped on each redeploy or restart of
+// the host (e.g. Render's free plan), so files are kept here and restored to disk on demand.
+model StoredFile {
+  id             String   @id @default(uuid())
+  path           String   @unique // relative to uploads/, e.g. "textbooks/123-book.pdf"
+  mimeType       String
+  size           Int
+  checksumSha256 String
+  data           Bytes
+  createdAt      DateTime @default(now())
+
+  @@map("stored_files")
+}

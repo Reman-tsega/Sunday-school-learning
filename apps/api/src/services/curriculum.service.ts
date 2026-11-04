@@ -5,6 +5,7 @@ import { PDFDocument } from 'pdf-lib';
 import { PackageStatus } from '@prisma/client';
 import { prisma } from '../config/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
+import { fileStoreService } from './file-store.service.js';
 import type {
   LearningPackageManifest,
   TextbookAsset,
@@ -854,16 +855,17 @@ export class CurriculumService {
   // CHAPTER PDF EXTRACTION & CACHING
   // ==========================================
 
-  resolveLocalPdfPath(fileUrl: string): string | null {
+  /** Local path of an uploaded textbook, restored from the database copy if the disk lost it. */
+  async resolveLocalPdfPath(fileUrl: string): Promise<string | null> {
     if (!fileUrl) return null;
-    if (fileUrl.includes('/uploads/')) {
-      const rel = fileUrl.substring(fileUrl.indexOf('/uploads/'));
-      const fullPath = path.resolve(process.cwd(), '.' + rel);
-      if (fs.existsSync(fullPath)) return fullPath;
+    const rel = fileStoreService.relativePathFromUrl(fileUrl);
+    if (rel) {
+      const restored = await fileStoreService.ensureOnDisk(rel);
+      if (restored) return restored;
     }
     const fallbackPath = path.resolve(process.cwd(), 'uploads/textbooks', path.basename(fileUrl));
     if (fs.existsSync(fallbackPath)) return fallbackPath;
-    return null;
+    return fileStoreService.ensureOnDisk(`textbooks/${path.basename(fileUrl)}`);
   }
 
   invalidateChapterPdfCache(chapterId: string): void {
@@ -909,7 +911,7 @@ export class CurriculumService {
     const startPage = chapter.textbook?.startPage ?? 1;
     const endPage = chapter.textbook?.endPage ?? (chapter.subject?.textbookTotalPages || 20);
 
-    const masterPath = this.resolveLocalPdfPath(masterUrl);
+    const masterPath = await this.resolveLocalPdfPath(masterUrl);
     if (!masterPath || !fs.existsSync(masterPath)) {
       throw new AppError(404, 'MASTER_PDF_NOT_FOUND', `Master textbook file not found on disk for ${masterUrl}`);
     }

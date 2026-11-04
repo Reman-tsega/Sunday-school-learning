@@ -7,6 +7,7 @@ import { requestLogger } from './middlewares/requestLogger.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { generalApiRateLimiter } from './middlewares/rateLimiter.js';
 import { env } from './config/env.js';
+import { fileStoreService } from './services/file-store.service.js';
 
 // users.telegramId is a BIGINT; JSON.stringify throws on BigInt, so any raw user row in a response
 // would crash it. Serialize BigInt as a string (Telegram ids exceed 32 bits but fit in 53).
@@ -70,6 +71,14 @@ export function createApp(): express.Application {
       res.setHeader('Access-Control-Allow-Headers', '*');
       res.removeHeader('X-Frame-Options');
       next();
+    },
+    // Restore files the host's disk lost on a redeploy from their database copy
+    (req, _res, next) => {
+      if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+      fileStoreService
+        .ensureOnDisk(decodeURIComponent(req.path.replace(/^\/+/, '')))
+        .then(() => next())
+        .catch(next);
     },
     express.static(path.resolve(process.cwd(), 'uploads'))
   );

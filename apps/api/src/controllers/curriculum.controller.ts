@@ -14,6 +14,7 @@ import {
   CreateReferenceLinkSchema,
 } from '@eotc/shared';
 import { curriculumService } from '../services/curriculum.service.js';
+import { fileStoreService } from '../services/file-store.service.js';
 import type { ApiResponse } from '@eotc/shared';
 
 // ==========================================
@@ -280,6 +281,8 @@ export async function uploadPdf(req: Request, res: Response<ApiResponse<unknown>
     const host = req.get('host') || 'localhost:4000';
     const subfolder = req.file.destination.includes('references') ? 'references' : 'textbooks';
     const relativeUrl = `/uploads/${subfolder}/${req.file.filename}`;
+    // Keep a durable copy: the host's disk does not survive redeploys
+    await fileStoreService.save(`${subfolder}/${req.file.filename}`, req.file.mimetype || 'application/pdf');
     const fileUrl = `${protocol}://${host}${relativeUrl}`;
 
     res.status(200).json({

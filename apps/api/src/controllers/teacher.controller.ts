@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { teacherService } from '../services/teacher.service.js';
+import { fileStoreService } from '../services/file-store.service.js';
 import { CreatePracticeQuestionSchema, SubmitPracticeQuestionBatchSchema } from '@eotc/shared';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -149,6 +150,8 @@ export async function uploadReferenceDocument(
 
     const checksumSha256 = crypto.createHash('sha256').update(fs.readFileSync(req.file.path)).digest('hex');
     const host = req.get('host') || 'localhost:4000';
+    // Keep a durable copy: the host's disk does not survive redeploys
+    await fileStoreService.save(`references/${req.file.filename}`, req.file.mimetype);
 
     res.status(200).json({
       success: true,
