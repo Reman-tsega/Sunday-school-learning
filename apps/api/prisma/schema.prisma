@@ -606,8 +606,24 @@ model StoredFile {
   mimeType       String
   size           Int
   checksumSha256 String
-  data           Bytes
+  /// Whole file in one value: only rows stored before chunking; new files use chunks
+  data           Bytes?
   createdAt      DateTime @default(now())
 
+  chunks StoredFileChunk[]
+
   @@map("stored_files")
+}
+
+// A stored file in ~512 KB pieces, written and read one at a time so a large upload does not need
+// hundreds of MB of memory (a single 13 MB Bytes value cost ~325 MB through Prisma)
+model StoredFileChunk {
+  fileId String
+  index  Int
+  data   Bytes
+
+  file StoredFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@id([fileId, index])
+  @@map("stored_file_chunks")
 }
