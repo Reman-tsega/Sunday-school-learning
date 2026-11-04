@@ -901,15 +901,15 @@ export default function CurriculumPage() {
                                             </div>
                                           )}
                                           <div
-                                            className={`mt-4 pt-3 border-t border-stone-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 ${
+                                            className={`mt-4 pt-3 border-t border-stone-100 dark:border-slate-800 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-between ${
                                               chapter.packages && chapter.packages.length === 0 ? 'hidden' : ''
                                             }`}
                                           >
-                                            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+                                            <div className="contents sm:flex sm:flex-wrap sm:items-center sm:gap-2">
                                               <button
                                                 type="button"
                                                 onClick={(e) => handleStudyClick(chapter, e)}
-                                                className="flex-1 min-[380px]:flex-none justify-center whitespace-nowrap inline-flex items-center text-xs font-bold text-white dark:text-slate-950 bg-eotc-navy dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer"
+                                                className="w-full sm:w-auto justify-center whitespace-nowrap inline-flex items-center text-xs font-bold text-white dark:text-slate-950 bg-eotc-navy dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer"
                                               >
                                                 <span>{lang === 'am' ? 'ተማር' : 'Study'}</span>
                                                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -918,7 +918,7 @@ export default function CurriculumPage() {
                                               <button
                                                 type="button"
                                                 onClick={(e) => handleQuizClick(chapter, e)}
-                                                className="flex-1 min-[380px]:flex-none justify-center whitespace-nowrap inline-flex items-center text-xs font-semibold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900/80 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-transparent dark:border-amber-800/60"
+                                                className="w-full sm:w-auto justify-center whitespace-nowrap inline-flex items-center text-xs font-semibold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900/80 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-transparent dark:border-amber-800/60"
                                               >
                                                 <HelpCircle className="w-3.5 h-3.5 mr-1 text-amber-700 dark:text-amber-400" />
                                                 <span>{lang === 'am' ? 'ፈተና' : 'Quiz'}</span>
@@ -928,7 +928,7 @@ export default function CurriculumPage() {
                                                 <button
                                                   type="button"
                                                   onClick={(e) => handleQuizClick(chapter, e, 'drills')}
-                                                  className="flex-1 min-[380px]:flex-none justify-center whitespace-nowrap inline-flex items-center text-xs font-semibold text-emerald-900 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-emerald-200 dark:border-emerald-800/60"
+                                                  className="col-span-2 sm:col-auto w-full sm:w-auto justify-center whitespace-nowrap inline-flex items-center text-xs font-semibold text-emerald-900 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-emerald-200 dark:border-emerald-800/60"
                                                 >
                                                   <Sparkles className="w-3.5 h-3.5 mr-1 text-emerald-600 dark:text-emerald-400" />
                                                   <span>
@@ -939,12 +939,12 @@ export default function CurriculumPage() {
                                             </div>
 
                                             {user && (
-                                              <div className="flex-1 min-[380px]:flex-none flex justify-end">
+                                              <div className="col-span-2 flex sm:justify-end">
                                                 {status !== 'AVAILABLE_OFFLINE' ? (
                                                   <button
                                                     onClick={(e) => handleDownload(chapter.id, e)}
                                                     disabled={isDownloading}
-                                                    className="w-full min-[380px]:w-auto justify-center inline-flex items-center space-x-1 text-xs font-medium px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border border-amber-600/30 disabled:opacity-50 transition shadow-sm"
+                                                    className="w-full sm:w-auto justify-center inline-flex items-center space-x-1 text-xs font-medium px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border border-amber-600/30 disabled:opacity-50 transition shadow-sm"
                                                   >
                                                     {isDownloading ? (
                                                       <>
@@ -959,7 +959,7 @@ export default function CurriculumPage() {
                                                     )}
                                                   </button>
                                                 ) : (
-                                                  <span className="w-full min-[380px]:w-auto justify-center whitespace-nowrap inline-flex items-center text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                                                  <span className="w-full sm:w-auto justify-center whitespace-nowrap inline-flex items-center text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
                                                     <CheckCircle className="w-3.5 h-3.5 mr-1" />
                                                     <span>{lang === 'am' ? 'ዝግጁ' : 'Ready Offline'}</span>
                                                   </span>
