@@ -17,6 +17,7 @@ import {
   X,
   Lock,
   GraduationCap,
+  Send,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { downloadManager } from '@/lib/download-manager';
@@ -33,6 +34,8 @@ import { PracticeQuestionList } from '@/components/PracticeQuestionList';
 import { OfflineBadge } from '@/components/OfflineBadge';
 import { useLanguage } from '@/lib/language-context';
 import { uiAlert, getTelegramWebApp } from '@/lib/telegram';
+import { useTelegram } from '@/lib/telegram-context';
+import { sendFileToTelegramChat } from '@/lib/telegram-files';
 import { ChurchLoader } from '@/components/ChurchLoader';
 import type { LearningPackageManifest, PracticeQuestionDto } from '@eotc/shared';
 
@@ -42,6 +45,7 @@ export default function ChapterStudyPage() {
   const params = useParams();
   const router = useRouter();
   const { lang, pick } = useLanguage();
+  const { isTelegram } = useTelegram();
   const chapterId = params.chapterId as string;
 
   const [manifest, setManifest] = useState<LearningPackageManifest | null>(null);
@@ -273,6 +277,17 @@ export default function ChapterStudyPage() {
       sessionStorage.setItem(`eotc_dl_prompt_answered_${chapterId}`, '1');
     } catch {}
     setShowDownloadPrompt(false);
+  };
+
+  const [sendingRefId, setSendingRefId] = useState<string | null>(null);
+  // Inside Telegram the WebView cannot save or open downloads, so the bot sends the document to the chat
+  const sendReferenceToChat = async (referenceId: string) => {
+    setSendingRefId(referenceId);
+    try {
+      await sendFileToTelegramChat(() => api.sendReferenceToTelegram(referenceId), lang);
+    } finally {
+      setSendingRefId(null);
+    }
   };
 
   const openReferenceBlob = (ref: any) => {
@@ -531,21 +546,21 @@ export default function ChapterStudyPage() {
 
       {/* Top Header Card */}
       <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800">
-        <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <button
             onClick={() => router.push('/')}
-            className="text-xs text-stone-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-400 flex items-center space-x-1 transition cursor-pointer py-0.5"
+            className="text-xs text-stone-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-400 flex items-center space-x-1 transition cursor-pointer py-0.5 whitespace-nowrap"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>{lang === 'am' ? 'ወደ ማውጫ ተመለስ' : 'Back to Curriculum'}</span>
           </button>
 
-          {/* Right Header Status / Download Button */}
-          <div className="flex items-center space-x-2 shrink-0">
+          {/* Right Header Status / Download Button: its own full-width row on phones */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             {/* Mark as Completed / Completed Toggle Button */}
             <button
               onClick={handleToggleCompletion}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold text-xs shadow-xs transition cursor-pointer ${
+              className={`flex-1 sm:flex-none justify-center whitespace-nowrap flex items-center space-x-1.5 px-3 py-2 sm:py-1.5 rounded-lg font-bold text-xs shadow-xs transition cursor-pointer ${
                 isCompleted
                   ? 'bg-emerald-100 dark:bg-emerald-950/80 hover:bg-emerald-200 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
                   : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow'
@@ -576,12 +591,12 @@ export default function ChapterStudyPage() {
               <button
                 onClick={handleDownload}
                 disabled={downloading}
-                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-xs transition disabled:opacity-50"
+                className="flex-1 sm:flex-none justify-center whitespace-nowrap min-w-0 flex items-center space-x-1.5 px-3 py-2 sm:py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-xs transition disabled:opacity-50"
               >
                 {downloading ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>{downloadProgress}</span>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                    <span className="truncate">{downloadProgress}</span>
                   </>
                 ) : (
                   <>
@@ -649,7 +664,7 @@ export default function ChapterStudyPage() {
       </div>
 
       {/* Responsive Segmented Tabs Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 sm:flex sm:space-x-2 border-b border-stone-200 dark:border-slate-800 bg-stone-100/70 dark:bg-slate-950/80 p-1 rounded-xl gap-1">
+      <div className="grid grid-cols-2 sm:flex sm:space-x-2 border-b border-stone-200 dark:border-slate-800 bg-stone-100/70 dark:bg-slate-950/80 p-1 rounded-xl gap-1">
         <button
           onClick={() => setActiveTab('textbook')}
           className={`flex items-center justify-center space-x-1.5 py-2 px-1.5 sm:px-4 font-bold text-xs sm:text-sm rounded-lg transition min-h-[42px] cursor-pointer ${
@@ -773,7 +788,7 @@ export default function ChapterStudyPage() {
         )}
 
         {activeTab === 'references' && (
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-stone-200 dark:border-slate-800 space-y-4">
+          <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-xl shadow-sm border border-stone-200 dark:border-slate-800 space-y-4">
             <h3 className="font-bold text-base text-stone-800 dark:text-white">
               {lang === 'am' ? 'የተፈቀዱ ማጣቀሻዎች' : 'Approved References'}
             </h3>
@@ -790,13 +805,13 @@ export default function ChapterStudyPage() {
                   return (
                     <div
                       key={ref.id}
-                      className="p-4 rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 flex items-center justify-between gap-4"
+                      className="p-3.5 sm:p-4 rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 flex flex-wrap items-center justify-between gap-3"
                     >
-                      <div className="flex items-start space-x-3">
+                      <div className="flex items-start space-x-3 min-w-0 flex-1 basis-48">
                         <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <h4 className="font-semibold text-sm text-stone-900 dark:text-white">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="font-semibold text-sm text-stone-900 dark:text-white break-words">
                               {pick(ref.amharicTitle, ref.title)}
                             </h4>
                             {getDocTypeBadge(ref)}
@@ -811,8 +826,18 @@ export default function ChapterStudyPage() {
                         </div>
                       </div>
 
-                      <div>
-                        {ref.isDownloadable ? (
+                      <div className="shrink-0">
+                        {ref.isDownloadable && isTelegram ? (
+                          <button
+                            type="button"
+                            disabled={sendingRefId === ref.id}
+                            onClick={() => sendReferenceToChat(ref.id)}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded bg-sky-600 text-white hover:bg-sky-700 transition disabled:opacity-60"
+                          >
+                            {sendingRefId === ref.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                            <span>{lang === 'am' ? 'ወደ ቴሌግራም ላክ' : 'Send to Telegram'}</span>
+                          </button>
+                        ) : ref.isDownloadable ? (
                           hasLocalBlob ? (
                             <button
                               onClick={() => openReferenceBlob(ref)}

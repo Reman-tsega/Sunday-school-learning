@@ -25,7 +25,8 @@ const T = {
   generated: { en: 'Generated from the EOTC Sunday School Platform', am: 'ከኢኦተቤ ሰንበት ትምህርት ቤት መድረክ የተዘጋጀ' },
 };
 
-function buildDocument({ questions, heading, subheading, includeAnswers, lang }: PracticeExportOptions): string {
+/** The printable practice sheet as a standalone HTML document. */
+export function buildDocument({ questions, heading, subheading, includeAnswers, lang }: PracticeExportOptions): string {
   const t = (k: keyof typeof T) => T[k][lang];
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const TF_AM: Record<string, string> = { True: 'እውነት', False: 'ሐሰት' };

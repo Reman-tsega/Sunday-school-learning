@@ -456,6 +456,33 @@ export class ApiClient {
     return user;
   }
 
+  /** Has the bot send an approved reference document to the student's own Telegram chat. */
+  async sendReferenceToTelegram(referenceId: string): Promise<{ sent: 'document' | 'link' }> {
+    return this.postTelegramFile('/telegram/send-reference', { referenceId });
+  }
+
+  /** Has the bot send a printable export (an HTML sheet) to the student's own Telegram chat. */
+  async sendExportToTelegram(payload: { fileName: string; html: string; caption?: string }): Promise<{ sent: true }> {
+    return this.postTelegramFile('/telegram/send-export', payload);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async postTelegramFile<T>(path: string, body: Record<string, unknown>): Promise<T> {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+      method: 'POST',
+      headers: this.getAuthHeader(),
+      body: JSON.stringify(body),
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const json: any = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new ApiError(json.error?.message || `Could not send to Telegram: HTTP ${res.status}`, res.status, {
+        code: json.error?.code,
+      });
+    }
+    return json.data;
+  }
+
   async unlinkTelegram(): Promise<void> {
     const res = await fetch(`${API_BASE_URL}/auth/telegram`, {
       method: 'DELETE',

@@ -13,10 +13,15 @@ import {
   Printer,
   RotateCcw,
   PartyPopper,
+  Send,
+  Loader2,
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { QuestionTypeFilter, type QuestionTypeFilterValue } from '@/components/QuestionTypeFilter';
-import { printPracticeQuestions } from '@/lib/practice-export';
+import { buildDocument, printPracticeQuestions, type PracticeExportOptions } from '@/lib/practice-export';
+import { useTelegram } from '@/lib/telegram-context';
+import { sendFileToTelegramChat } from '@/lib/telegram-files';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/telegram';
 import type { PracticeQuestionDto } from '@eotc/shared';
 
@@ -72,6 +77,8 @@ export function PracticeQuestionList({
   exportSubheading,
 }: PracticeQuestionListProps) {
   const { lang } = useLanguage();
+  const { isTelegram } = useTelegram();
+  const [sendingExport, setSendingExport] = useState(false);
   // The first pick on a multiple-choice or true/false question locks it until "Try again"
   const [selectedChoices, setSelectedChoices] = useState<Record<string, string>>({});
   const [revealedAnswers, setRevealedAnswers] = useState<Record<string, boolean>>({});
@@ -160,8 +167,8 @@ export function PracticeQuestionList({
         </div>
       </div>
 
-      {/* Export / Print (printing is not available inside Telegram) */}
-      <div className="tg-hide flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
+      {/* Export / Print; inside Telegram (no printing or downloads) the bot sends the sheet to the chat */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
         <label className="inline-flex items-center space-x-2 text-xs font-semibold text-stone-700 dark:text-slate-300 cursor-pointer select-none">
           <input
             type="checkbox"
@@ -173,19 +180,47 @@ export function PracticeQuestionList({
         </label>
         <button
           type="button"
-          onClick={() =>
-            printPracticeQuestions({
+          disabled={sendingExport}
+          onClick={async () => {
+            const options: PracticeExportOptions = {
               questions,
               heading: exportHeading || (lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Questions'),
               subheading: exportSubheading,
               includeAnswers: exportWithAnswers,
               lang,
-            })
-          }
-          className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-eotc-navy dark:bg-amber-500 text-white dark:text-slate-950 hover:opacity-90 text-xs font-bold shadow-xs transition cursor-pointer"
+            };
+            if (!isTelegram) {
+              printPracticeQuestions(options);
+              return;
+            }
+            setSendingExport(true);
+            try {
+              await sendFileToTelegramChat(
+                () =>
+                  api.sendExportToTelegram({
+                    fileName: `${options.heading} - ${lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Questions'}`,
+                    html: buildDocument(options),
+                    caption: lang === 'am' ? 'ፋይሉን ከፍተው ማንበብ ወይም ማተም ይችላሉ።' : 'Open the file to read or print it.',
+                  }),
+                lang
+              );
+            } finally {
+              setSendingExport(false);
+            }
+          }}
+          className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-eotc-navy dark:bg-amber-500 text-white dark:text-slate-950 hover:opacity-90 text-xs font-bold shadow-xs transition cursor-pointer disabled:opacity-60"
         >
-          <Printer className="w-4 h-4" />
-          <span>{lang === 'am' ? 'PDF አውጣ / አትም' : 'Export PDF / Print'}</span>
+          {isTelegram ? (
+            <>
+              {sendingExport ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              <span>{lang === 'am' ? 'ወደ ቴሌግራም ላክ' : 'Send to Telegram'}</span>
+            </>
+          ) : (
+            <>
+              <Printer className="w-4 h-4" />
+              <span>{lang === 'am' ? 'PDF አውጣ / አትም' : 'Export PDF / Print'}</span>
+            </>
+          )}
         </button>
       </div>
 
