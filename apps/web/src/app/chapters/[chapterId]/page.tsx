@@ -36,6 +36,7 @@ import { useLanguage } from '@/lib/language-context';
 import { uiAlert, getTelegramWebApp } from '@/lib/telegram';
 import { useTelegram } from '@/lib/telegram-context';
 import { sendFileToTelegramChat } from '@/lib/telegram-files';
+import { curriculumHref, rememberChapter } from '@/lib/last-chapter';
 import { ChurchLoader } from '@/components/ChurchLoader';
 import type { LearningPackageManifest, PracticeQuestionDto } from '@eotc/shared';
 
@@ -279,6 +280,17 @@ export default function ChapterStudyPage() {
     setShowDownloadPrompt(false);
   };
 
+  // Remember this chapter so "Back to Curriculum" (and the phone/Telegram back button) reopens its place
+  useEffect(() => {
+    if (manifest?.subjectId && manifest.gradeLevel != null) {
+      rememberChapter({ gradeLevel: manifest.gradeLevel, subjectId: manifest.subjectId, chapterId: manifest.chapterId });
+    }
+  }, [manifest?.chapterId, manifest?.subjectId, manifest?.gradeLevel]);
+  const backToCurriculum =
+    manifest?.subjectId && manifest.gradeLevel != null
+      ? curriculumHref({ gradeLevel: manifest.gradeLevel, subjectId: manifest.subjectId, chapterId: manifest.chapterId })
+      : '/';
+
   const [sendingRefId, setSendingRefId] = useState<string | null>(null);
   // Inside Telegram the WebView cannot save or open downloads, so the bot sends the document to the chat
   const sendReferenceToChat = async (referenceId: string) => {
@@ -395,7 +407,7 @@ export default function ChapterStudyPage() {
               {lang === 'am' ? 'መለያ አለዎት? ይግቡ' : 'Already have an account? Sign In'}
             </button>
             <button
-              onClick={() => router.push('/')}
+              onClick={() => router.push(backToCurriculum)}
               className="w-full py-2 text-stone-400 dark:text-slate-500 hover:text-stone-600 dark:hover:text-slate-300 text-xs transition cursor-pointer"
             >
               {lang === 'am' ? 'ወደ ስርዓተ ትምህርት ማውጫ ተመለስ' : 'Return to Curriculum Catalog'}
@@ -439,7 +451,7 @@ export default function ChapterStudyPage() {
               </span>
             </button>
             <button
-              onClick={() => router.push('/')}
+              onClick={() => router.push(backToCurriculum)}
               className="w-full py-2.5 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-300 font-semibold rounded-xl text-xs transition"
             >
               {lang === 'am' ? 'ወደ መማሪያ ክፍሎቼ ተመለስ' : 'Return to My Grades'}
@@ -466,7 +478,7 @@ export default function ChapterStudyPage() {
               : 'The learning material for this chapter hasn’t been published yet. It will appear here as soon as it is ready — please check back later.'}
           </p>
           <Link
-            href="/"
+            href={backToCurriculum}
             className="inline-block w-full py-2.5 bg-eotc-navy dark:bg-amber-500 dark:text-slate-950 text-white rounded-xl text-sm font-bold"
           >
             {lang === 'am' ? 'ወደ ሥርዓተ ትምህርት ተመለስ' : 'Back to Curriculum'}
@@ -548,7 +560,7 @@ export default function ChapterStudyPage() {
       <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push(backToCurriculum)}
             className="text-xs text-stone-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-400 flex items-center space-x-1 transition cursor-pointer py-0.5 whitespace-nowrap"
           >
             <ArrowLeft className="w-3.5 h-3.5" />

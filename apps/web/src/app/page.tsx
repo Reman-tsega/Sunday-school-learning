@@ -33,6 +33,7 @@ import { LandingTop } from '@/components/landing/LandingTop';
 import { LandingBottom } from '@/components/landing/LandingBottom';
 import { GradeSelect } from '@/components/GradeSelect';
 import type { PackageDownloadStatus, UserProfile } from '@eotc/shared';
+import { chapterToReturnTo, type ChapterPosition } from '@/lib/last-chapter';
 
 interface ChapterItem {
   id: string;
@@ -85,6 +86,9 @@ export default function CurriculumPage() {
   const [dontAskDownloadAgain, setDontAskDownloadAgain] = useState(false);
   const [expandedGrades, setExpandedGrades] = useState<Record<number, boolean>>({});
   const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({});
+  // Coming back from a chapter: reopen its grade and subject, then scroll to and highlight it
+  const [returnTo, setReturnTo] = useState<ChapterPosition | null>(null);
+  const [highlightChapterId, setHighlightChapterId] = useState<string | null>(null);
 
   // Public access gate modal state (prompts guests to register)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
@@ -153,6 +157,22 @@ export default function CurriculumPage() {
     };
   }, [router]);
 
+  useEffect(() => {
+    if (!returnTo || loading) return;
+    const scroll = setTimeout(() => {
+      document.getElementById(`chapter-card-${returnTo.chapterId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setHighlightChapterId(returnTo.chapterId);
+      setReturnTo(null);
+    }, 150);
+    return () => clearTimeout(scroll);
+  }, [returnTo, loading]);
+
+  useEffect(() => {
+    if (!highlightChapterId) return;
+    const clear = setTimeout(() => setHighlightChapterId(null), 2500);
+    return () => clearTimeout(clear);
+  }, [highlightChapterId]);
+
   const loadCurriculum = async () => {
     setLoading(true);
     try {
@@ -188,8 +208,22 @@ export default function CurriculumPage() {
           sMap[s.id] = true;
         });
       });
-      setExpandedGrades((prev) => (Object.keys(prev).length > 0 ? prev : gMap));
-      setExpandedSubjects((prev) => (Object.keys(prev).length > 0 ? prev : sMap));
+      const back = chapterToReturnTo();
+      const backGrade = back ? sorted.find((g: GradeItem) => g.level === back.gradeLevel) : undefined;
+      if (back && backGrade?.subjects?.some((s: SubjectItem) => s.id === back.subjectId)) {
+        // Only the grade and subject the student was working in are open
+        gMap[back.gradeLevel] = true;
+        backGrade.subjects?.forEach((s: SubjectItem) => {
+          sMap[s.id] = s.id === back.subjectId;
+        });
+        setExpandedGrades(gMap);
+        setExpandedSubjects(sMap);
+        setReturnTo(back);
+        if (window.location.search) window.history.replaceState(null, '', window.location.pathname);
+      } else {
+        setExpandedGrades((prev) => (Object.keys(prev).length > 0 ? prev : gMap));
+        setExpandedSubjects((prev) => (Object.keys(prev).length > 0 ? prev : sMap));
+      }
 
       await checkDownloadStatuses(sorted);
 
@@ -868,7 +902,10 @@ export default function CurriculumPage() {
                                       return (
                                         <div
                                           key={chapter.id}
-                                          className={`p-3.5 sm:p-5 rounded-xl border transition flex flex-col justify-between ${
+                                          id={`chapter-card-${chapter.id}`}
+                                          className={`scroll-mt-24 p-3.5 sm:p-5 rounded-xl border transition flex flex-col justify-between ${
+                                            highlightChapterId === chapter.id ? 'ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-950 ' : ''
+                                          }${
                                             isChapterDone
                                               ? 'border-emerald-300/80 dark:border-emerald-800 shadow-sm bg-gradient-to-b from-emerald-50/20 to-white dark:from-emerald-950/20 dark:to-slate-900'
                                               : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 hover:shadow-md'
