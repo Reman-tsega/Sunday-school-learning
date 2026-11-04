@@ -699,7 +699,7 @@ export default function CurriculumPage() {
             const isGradeExpanded = searchQuery ? true : (expandedGrades[grade.level] ?? false);
 
             return (
-              <div key={grade.level} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800 p-4 sm:p-6 space-y-4 transition">
+              <div key={grade.level} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-stone-200 dark:border-slate-800 p-3 sm:p-6 space-y-4 transition">
                 {/* Grade Header (Collapsible) */}
                 <div
                   onClick={() => toggleGrade(grade.level)}
@@ -788,7 +788,7 @@ export default function CurriculumPage() {
                         const isSubjectExpanded = searchQuery ? true : (expandedSubjects[subject.id] ?? true);
 
                         return (
-                          <div key={subject.id} className="bg-stone-50/80 dark:bg-slate-950/70 rounded-xl p-4 sm:p-5 border border-stone-200 dark:border-slate-800 space-y-3.5 transition">
+                          <div key={subject.id} className="bg-stone-50/80 dark:bg-slate-950/70 rounded-xl p-2.5 sm:p-5 border border-stone-200 dark:border-slate-800 space-y-3.5 transition">
                             {/* Subject Header (Collapsible) */}
                             <div
                               onClick={() => toggleSubject(subject.id)}
@@ -901,15 +901,15 @@ export default function CurriculumPage() {
                                             </div>
                                           )}
                                           <div
-                                            className={`mt-4 pt-3 border-t border-stone-100 dark:border-slate-800 flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-2.5 ${
+                                            className={`mt-4 pt-3 border-t border-stone-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 ${
                                               chapter.packages && chapter.packages.length === 0 ? 'hidden' : ''
                                             }`}
                                           >
-                                            <div className="flex items-center space-x-2 w-full min-[380px]:w-auto">
+                                            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
                                               <button
                                                 type="button"
                                                 onClick={(e) => handleStudyClick(chapter, e)}
-                                                className="flex-1 min-[380px]:flex-none justify-center inline-flex items-center text-xs font-bold text-white dark:text-slate-950 bg-eotc-navy dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer"
+                                                className="flex-1 min-[380px]:flex-none justify-center whitespace-nowrap inline-flex items-center text-xs font-bold text-white dark:text-slate-950 bg-eotc-navy dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-400 px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer"
                                               >
                                                 <span>{lang === 'am' ? 'ተማር' : 'Study'}</span>
                                                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -918,7 +918,7 @@ export default function CurriculumPage() {
                                               <button
                                                 type="button"
                                                 onClick={(e) => handleQuizClick(chapter, e)}
-                                                className="flex-1 min-[380px]:flex-none justify-center inline-flex items-center text-xs font-semibold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900/80 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-transparent dark:border-amber-800/60"
+                                                className="flex-1 min-[380px]:flex-none justify-center whitespace-nowrap inline-flex items-center text-xs font-semibold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900/80 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-transparent dark:border-amber-800/60"
                                               >
                                                 <HelpCircle className="w-3.5 h-3.5 mr-1 text-amber-700 dark:text-amber-400" />
                                                 <span>{lang === 'am' ? 'ፈተና' : 'Quiz'}</span>
@@ -928,7 +928,7 @@ export default function CurriculumPage() {
                                                 <button
                                                   type="button"
                                                   onClick={(e) => handleQuizClick(chapter, e, 'drills')}
-                                                  className="flex-1 min-[380px]:flex-none justify-center inline-flex items-center text-xs font-semibold text-emerald-900 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-emerald-200 dark:border-emerald-800/60"
+                                                  className="flex-1 min-[380px]:flex-none justify-center whitespace-nowrap inline-flex items-center text-xs font-semibold text-emerald-900 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2.5 py-1.5 rounded-lg transition cursor-pointer border border-emerald-200 dark:border-emerald-800/60"
                                                 >
                                                   <Sparkles className="w-3.5 h-3.5 mr-1 text-emerald-600 dark:text-emerald-400" />
                                                   <span>
@@ -939,7 +939,7 @@ export default function CurriculumPage() {
                                             </div>
 
                                             {user && (
-                                              <div className="w-full min-[380px]:w-auto flex justify-end">
+                                              <div className="flex-1 min-[380px]:flex-none flex justify-end">
                                                 {status !== 'AVAILABLE_OFFLINE' ? (
                                                   <button
                                                     onClick={(e) => handleDownload(chapter.id, e)}
@@ -959,7 +959,7 @@ export default function CurriculumPage() {
                                                     )}
                                                   </button>
                                                 ) : (
-                                                  <span className="inline-flex items-center text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                                                  <span className="w-full min-[380px]:w-auto justify-center whitespace-nowrap inline-flex items-center text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
                                                     <CheckCircle className="w-3.5 h-3.5 mr-1" />
                                                     <span>{lang === 'am' ? 'ዝግጁ' : 'Ready Offline'}</span>
                                                   </span>
