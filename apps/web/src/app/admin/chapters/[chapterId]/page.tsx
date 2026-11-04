@@ -208,7 +208,7 @@ export default function AdminChapterStudioPage() {
       setShowPracticeQuestionModal(false);
       setActionMessage({
         type: 'success',
-        text: lang === 'am' ? 'የልምምድ ጥያቄው ወዲያውኑ ጸድቆ ተመዝግቧል!' : 'Practice question created and published immediately!',
+        text: lang === 'am' ? 'የመልመጃ ጥያቄው ወዲያውኑ ጸድቆ ተመዝግቧል!' : 'Practice question created and published immediately!',
       });
       // reset form
       setPracticeQuestionForm({
@@ -235,12 +235,12 @@ export default function AdminChapterStudioPage() {
   };
 
   const handleDeletePracticeQuestion = async (id: string) => {
-    if (!confirm(lang === 'am' ? 'ይህን የልምምድ ጥያቄ መሰረዝ ይፈልጋሉ?' : 'Delete this practice question?')) return;
+    if (!confirm(lang === 'am' ? 'ይህን የመልመጃ ጥያቄ መሰረዝ ይፈልጋሉ?' : 'Delete this practice question?')) return;
     try {
       await api.deletePracticeQuestion(id);
       setActionMessage({
         type: 'success',
-        text: lang === 'am' ? 'የልምምድ ጥያቄው ተሰርዟል!' : 'Practice question deleted!',
+        text: lang === 'am' ? 'የመልመጃ ጥያቄው ተሰርዟል!' : 'Practice question deleted!',
       });
       const updated = await api.getChapterPracticeQuestions(chapterId).catch(() => []);
       setPracticeQuestions(updated || []);
@@ -1211,7 +1211,7 @@ export default function AdminChapterStudioPage() {
             <div className="flex items-center space-x-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <h2 className="text-sm font-bold text-stone-900 dark:text-white uppercase tracking-wider">
-                {lang === 'am' ? '፬. የልምምድ ጥያቄዎች' : '4. Practice Questions'}
+                {lang === 'am' ? '፬. የመልመጃ ጥያቄዎች' : '4. Practice Questions'}
               </h2>
             </div>
             <button
@@ -1224,14 +1224,14 @@ export default function AdminChapterStudioPage() {
           </div>
 
           <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-slate-400">
-            <span>{lang === 'am' ? 'ጠቅላላ የልምምድ ጥያቄዎች' : 'Total Practice Questions'}</span>
+            <span>{lang === 'am' ? 'ጠቅላላ የመልመጃ ጥያቄዎች' : 'Total Practice Questions'}</span>
             <span className="font-mono font-bold text-amber-700 dark:text-amber-400">{practiceQuestions.length}</span>
           </div>
 
           {practiceQuestions.length === 0 ? (
             <div className="p-6 text-center text-stone-500 dark:text-slate-500 text-xs italic bg-stone-50 dark:bg-slate-950 rounded-lg border border-stone-200 dark:border-slate-800">
               {lang === 'am'
-                ? 'ምንም የልምምድ ጥያቄ አልተጨመረም። "ጥያቄ ጨምር" የሚለውን ይጫኑ።'
+                ? 'ምንም የመልመጃ ጥያቄ አልተጨመረም። "ጥያቄ ጨምር" የሚለውን ይጫኑ።'
                 : 'No practice questions yet. Click "Add Question" to create one.'}
             </div>
           ) : (
@@ -1676,7 +1676,7 @@ export default function AdminChapterStudioPage() {
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-5 h-5 text-amber-500" />
                 <h2 className="text-base font-bold text-stone-900 dark:text-white">
-                  {lang === 'am' ? 'አዲስ የልምምድ ጥያቄ ጨምር (ቀጥታ የሚጸድቅ)' : 'Add Practice Question (Direct Publish)'}
+                  {lang === 'am' ? 'አዲስ የመልመጃ ጥያቄ ጨምር (ቀጥታ የሚጸድቅ)' : 'Add Practice Question (Direct Publish)'}
                 </h2>
               </div>
               <button

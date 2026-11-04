@@ -29,14 +29,14 @@ function getNotificationLink(n: NotificationItem): NotificationLink | null {
   // Explicit link stored with the notification wins
   if (n.linkUrl) {
     if (/^\/chapters\//.test(n.linkUrl)) {
-      return { href: n.linkUrl, labelEn: 'Try the practice questions', labelAm: 'የልምምድ ጥያቄዎችን ሞክር' };
+      return { href: n.linkUrl, labelEn: 'Try the practice questions', labelAm: 'የመልመጃ ጥያቄዎችን ሞክር' };
     }
     if (n.linkUrl.startsWith('/admin/moderation')) {
       const isReference = /tab=references/.test(n.linkUrl);
       return {
         href: n.linkUrl,
         labelEn: isReference ? 'Review reference materials' : 'Review practice questions',
-        labelAm: isReference ? 'ማጣቀሻዎችን ገምግም' : 'የልምምድ ጥያቄዎችን ገምግም',
+        labelAm: isReference ? 'ማጣቀሻዎችን ገምግም' : 'የመልመጃ ጥያቄዎችን ገምግም',
       };
     }
     if (n.linkUrl.startsWith('/teacher')) {
@@ -52,7 +52,7 @@ function getNotificationLink(n: NotificationItem): NotificationLink | null {
     return {
       href: isReference ? '/admin/moderation?tab=references' : '/admin/moderation?tab=questions',
       labelEn: isReference ? 'Review reference materials' : 'Review practice questions',
-      labelAm: isReference ? 'ማጣቀሻዎችን ገምግም' : 'የልምምድ ጥያቄዎችን ገምግም',
+      labelAm: isReference ? 'ማጣቀሻዎችን ገምግም' : 'የመልመጃ ጥያቄዎችን ገምግም',
     };
   }
 

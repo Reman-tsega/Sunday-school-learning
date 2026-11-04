@@ -94,7 +94,7 @@ function Features() {
     {
       icon: FileText,
       en: ['Practice questions with PDF export', 'Practice with answers and explanations, then print or save them as a PDF.'],
-      am: ['የልምምድ ጥያቄዎች በPDF', 'ጥያቄዎችን ከመልሶቻቸውና ከማብራሪያዎቻቸው ጋር ይለማመዱ፤ ያትሙ ወይም በPDF ያስቀምጡ።'],
+      am: ['የመልመጃ ጥያቄዎች በPDF', 'ጥያቄዎችን ከመልሶቻቸውና ከማብራሪያዎቻቸው ጋር ይለማመዱ፤ ያትሙ ወይም በPDF ያስቀምጡ።'],
     },
     {
       icon: LineChart,

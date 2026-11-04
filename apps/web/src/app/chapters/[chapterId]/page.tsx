@@ -686,7 +686,7 @@ export default function ChapterStudyPage() {
           }`}
         >
           <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <span className="truncate">{lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Questions'}</span>
+          <span className="truncate">{lang === 'am' ? 'የመልመጃ ጥያቄዎች' : 'Practice Questions'}</span>
           {practiceQuestions.length > 0 && (
             <span className="text-[10px] bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 px-1.5 py-0.5 rounded-full font-bold">
               {practiceQuestions.length}

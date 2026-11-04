@@ -126,7 +126,7 @@ export function PracticeQuestionList({
       <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-stone-200 dark:border-slate-800 text-center text-stone-500 dark:text-slate-400 space-y-2">
         <div className="w-8 h-8 border-2 border-amber-600 dark:border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
         <p className="text-xs">
-          {lang === 'am' ? 'የልምምድ ጥያቄዎችን በማዘጋጀት ላይ...' : 'Loading practice questions...'}
+          {lang === 'am' ? 'የመልመጃ ጥያቄዎችን በማዘጋጀት ላይ...' : 'Loading practice questions...'}
         </p>
       </div>
     );
@@ -139,11 +139,11 @@ export function PracticeQuestionList({
           <HelpCircle className="w-6 h-6" />
         </div>
         <h4 className="font-bold text-stone-800 dark:text-white text-sm sm:text-base">
-          {lang === 'am' ? 'ምንም የልምምድ ጥያቄ አልተካተተም' : 'No Practice Questions Available'}
+          {lang === 'am' ? 'ምንም የመልመጃ ጥያቄ አልተካተተም' : 'No Practice Questions Available'}
         </h4>
         <p className="text-xs text-stone-500 dark:text-slate-400 max-w-sm mx-auto">
           {lang === 'am'
-            ? 'ለዚህ ምዕራፍ የተዘጋጀ የራስ-መገምገሚያ የልምምድ ጥያቄ እስካሁን የለም። መጽሐፉን በማንበብ ወይም ዋናውን ፈተና በመውሰድ ማጥናት ይችላሉ።'
+            ? 'ለዚህ ምዕራፍ የተዘጋጀ የራስ-መገምገሚያ የመልመጃ ጥያቄ እስካሁን የለም። መጽሐፉን በማንበብ ወይም ዋናውን ፈተና በመውሰድ ማጥናት ይችላሉ።'
             : 'No formative practice questions have been published for this chapter yet. You can study the textbook or take the graded quiz.'}
         </p>
       </div>
@@ -184,7 +184,7 @@ export function PracticeQuestionList({
           onClick={async () => {
             const options: PracticeExportOptions = {
               questions,
-              heading: exportHeading || (lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Questions'),
+              heading: exportHeading || (lang === 'am' ? 'የመልመጃ ጥያቄዎች' : 'Practice Questions'),
               subheading: exportSubheading,
               includeAnswers: exportWithAnswers,
               lang,
@@ -198,7 +198,7 @@ export function PracticeQuestionList({
               await sendFileToTelegramChat(
                 () =>
                   api.sendExportToTelegram({
-                    fileName: `${options.heading} - ${lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Questions'}`,
+                    fileName: `${options.heading} - ${lang === 'am' ? 'የመልመጃ ጥያቄዎች' : 'Practice Questions'}`,
                     html: buildDocument(options),
                     caption: lang === 'am' ? 'ፋይሉን ከፍተው ማንበብ ወይም ማተም ይችላሉ።' : 'Open the file to read or print it.',
                   }),

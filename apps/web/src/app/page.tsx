@@ -557,7 +557,7 @@ export default function CurriculumPage() {
               className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0 shadow-sm"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>{lang === 'am' ? 'ተጨማሪ ክፍል ጨምር' : 'Enroll in More Grades'}</span>
+              <span>{lang === 'am' ? 'በተጨማሪ ክፍል ተመዝገቡ' : 'Enroll in More Grades'}</span>
             </button>
           </div>
         </div>
@@ -939,7 +939,7 @@ export default function CurriculumPage() {
                                                 >
                                                   <Sparkles className="w-3.5 h-3.5 mr-1 text-emerald-600 dark:text-emerald-400" />
                                                   <span>
-                                                    {lang === 'am' ? 'ልምምድ' : 'Practice'} ({chapter.practiceQuestionCount})
+                                                    {lang === 'am' ? 'መልመጃ' : 'Practice'} ({chapter.practiceQuestionCount})
                                                   </span>
                                                 </button>
                                               )}
@@ -1189,7 +1189,7 @@ export default function CurriculumPage() {
                   ) : (
                     <>
                       <CheckCircle className="w-3.5 h-3.5" />
-                      <span>{lang === 'am' ? 'መዝግብ' : 'Add to My Grades'}</span>
+                      <span>{lang === 'am' ? 'ተመዝገቡ' : 'Add to My Grades'}</span>
                     </>
                   )}
                 </button>

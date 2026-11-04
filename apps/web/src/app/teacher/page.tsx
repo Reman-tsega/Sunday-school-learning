@@ -375,7 +375,7 @@ export default function TeacherPortalPage() {
         type: 'success',
         text:
           lang === 'am'
-            ? `${result.count} የልምምድ ጥያቄዎች ለግምገማ ተልከዋል! አስተዳዳሪው ከገመገመ በኋላ ለተማሪዎች ይታያሉ።`
+            ? `${result.count} የመልመጃ ጥያቄዎች ለግምገማ ተልከዋል! አስተዳዳሪው ከገመገመ በኋላ ለተማሪዎች ይታያሉ።`
             : `${result.count} practice question${result.count === 1 ? '' : 's'} sent for review. Students will see them once an admin approves.`,
       });
       handleDiscardDrafts();
@@ -440,7 +440,7 @@ export default function TeacherPortalPage() {
             </h1>
             <p className="text-stone-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
               {lang === 'am'
-                ? 'በተመደቡበት ሰንበት ትምህርት ቤት ያሉ ተማሪዎችን ይከታተሉ፣ የትምህርት ሂደታቸውን ይመልከቱ፣ እንዲሁም በአስተዳዳሪ የሚጸድቁ ማጣቀሻዎችንና የልምምድ ጥያቄዎችን ያበርክቱ።'
+                ? 'በተመደቡበት ሰንበት ትምህርት ቤት ያሉ ተማሪዎችን ይከታተሉ፣ የትምህርት ሂደታቸውን ይመልከቱ፣ እንዲሁም በአስተዳዳሪ የሚጸድቁ ማጣቀሻዎችንና የመልመጃ ጥያቄዎችን ያበርክቱ።'
                 : "Manage students in your assigned Sunday School, inspect their study progress, and contribute approved reference documents and self-study practice drills."}
             </p>
           </div>
@@ -628,7 +628,7 @@ export default function TeacherPortalPage() {
             </div>
             <p className="text-xs sm:text-sm text-stone-600 dark:text-slate-300 leading-relaxed">
               {lang === 'am'
-                ? 'በኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተክርስቲያን ቀኖና መሠረት ዋና ዋና የትምህርት መጻሕፍት (Core Syllabus) በቅዱስ ሲኖዶስ የተዘጋጁ ናቸው። መምህራን ተጨማሪ ማጣቀሻዎችንና ራስን መፈተሻ የልምምድ ጥያቄዎችን ብቻ ማበርከት የሚችሉ ሲሆን ሁሉም ይዘት በአስተዳዳሪ ተገምግሞ ከጸደቀ በኋላ ብቻ ለተማሪዎች ይታያል።'
+                ? 'በኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተክርስቲያን ቀኖና መሠረት ዋና ዋና የትምህርት መጻሕፍት (Core Syllabus) በቅዱስ ሲኖዶስ የተዘጋጁ ናቸው። መምህራን ተጨማሪ ማጣቀሻዎችንና ራስን መፈተሻ የመልመጃ ጥያቄዎችን ብቻ ማበርከት የሚችሉ ሲሆን ሁሉም ይዘት በአስተዳዳሪ ተገምግሞ ከጸደቀ በኋላ ብቻ ለተማሪዎች ይታያል።'
                 : 'Per EOTC Synod guidelines, core textbooks remain immutable. Teachers are empowered to contribute supplementary reading references and formative practice questions. All submissions pass through the Admin Moderation Desk to maintain doctrinal integrity.'}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
@@ -650,7 +650,7 @@ export default function TeacherPortalPage() {
               </div>
               <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-stone-200 dark:border-slate-800">
                 <span className="font-bold text-xs text-stone-900 dark:text-white block mb-1">
-                  {lang === 'am' ? '፫. የልምምድ ጥያቄዎችን ማዘጋጀት' : '3. Practice Questions'}
+                  {lang === 'am' ? '፫. የመልመጃ ጥያቄዎችን ማዘጋጀት' : '3. Practice Questions'}
                 </span>
                 <p className="text-[11px] text-stone-500 dark:text-slate-400">
                   {lang === 'am' ? 'ተማሪዎች እውቀታቸውን እንዲፈትሹ ማብራሪያ ያላቸው ጥያቄዎችን ያበርክቱ።' : 'Draft self-study questions with spiritual explanations.'}
@@ -856,7 +856,7 @@ export default function TeacherPortalPage() {
             </h3>
             <p className="text-xs text-stone-500 dark:text-slate-400">
               {lang === 'am'
-                ? 'የሚያበረክቷቸው ማጣቀሻዎች እና የልምምድ ጥያቄዎች ለተማሪዎች ከመታየታቸው በፊት በአስተዳዳሪ (Admin) ይገመገማሉ።'
+                ? 'የሚያበረክቷቸው ማጣቀሻዎች እና የመልመጃ ጥያቄዎች ለተማሪዎች ከመታየታቸው በፊት በአስተዳዳሪ (Admin) ይገመገማሉ።'
                 : 'All supplementary references and self-study practice questions require Admin moderation.'}
             </p>
           </div>
@@ -969,7 +969,7 @@ export default function TeacherPortalPage() {
               }`}
             >
               <HelpCircle className="w-4 h-4" />
-              <span>{lang === 'am' ? 'የልምምድ ጥያቄ ማቅረቢያ' : 'Practice Questions'}</span>
+              <span>{lang === 'am' ? 'የመልመጃ ጥያቄ ማቅረቢያ' : 'Practice Questions'}</span>
             </button>
           </div>
 
@@ -1337,7 +1337,7 @@ export default function TeacherPortalPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="font-extrabold text-base text-stone-900 dark:text-white">
-              {lang === 'am' ? 'ያቀረቧቸው ማጣቀሻዎችና የልምምድ ጥያቄዎች' : 'Your Contributed Items & Review Status'}
+              {lang === 'am' ? 'ያቀረቧቸው ማጣቀሻዎችና የመልመጃ ጥያቄዎች' : 'Your Contributed Items & Review Status'}
             </h3>
             <span className="text-xs text-stone-500 dark:text-slate-400">
               {submissions.references.length + submissions.practiceQuestions.length} {lang === 'am' ? 'ንጥሎች' : 'items'}
@@ -1347,11 +1347,11 @@ export default function TeacherPortalPage() {
           {/* Practice Questions Submissions */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-slate-400">
-              {lang === 'am' ? 'የልምምድ ጥያቄዎች (Practice Questions)' : 'Practice Questions'}
+              {lang === 'am' ? 'የመልመጃ ጥያቄዎች (Practice Questions)' : 'Practice Questions'}
             </h4>
             {submissions.practiceQuestions.length === 0 ? (
               <p className="text-xs text-stone-400 dark:text-slate-500 italic bg-white dark:bg-slate-900 p-4 rounded-xl border border-stone-200 dark:border-slate-800">
-                {lang === 'am' ? 'ምንም ያቀረቡት የልምምድ ጥያቄ የለም።' : 'No practice questions submitted yet.'}
+                {lang === 'am' ? 'ምንም ያቀረቡት የመልመጃ ጥያቄ የለም።' : 'No practice questions submitted yet.'}
               </p>
             ) : (
               <div className="space-y-2.5">

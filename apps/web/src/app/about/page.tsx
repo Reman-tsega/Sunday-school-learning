@@ -104,7 +104,7 @@ export default function AboutPage() {
       title: t('Teachers', 'መምህራን'),
       points: [
         t('Follow the students of your Sunday School', 'የሰንበት ትምህርት ቤትዎን ተማሪዎች ይከታተሉ'),
-        t('Contribute practice questions and references', 'የልምምድ ጥያቄዎችንና ማጣቀሻዎችን ያበርክቱ'),
+        t('Contribute practice questions and references', 'የመልመጃ ጥያቄዎችንና ማጣቀሻዎችን ያበርክቱ'),
         t('Contributions are reviewed before students see them', 'ይዘቱ ተማሪዎች ከማየታቸው በፊት ይገመገማል'),
       ],
     },

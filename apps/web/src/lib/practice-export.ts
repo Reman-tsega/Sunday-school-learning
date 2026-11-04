@@ -16,7 +16,7 @@ const escapeHtml = (value: string | null | undefined): string =>
     .replace(/"/g, '&quot;');
 
 const T = {
-  title: { en: 'Practice Questions', am: 'የልምምድ ጥያቄዎች' },
+  title: { en: 'Practice Questions', am: 'የመልመጃ ጥያቄዎች' },
   answer: { en: 'Answer', am: 'መልስ' },
   explanation: { en: 'Explanation', am: 'ማብራሪያ' },
   open: { en: 'Open reflection question — no single correct answer.', am: 'ክፍት የማሰላሰያ ጥያቄ — አንድ የተወሰነ መልስ የለውም።' },

@@ -202,7 +202,7 @@ export default function AdminModerationPage() {
           </h1>
           <p className="text-stone-500 dark:text-slate-400 text-xs sm:text-sm max-w-2xl leading-relaxed">
             {lang === 'am'
-              ? 'በመምህራን የቀረቡትን ማጣቀሻዎች እና የልምምድ ጥያቄዎች ኦርቶዶክሳዊ ትምህርትን መሠረት ያደረጉ መሆናቸውን አረጋግጠው ያጽድቁ ወይም በምክንያት ይመልሱ።'
+              ? 'በመምህራን የቀረቡትን ማጣቀሻዎች እና የመልመጃ ጥያቄዎች ኦርቶዶክሳዊ ትምህርትን መሠረት ያደረጉ መሆናቸውን አረጋግጠው ያጽድቁ ወይም በምክንያት ይመልሱ።'
               : 'Review submitted supplementary reference links and self-study practice questions to uphold theological and educational excellence.'}
           </p>
         </div>
@@ -245,7 +245,7 @@ export default function AdminModerationPage() {
           }`}
         >
           <HelpCircle className="w-4 h-4" />
-          <span>{lang === 'am' ? 'የልምምድ ጥያቄዎች' : 'Practice Questions'}</span>
+          <span>{lang === 'am' ? 'የመልመጃ ጥያቄዎች' : 'Practice Questions'}</span>
           {pendingQuestions.length > 0 && (
             <span
               className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
@@ -300,7 +300,7 @@ export default function AdminModerationPage() {
             <div className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 rounded-3xl p-12 text-center text-stone-500 dark:text-slate-400 space-y-2 shadow-xs">
               <CheckCircle2 className="w-12 h-12 text-emerald-500 dark:text-emerald-400/60 mx-auto" />
               <h3 className="font-bold text-base text-stone-900 dark:text-white">
-                {lang === 'am' ? 'በግምገማ ላይ ያለ ምንም የልምምድ ጥያቄ የለም!' : 'All Practice Questions Moderated!'}
+                {lang === 'am' ? 'በግምገማ ላይ ያለ ምንም የመልመጃ ጥያቄ የለም!' : 'All Practice Questions Moderated!'}
               </h3>
               <p className="text-xs text-stone-400 dark:text-slate-500">
                 {lang === 'am'

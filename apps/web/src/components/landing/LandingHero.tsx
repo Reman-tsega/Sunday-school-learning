@@ -134,7 +134,7 @@ export function LandingHero() {
 
           <p className="max-w-xl text-sm leading-relaxed text-slate-200 sm:text-lg">
             {lang === 'am'
-              ? 'ለእያንዳንዱ የሰንበት ትምህርት ቤት ክፍል የሚሆኑ መጻሕፍት፣ ፈተናዎች እና የልምምድ ጥያቄዎች። አንድ ጊዜ ያውርዱ፣ በየትኛውም ቦታ ይማሩ፣ ኢንተርኔት ሲኖርዎ ሂደትዎን ያመሳስሉ።'
+              ? 'ለእያንዳንዱ የሰንበት ትምህርት ቤት ክፍል የሚሆኑ መጻሕፍት፣ ፈተናዎች እና የመልመጃ ጥያቄዎች። አንድ ጊዜ ያውርዱ፣ በየትኛውም ቦታ ይማሩ፣ ኢንተርኔት ሲኖርዎ ሂደትዎን ያመሳስሉ።'
               : 'Textbooks, quizzes and practice questions for every Sunday School grade. Download once, study anywhere, and sync your progress when you are back online.'}
           </p>
 

@@ -18,7 +18,7 @@ function TeachersSection() {
     {
       icon: Church,
       en: 'Contribute practice questions and reference documents for any chapter.',
-      am: 'ለማንኛውም ምዕራፍ የልምምድ ጥያቄዎችንና ማጣቀሻ ሰነዶችን ያበርክቱ።',
+      am: 'ለማንኛውም ምዕራፍ የመልመጃ ጥያቄዎችንና ማጣቀሻ ሰነዶችን ያበርክቱ።',
     },
     {
       icon: ShieldCheck,

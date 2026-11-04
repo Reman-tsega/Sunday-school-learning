@@ -220,13 +220,13 @@ export class ModerationService {
       try {
         await notificationService.createNotification(adminId, {
           title: isApprove ? 'Practice Question Approved' : 'Practice Question Needs Revision',
-          amharicTitle: isApprove ? 'የልምምድ ጥያቄ ጸድቋል' : 'የልምምድ ጥያቄ ማስተካከያ ይፈልጋል',
+          amharicTitle: isApprove ? 'የመልመጃ ጥያቄ ጸድቋል' : 'የመልመጃ ጥያቄ ማስተካከያ ይፈልጋል',
           content: isApprove
             ? `Your practice question for "${question.chapter.title}" has been approved.`
             : `Your practice question for "${question.chapter.title}" was declined. Reason: ${rejectionReason || 'Please review question.'}`,
           amharicContent: isApprove
-            ? `ለ«${question.chapter.amharicTitle || question.chapter.title}» ያቀረቡት የልምምድ ጥያቄ ጸድቋል።`
-            : `ያቀረቡት የልምምድ ጥያቄ ተቀባይነት አላገኘም። ምክንያት፡ ${rejectionReason || 'እባክዎ እንደገና ይመልከቱ።'}`,
+            ? `ለ«${question.chapter.amharicTitle || question.chapter.title}» ያቀረቡት የመልመጃ ጥያቄ ጸድቋል።`
+            : `ያቀረቡት የመልመጃ ጥያቄ ተቀባይነት አላገኘም። ምክንያት፡ ${rejectionReason || 'እባክዎ እንደገና ይመልከቱ።'}`,
           targetType: 'BY_ROLE',
           targetRole: 'TEACHER',
           linkUrl: '/teacher?tab=submissions',
@@ -274,9 +274,9 @@ export class ModerationService {
 
       await notificationService.createNotification(adminId, {
         title: `New Practice Questions: ${chapter.title}`,
-        amharicTitle: `አዲስ የልምምድ ጥያቄዎች፡ ${chapter.amharicTitle || chapter.title}`,
+        amharicTitle: `አዲስ የመልመጃ ጥያቄዎች፡ ${chapter.amharicTitle || chapter.title}`,
         content: `New practice drills were added for Grade ${chapter.subject.grade.level} · ${chapter.subject.name} · ${chapter.title}. Tap to try them.`,
-        amharicContent: `ለክፍል ${chapter.subject.grade.level} · ${chapter.subject.amharicName || chapter.subject.name} · ${chapter.amharicTitle || chapter.title} አዲስ የልምምድ ጥያቄዎች ተጨምረዋል። ለመሞከር ይንኩ።`,
+        amharicContent: `ለክፍል ${chapter.subject.grade.level} · ${chapter.subject.amharicName || chapter.subject.name} · ${chapter.amharicTitle || chapter.title} አዲስ የመልመጃ ጥያቄዎች ተጨምረዋል። ለመሞከር ይንኩ።`,
         targetType: 'BY_GRADE',
         targetGradeId: gradeId,
         linkUrl,

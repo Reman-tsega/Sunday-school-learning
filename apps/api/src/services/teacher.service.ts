@@ -467,10 +467,10 @@ Grade ${chapter.subject.grade.level} · ${chapter.subject.name} · ${chapter.tit
       try {
         await notificationService.createNotification(teacherId, {
           title: `New Practice Question Pending Review`,
-          amharicTitle: `አዲስ የልምምድ ጥያቄ ይሁንታ ይጠብቃል`,
+          amharicTitle: `አዲስ የመልመጃ ጥያቄ ይሁንታ ይጠብቃል`,
           content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Sunday School not set'}) submitted a practice question.
 Grade ${chapter.subject.grade.level} · ${chapter.subject.name} · ${chapter.title}`,
-          amharicContent: `መምህር ${teacher.fullName} (${teacher.churchParish || 'ሰንበት ት/ቤት ያልተመዘገበ'}) አዲስ የልምምድ ጥያቄ አቅርበዋል።
+          amharicContent: `መምህር ${teacher.fullName} (${teacher.churchParish || 'ሰንበት ት/ቤት ያልተመዘገበ'}) አዲስ የመልመጃ ጥያቄ አቅርበዋል።
 ክፍል ${chapter.subject.grade.level} · ${chapter.subject.amharicName || chapter.subject.name} · ${chapter.amharicTitle || chapter.title}`,
           targetType: 'BY_ROLE',
           targetRole: 'ADMIN',
@@ -518,10 +518,10 @@ Grade ${chapter.subject.grade.level} · ${chapter.subject.name} · ${chapter.tit
         const n = created.length;
         await notificationService.createNotification(teacherId, {
           title: `New Practice Questions Pending Review (${n})`,
-          amharicTitle: `${n} አዲስ የልምምድ ጥያቄዎች ይሁንታ ይጠብቃሉ`,
+          amharicTitle: `${n} አዲስ የመልመጃ ጥያቄዎች ይሁንታ ይጠብቃሉ`,
           content: `Teacher ${teacher.fullName} (${teacher.churchParish || 'Sunday School not set'}) sent ${n} practice question${n === 1 ? '' : 's'} for review.
 Grade ${chapter.subject.grade.level} · ${chapter.subject.name} · ${chapter.title}`,
-          amharicContent: `መምህር ${teacher.fullName} (${teacher.churchParish || 'ሰንበት ት/ቤት ያልተመዘገበ'}) ${n} የልምምድ ጥያቄዎችን ለግምገማ ልከዋል።
+          amharicContent: `መምህር ${teacher.fullName} (${teacher.churchParish || 'ሰንበት ት/ቤት ያልተመዘገበ'}) ${n} የመልመጃ ጥያቄዎችን ለግምገማ ልከዋል።
 ክፍል ${chapter.subject.grade.level} · ${chapter.subject.amharicName || chapter.subject.name} · ${chapter.amharicTitle || chapter.title}`,
           targetType: 'BY_ROLE',
           targetRole: 'ADMIN',
