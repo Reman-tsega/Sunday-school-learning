@@ -345,6 +345,11 @@ export default function DownloadManagerPage() {
                         {lang === 'am' ? `ክፍል ${manifest.gradeLevel}` : `Grade ${manifest.gradeLevel}`} ·{' '}
                         {pick(manifest.amharicSubjectName, manifest.subjectName)}
                       </span>
+                      {manifest.chapterNumber != null && (
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-stone-100 dark:bg-slate-800 text-stone-700 dark:text-slate-300 font-bold border border-stone-200 dark:border-slate-700">
+                          {lang === 'am' ? `ምዕራፍ ${manifest.chapterNumber}` : `Chapter ${manifest.chapterNumber}`}
+                        </span>
+                      )}
                       <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800">
                         v{manifest.version}
                       </span>
@@ -354,7 +359,7 @@ export default function DownloadManagerPage() {
                         </span>
                       )}
                     </div>
-                    <h3 className="font-bold text-stone-900 dark:text-white text-sm sm:text-base mt-0.5 truncate">
+                    <h3 className="font-bold text-stone-900 dark:text-white text-sm sm:text-base mt-0.5 break-words">
                       {pick(manifest.amharicChapterTitle, manifest.chapterTitle)}
                     </h3>
                     <p className="text-xs text-stone-500 dark:text-slate-400 mt-1">

@@ -172,7 +172,11 @@ export default function ChapterStudyPage() {
         setManifest(activeManifest);
 
         // Check if student dismissed download prompt permanently
-        const hidePrompt = localStorage.getItem('eotc_hide_dl_prompt') === 'true';
+        let answered = false;
+        try {
+          answered = sessionStorage.getItem(`eotc_dl_prompt_answered_${chapterId}`) === '1';
+        } catch {}
+        const hidePrompt = localStorage.getItem('eotc_hide_dl_prompt') === 'true' || answered;
         if (!hidePrompt && (!local || local.downloadStatus !== 'AVAILABLE_OFFLINE')) {
           setShowDownloadPrompt(true);
         }
@@ -265,6 +269,9 @@ export default function ChapterStudyPage() {
     if (dontAskAgain) {
       localStorage.setItem('eotc_hide_dl_prompt', 'true');
     }
+    try {
+      sessionStorage.setItem(`eotc_dl_prompt_answered_${chapterId}`, '1');
+    } catch {}
     setShowDownloadPrompt(false);
   };
 

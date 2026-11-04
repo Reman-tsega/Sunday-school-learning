@@ -341,7 +341,10 @@ export default function CurriculumPage() {
       router.push(`/chapters/${studyPromptChapter.id}`);
     } catch (err) {
       console.error('Download before study failed:', err);
-      // Fallback: still navigate so student is never stuck
+      // Fallback: still navigate so student is never stuck (without asking a second time)
+      try {
+        sessionStorage.setItem(`eotc_dl_prompt_answered_${studyPromptChapter.id}`, '1');
+      } catch {}
       router.push(`/chapters/${studyPromptChapter.id}`);
     } finally {
       setStudyPromptDownloading(false);
@@ -355,6 +358,10 @@ export default function CurriculumPage() {
       localStorage.setItem('eotc_hide_dl_prompt', 'true');
     }
     const targetId = studyPromptChapter.id;
+    // The student already chose to study online: the chapter page must not ask again
+    try {
+      sessionStorage.setItem(`eotc_dl_prompt_answered_${targetId}`, '1');
+    } catch {}
     setStudyPromptChapter(null);
     router.push(`/chapters/${targetId}`);
   };
