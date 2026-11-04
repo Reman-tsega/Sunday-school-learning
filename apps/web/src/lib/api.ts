@@ -615,6 +615,21 @@ export class ApiClient {
     return this.reconstructCurriculumFromPackages(offlinePackages.map((p) => p.manifest));
   }
 
+  /** The server's current manifest for a chapter, or null when offline or unavailable. */
+  async fetchLatestManifest(chapterId: string): Promise<LearningPackageManifest | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/student/packages/${chapterId}`, {
+        headers: this.token ? { Authorization: `Bearer ${this.token}` } : {},
+      });
+      if (!res.ok) return null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const json: any = await res.json();
+      return json.data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   async getPackageManifest(chapterId: string): Promise<LearningPackageManifest> {
     // 1. Check local IndexedDB first for offline guarantee
     const localPkg = await getOfflinePackage(chapterId);

@@ -153,6 +153,18 @@ export default function ChapterStudyPage() {
         setManifest(local.manifest);
       }
 
+      // A downloaded chapter may be out of date (e.g. a quiz was added later): refresh it quietly
+      if (local?.downloadStatus === 'AVAILABLE_OFFLINE' && navigator.onLine) {
+        void api.fetchLatestManifest(chapterId).then(async (latest) => {
+          if (!latest) return;
+          const updated = await downloadManager.refreshPackage(local, latest);
+          if (updated !== local) {
+            setOfflinePkg(updated);
+            setManifest(updated.manifest);
+          }
+        }).catch((err) => console.warn('Could not check for chapter updates:', err));
+      }
+
       // 2. Try fetching from network if manifest not present or online
       let activeManifest = local?.manifest;
       if (!local || local.downloadStatus !== 'AVAILABLE_OFFLINE') {

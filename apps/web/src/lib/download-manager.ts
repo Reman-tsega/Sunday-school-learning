@@ -108,6 +108,63 @@ export class WebDownloadManager {
     }
   }
 
+  /**
+   * Brings an already downloaded chapter up to date with the server's latest manifest
+   * (for example a quiz added after the student downloaded it). Files that did not change
+   * are reused; the current offline copy is kept untouched if anything new fails to download.
+   */
+  async refreshPackage(local: StoredPackage, latest: LearningPackageManifest): Promise<StoredPackage> {
+    if (local.manifest.checksumSha256 === latest.checksumSha256) return local;
+
+    const sameTextbook =
+      local.textbookBlob &&
+      local.manifest.textbook.checksumSha256 === latest.textbook.checksumSha256 &&
+      local.manifest.textbook.fileUrl === latest.textbook.fileUrl;
+
+    let textbookBlob = local.textbookBlob;
+    if (!sameTextbook) {
+      try {
+        const url = latest.textbook.chapterPdfUrl || latest.textbook.fileUrl || `/api/chapters/${latest.chapterId}/pdf`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        if (blob.size === 0) throw new Error('empty textbook');
+        textbookBlob = blob;
+      } catch (err) {
+        console.warn('Chapter update postponed; keeping the downloaded copy:', err);
+        return local;
+      }
+    }
+
+    const referenceBlobs: Record<string, Blob> = {};
+    for (const ref of latest.references.filter((r) => r.isDownloadable && r.downloadableDocUrl)) {
+      const kept = local.referenceBlobs?.[ref.id];
+      if (kept) {
+        referenceBlobs[ref.id] = kept;
+        continue;
+      }
+      try {
+        const res = await fetch(ref.downloadableDocUrl!);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        if (blob.size > 0) referenceBlobs[ref.id] = blob;
+      } catch (refErr) {
+        console.warn(`Reference "${ref.title}" could not be saved offline:`, refErr);
+      }
+    }
+
+    const updated: StoredPackage = {
+      ...local,
+      manifest: latest,
+      downloadStatus: 'AVAILABLE_OFFLINE',
+      downloadedAt: new Date().toISOString(),
+      ...(textbookBlob ? { textbookBlob } : {}),
+      referenceBlobs,
+    };
+    await saveOfflinePackage(updated);
+    return updated;
+  }
+
   async removePackage(chapterId: string): Promise<void> {
     await deleteOfflinePackage(chapterId);
   }
