@@ -6,6 +6,7 @@ import { PackageStatus } from '@prisma/client';
 import { prisma } from '../config/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { fileStoreService } from './file-store.service.js';
+import { decryptPdf } from '../utils/pdf-decrypt.js';
 import type {
   LearningPackageManifest,
   TextbookAsset,
@@ -919,7 +920,8 @@ export class CurriculumService {
     const cacheDir = path.resolve(process.cwd(), 'uploads/cache/chapters');
     fs.mkdirSync(cacheDir, { recursive: true });
 
-    const cacheFileName = `${chapter.id}-v${chapter.version}-p${startPage}-p${endPage}.pdf`;
+    // "-d": built from a decrypted master (older cached files from encrypted books were blank)
+    const cacheFileName = `${chapter.id}-v${chapter.version}-p${startPage}-p${endPage}-d.pdf`;
     const cacheFilePath = path.join(cacheDir, cacheFileName);
 
     // Return cached PDF if it exists and is valid
@@ -940,7 +942,9 @@ export class CurriculumService {
     }
 
     // Extract pages using pdf-lib
-    const masterBytes = fs.readFileSync(masterPath);
+    // Books uploaded before decryption-on-upload may still be encrypted: pages copied by pdf-lib
+    // from an encrypted file come out blank, so decrypt in memory first
+    const { bytes: masterBytes } = await decryptPdf(fs.readFileSync(masterPath));
     const masterDoc = await PDFDocument.load(masterBytes, { ignoreEncryption: true });
     const masterTotal = masterDoc.getPageCount();
 

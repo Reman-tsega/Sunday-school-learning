@@ -15,6 +15,7 @@ import {
 } from '@eotc/shared';
 import { curriculumService } from '../services/curriculum.service.js';
 import { fileStoreService } from '../services/file-store.service.js';
+import { decryptPdfFile } from '../utils/pdf-decrypt.js';
 import type { ApiResponse } from '@eotc/shared';
 
 // ==========================================
@@ -274,9 +275,22 @@ export async function uploadPdf(req: Request, res: Response<ApiResponse<unknown>
     }
 
     const filePath = req.file.path;
+    if (req.file.mimetype === 'application/pdf' || req.file.originalname.toLowerCase().endsWith('.pdf')) {
+      // Owner-password protection would make every extracted chapter page blank, so remove it now
+      const { needsPassword } = await decryptPdfFile(filePath);
+      if (needsPassword) {
+        fs.rmSync(filePath, { force: true });
+        res.status(400).json({
+          success: false,
+          error: { code: 'PDF_PASSWORD_PROTECTED', message: 'This PDF needs a password to open. Upload a copy without a password.' },
+          meta: { timestamp: new Date().toISOString() },
+        });
+        return;
+      }
+    }
     const fileBuffer = fs.readFileSync(filePath);
     const checksumSha256 = crypto.createHash('sha256').update(fileBuffer).digest('hex');
-    const fileSize = req.file.size;
+    const fileSize = fileBuffer.length;
     const protocol = req.protocol;
     const host = req.get('host') || 'localhost:4000';
     const subfolder = req.file.destination.includes('references') ? 'references' : 'textbooks';
