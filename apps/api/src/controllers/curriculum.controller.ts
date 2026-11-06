@@ -360,7 +360,10 @@ export async function getChapterPdf(req: Request, res: Response, next: NextFunct
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
     res.setHeader('Accept-Ranges', 'bytes');
-    res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=3600');
+    // Revalidate every time (the ETag keeps that cheap): the URL stays the same when a chapter's page
+    // range or book changes, and a day-long CDN/browser cache kept serving the old PDF.
+    // Offline reading uses the copies the app saves itself, not the HTTP cache.
+    res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
     res.removeHeader('X-Frame-Options');
