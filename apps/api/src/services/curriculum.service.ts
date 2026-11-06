@@ -7,6 +7,15 @@ import { prisma } from '../config/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { fileStoreService } from './file-store.service.js';
 import { decryptPdf } from '../utils/pdf-decrypt.js';
+
+/**
+ * Address of a chapter's PDF. The query changes whenever the chapter is republished or its page range
+ * changes, so CDN and browser caches can never serve an outdated file under the same address.
+ */
+function chapterPdfUrl(chapter: { id: string; version: number; textbook: { startPage: number; endPage: number } | null }): string {
+  const range = chapter.textbook ? `${chapter.textbook.startPage}-${chapter.textbook.endPage}` : 'none';
+  return `/api/chapters/${chapter.id}/pdf?v=${chapter.version}.${range}.d`;
+}
 import type {
   LearningPackageManifest,
   TextbookAsset,
@@ -576,7 +585,7 @@ export class CurriculumService {
       id: chapter.textbook.id,
       title: chapter.textbook.title,
       fileUrl: chapter.textbook.fileUrl,
-      chapterPdfUrl: `/api/chapters/${chapter.id}/pdf`,
+      chapterPdfUrl: chapterPdfUrl(chapter),
       fileSize: isolatedPdf?.fileSize ?? chapter.textbook.fileSize,
       checksumSha256: isolatedPdf?.checksumSha256 ?? chapter.textbook.checksumSha256,
       mimeType: 'application/pdf',
@@ -846,7 +855,7 @@ export class CurriculumService {
 
     // Ensure student viewer and download manager have access to the isolated chapter PDF
     if (manifest.textbook) {
-      manifest.textbook.chapterPdfUrl = `/api/chapters/${chapterId}/pdf`;
+      manifest.textbook.chapterPdfUrl = chapterPdfUrl(chapter);
     }
 
     return manifest;

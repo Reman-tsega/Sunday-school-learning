@@ -166,6 +166,7 @@ describe('Chapter-Isolated PDF Reader & Boundary Delivery Verification', () => {
 
     const manifest = res.body.data;
     expect(manifest.textbook).toBeDefined();
-    expect(manifest.textbook.chapterPdfUrl).toBe(`/api/chapters/${chapterId}/pdf`);
+    // Versioned by chapter version and page range, so caches never serve an outdated PDF
+    expect(manifest.textbook.chapterPdfUrl).toMatch(new RegExp(`^/api/chapters/${chapterId}/pdf\\?v=\\d+\\.\\d+-\\d+\\.d$`));
   });
 });

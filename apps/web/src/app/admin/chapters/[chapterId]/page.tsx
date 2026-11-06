@@ -1016,7 +1016,7 @@ export default function AdminChapterStudioPage() {
               </p>
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <a
-                  href={`/api/chapters/${chapterId}/pdf`}
+                  href={`/api/chapters/${chapterId}/pdf?v=${chapter.version ?? 0}.${chapter.textbook.startPage}-${chapter.textbook.endPage}.d`}
                   target="_blank"
                   rel="noreferrer"
                   className="py-1.5 px-2 bg-white dark:bg-slate-800 hover:bg-stone-100 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 rounded text-center text-[11px] font-semibold transition flex items-center justify-center space-x-1 border border-stone-200 dark:border-slate-700"
