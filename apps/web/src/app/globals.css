@@ -106,3 +106,19 @@ body {
   .eotc-pop, .eotc-shake, .eotc-rise { animation: none; }
   .eotc-confetti-piece { display: none; }
 }
+
+/* Telegram sign-in splash: a sliding progress bar and a soft glow behind the logo */
+@keyframes eotc-indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+@keyframes eotc-glow {
+  0%, 100% { transform: scale(0.9); opacity: 0.45; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+.eotc-indeterminate { animation: eotc-indeterminate 1.3s ease-in-out infinite; }
+.eotc-glow { animation: eotc-glow 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .eotc-indeterminate { animation-duration: 3s; }
+  .eotc-glow { animation: none; }
+}

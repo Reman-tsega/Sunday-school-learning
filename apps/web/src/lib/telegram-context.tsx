@@ -2,7 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Loader2, WifiOff, ShieldAlert, RefreshCw, GraduationCap } from 'lucide-react';
+import { WifiOff, ShieldAlert, RefreshCw, GraduationCap } from 'lucide-react';
 import type { TelegramLinkStatus, UserProfile } from '@eotc/shared';
 import { api, ApiError } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
@@ -112,9 +112,15 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
         /* storage unavailable */
       }
 
-      // Offline the Telegram script may not load; the launch data in the URL is still enough to decide
-      const wa = await loadTelegramWebApp();
-      const initData = wa?.initData || readLaunchInitData();
+      // The signed launch data is already in the URL, so signing in does not wait for Telegram's script
+      // to download (offline it may never load); the script only sets up Telegram's UI once it arrives.
+      const waPromise = loadTelegramWebApp();
+      let initData = readLaunchInitData();
+      let wa: TelegramWebApp | null = null;
+      if (!initData) {
+        wa = await waPromise;
+        initData = wa?.initData || null;
+      }
       if (cancelled) return;
       if (!initData) {
         // Not really inside Telegram (e.g. a copied /tg link opened in a browser)
@@ -129,11 +135,11 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
       }
 
       document.documentElement.setAttribute('data-tg', '');
-      if (wa) {
-        setWebApp(wa);
-        wa.ready();
-        wa.expand();
-        wa.disableVerticalSwipes?.();
+      const setUpWebApp = (app: TelegramWebApp) => {
+        setWebApp(app);
+        app.ready();
+        app.expand();
+        app.disableVerticalSwipes?.();
         // Follow Telegram's light/dark mode unless the student picked one in the app
         let storedTheme: string | null = null;
         try {
@@ -141,12 +147,20 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
         } catch {
           /* storage unavailable */
         }
-        if (!storedTheme && wa.colorScheme !== theme) setTheme(wa.colorScheme);
-      }
+        if (!storedTheme && app.colorScheme !== theme) setTheme(app.colorScheme);
+      };
+      if (wa) setUpWebApp(wa);
+      else
+        void waPromise.then((app) => {
+          if (!cancelled && app) setUpWebApp(app);
+        });
 
       await api.init();
       const cachedUser = api.getUser();
-      const sameStudent = cachedUser?.telegramId != null && cachedUser.telegramId === launchUserId(initData);
+      const sameStudent =
+        !!api.getToken() && cachedUser?.telegramId != null && cachedUser.telegramId === launchUserId(initData);
+      // A launch from a website "connect Telegram" link must wait for the result of linking
+      const isLinkLaunch = !!new URLSearchParams(initData).get('start_param');
 
       let alreadyAuthed = false;
       try {
@@ -159,6 +173,11 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      // Returning student on this device: open the app at once with their saved session and renew it in
+      // the background, instead of making them wait for the server (which may be waking up).
+      const openedEarly = sameStudent && !isLinkLaunch;
+      if (openedEarly) setStatus('ready');
+
       try {
         const result = await api.loginWithTelegram(initData);
         if (cancelled) return;
@@ -167,9 +186,12 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
         } catch {
           /* storage unavailable */
         }
-        setLaunch({ isNewUser: result.isNewUser, ...(result.linkStatus ? { linkStatus: result.linkStatus } : {}) });
-        setStatus('ready');
-        if (wa) requestAnnouncementPermission(wa, result.user);
+        if (!openedEarly) {
+          setLaunch({ isNewUser: result.isNewUser, ...(result.linkStatus ? { linkStatus: result.linkStatus } : {}) });
+          setStatus('ready');
+        }
+        const app = wa ?? (await waPromise);
+        if (app && !cancelled) requestAnnouncementPermission(app, result.user);
         if (result.linkStatus) {
           const msg = LINK_MESSAGES[result.linkStatus];
           void uiAlert(langRef.current === 'am' ? msg.am : msg.en);
@@ -179,7 +201,10 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
         const code = err instanceof ApiError ? err.code : undefined;
         if (code === 'TELEGRAM_STUDENTS_ONLY') setStatus('students-only');
         else if (code === 'ACCOUNT_INACTIVE') setStatus('inactive');
-        else if (code === 'TELEGRAM_INIT_DATA_EXPIRED') setStatus('expired');
+        else if (openedEarly) {
+          // Already in the app with a valid saved session; an expired launch or a network hiccup can wait
+          // until the session itself needs renewing.
+        } else if (code === 'TELEGRAM_INIT_DATA_EXPIRED') setStatus('expired');
         else if (code === 'NETWORK_ERROR' || code === 'SERVER_UNAVAILABLE' || !navigator.onLine) {
           // Offline: carry on with this student's cached session, never with someone else's
           setStatus(sameStudent ? 'ready' : 'offline');
@@ -245,6 +270,63 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Shown while a first-time (or switched) student is signed in. The free server sleeps when idle and can
+ * take up to a minute to wake, so after a few seconds the screen says so rather than looking stuck.
+ */
+export function SignInSplash({ pick }: { pick: (am: string, en: string) => string }) {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    const started = Date.now();
+    const timer = window.setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const step =
+    elapsed < 4
+      ? pick('በመግባት ላይ…', 'Signing you in…')
+      : elapsed < 10
+        ? pick('ከአገልጋዩ ጋር በመገናኘት ላይ…', 'Connecting to the server…')
+        : pick('አገልጋዩ እየተነሣ ነው…', 'The server is waking up…');
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex flex-col items-center justify-center px-8 text-center bg-[#FCFBF7] dark:bg-[#020617]"
+      data-tg-gate
+      role="status"
+      aria-live="polite"
+    >
+      <div className="relative w-28 h-28 flex items-center justify-center">
+        <div className="eotc-glow absolute inset-0 rounded-full bg-amber-400/30 dark:bg-amber-500/20 blur-xl" aria-hidden />
+        <div className="relative w-24 h-24 rounded-3xl bg-[#0C2340] shadow-xl shadow-amber-900/20 ring-1 ring-amber-500/30 flex items-center justify-center overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icon.svg" alt="" className="w-full h-full" />
+        </div>
+      </div>
+
+      <h1 className="mt-6 text-xl font-extrabold text-[#0C2340] dark:text-amber-50">ሰንበት ትምህርት ቤት</h1>
+      <p className="mt-1 text-xs font-medium text-stone-500 dark:text-slate-400">
+        {pick('የመማሪያ መድረክ', 'Sunday School learning')}
+      </p>
+
+      <div className="mt-8 w-48 h-1.5 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden" aria-hidden>
+        <div className="eotc-indeterminate h-full w-2/5 rounded-full bg-gradient-to-r from-amber-400 to-amber-600" />
+      </div>
+      <p key={step} className="eotc-rise mt-4 text-sm font-semibold text-stone-600 dark:text-slate-300">
+        {step}
+      </p>
+      {elapsed >= 10 && (
+        <p className="eotc-rise mt-2 max-w-xs text-xs leading-relaxed text-stone-500 dark:text-slate-400">
+          {pick(
+            'ለረጅም ጊዜ ጥቅም ላይ ካልዋለ በኋላ የመጀመሪያው መክፈቻ እስከ አንድ ደቂቃ ሊወስድ ይችላል። እባክዎ ይጠብቁ።',
+            'After a quiet spell the first open can take up to a minute. Thanks for waiting.'
+          )}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function TelegramGate({
   status,
   onRetry,
@@ -257,14 +339,7 @@ function TelegramGate({
   const { lang } = useLanguage();
   const pick = (am: string, en: string) => (lang === 'am' ? am : en);
 
-  if (status === 'loading') {
-    return (
-      <div className="flex flex-col items-center justify-center gap-3 py-24 text-stone-500 dark:text-slate-400" data-tg-gate>
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
-        <p className="text-sm font-semibold">{pick('በመግባት ላይ...', 'Signing you in...')}</p>
-      </div>
-    );
-  }
+  if (status === 'loading') return <SignInSplash pick={pick} />;
 
   const content: Record<typeof status, { icon: React.ReactNode; title: string; body: string; retry: boolean }> = {
     offline: {

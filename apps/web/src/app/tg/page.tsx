@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-import { useTelegram } from '@/lib/telegram-context';
+import { SignInSplash, useTelegram } from '@/lib/telegram-context';
+import { useLanguage } from '@/lib/language-context';
 
 /**
  * Telegram Mini App entry point (the URL configured in @BotFather). TelegramProvider signs the student in
@@ -11,7 +11,14 @@ import { useTelegram } from '@/lib/telegram-context';
  */
 export default function TelegramEntryPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
   const { status, launch } = useTelegram();
+
+  // Fetch the lessons page while signing in, so the hand-over is instant
+  useEffect(() => {
+    router.prefetch('/');
+    router.prefetch('/profile');
+  }, [router]);
 
   useEffect(() => {
     if (status !== 'ready' && status !== 'web') return;
@@ -19,9 +26,6 @@ export default function TelegramEntryPage() {
     router.replace(launch?.isNewUser ? '/profile?welcome=1' : '/');
   }, [status, launch, router]);
 
-  return (
-    <div className="flex justify-center py-24">
-      <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
-    </div>
-  );
+  // Same screen as the sign-in splash, so there is no flash between signing in and the lessons page
+  return <SignInSplash pick={(am, en) => (lang === 'am' ? am : en)} />;
 }
