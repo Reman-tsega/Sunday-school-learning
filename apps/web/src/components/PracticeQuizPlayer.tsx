@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, RotateCcw, Award, History, Clock } from 'lucide-react';
 import { saveQuizAttempt, getQuizAttempts, saveStudentProgress } from '@/lib/offline-db';
 import type { OfflineQuiz, OfflineQuizAttempt } from '@eotc/shared';
 import { useLanguage } from '@/lib/language-context';
-import { useTelegram } from '@/lib/telegram-context';
 import { haptic } from '@/lib/telegram';
 
 interface PracticeQuizPlayerProps {
@@ -119,29 +118,7 @@ export function PracticeQuizPlayer({ quiz, chapterId, userId }: PracticeQuizPlay
   };
 
   const allAnswered = quiz.questions.every((q) => selectedAnswers[q.id] !== undefined);
-
-  // Inside Telegram, submitting uses Telegram's own bottom button
-  const { webApp } = useTelegram();
-  const submitRef = useRef(handleSubmit);
-  submitRef.current = handleSubmit;
-  useEffect(() => {
-    if (!webApp) return;
-    const button = webApp.MainButton;
-    if (isSubmitted) {
-      button.hide();
-      return;
-    }
-    const onClick = () => void submitRef.current();
-    button.setText(lang === 'am' ? 'መልሶችን አስረክብ' : 'Submit Answers');
-    if (allAnswered) button.enable();
-    else button.disable();
-    button.onClick(onClick);
-    button.show();
-    return () => {
-      button.offClick(onClick);
-      button.hide();
-    };
-  }, [webApp, isSubmitted, allAnswered, lang]);
+  const answeredCount = quiz.questions.filter((q) => selectedAnswers[q.id] !== undefined).length;
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -239,13 +216,25 @@ export function PracticeQuizPlayer({ quiz, chapterId, userId }: PracticeQuizPlay
         {/* Submit or Score Summary */}
         <div className="mt-6 pt-4 border-t border-stone-200 dark:border-slate-800">
           {!isSubmitted ? (
-            <button
-              onClick={handleSubmit}
-              disabled={!allAnswered}
-              className="tg-hide w-full sm:w-auto px-6 py-3 bg-eotc-navy dark:bg-amber-500 dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm rounded-xl shadow transition cursor-pointer"
-            >
-              {lang === 'am' ? 'መልሶችን አስረክብ' : 'Submit Answers'}
-            </button>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!allAnswered}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-sm shadow-md shadow-amber-900/20 ring-1 ring-amber-500/40 transition active:scale-[0.98] disabled:opacity-45 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer"
+              >
+                {lang === 'am' ? 'መልሶችን አስረክብ' : 'Submit Answers'}
+              </button>
+              <span className="text-xs text-center sm:text-left text-stone-500 dark:text-slate-400">
+                {allAnswered
+                  ? lang === 'am'
+                    ? 'ሁሉንም ጥያቄዎች መልሰዋል'
+                    : 'All questions answered'
+                  : lang === 'am'
+                    ? `${answeredCount} / ${quiz.questions.length} ተመልሰዋል — ለማስረከብ ሁሉንም ይመልሱ`
+                    : `${answeredCount} of ${quiz.questions.length} answered — answer all to submit`}
+              </span>
+            </div>
           ) : (
             <div className="w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-stone-100 dark:bg-slate-950/80 p-3.5 sm:p-4 rounded-xl border border-stone-300 dark:border-slate-800">
               <div className="flex items-center space-x-3">
