@@ -11,11 +11,11 @@ import { InstallPrompt } from '@/components/InstallApp';
 import { TelegramProvider } from '@/lib/telegram-context';
 
 export const metadata: Metadata = {
-  title: 'የሰንበት ትምህርት ቤት አንድነት የመማሪያ መድረክ',
+  title: 'ሰንበት ትምህርት ቤት ኮርስ መማርያ',
   description: 'Lean offline-first learning platform for Sunday School students',
   manifest: '/manifest.json',
   openGraph: {
-    title: 'የሰንበት ትምህርት ቤት አንድነት የመማሪያ መድረክ',
+    title: 'ሰንበት ትምህርት ቤት ኮርስ መማርያ',
     description: 'Offline-first learning platform for Ethiopian Orthodox Sunday School students: textbooks, quizzes and practice questions in Amharic and English.',
     type: 'website',
     locale: 'am_ET',

@@ -525,7 +525,7 @@ export default function CurriculumPage() {
           <div className="max-w-2xl">
             <span className="text-[11px] sm:text-xs uppercase tracking-widest text-amber-300 font-semibold flex items-center space-x-1">
               <Sparkles className="w-3.5 h-3.5 mr-1" />
-              {lang === 'am' ? 'የሰንበት ትምህርት ቤት አንድነት' : 'EOTC Sunday School Platform'}
+              {lang === 'am' ? 'ሰንበት ትምህርት ቤት ኮርስ መማርያ' : 'Sunday School Course Learning'}
             </span>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1">
               {lang === 'am' ? 'ኦርቶዶክሳዊ የትምህርት መድረክ' : 'Orthodox Christian Learning Platform'}

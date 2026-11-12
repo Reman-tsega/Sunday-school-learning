@@ -122,7 +122,7 @@ export function LandingHero() {
         <div className="space-y-6">
           <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-200 sm:text-xs">
             <span aria-hidden="true">✞</span>
-            {lang === 'am' ? 'የኢኦተቤ ሰንበት ትምህርት ቤት መድረክ' : 'EOTC Sunday School Platform'}
+            {lang === 'am' ? 'ሰንበት ትምህርት ቤት ኮርስ መማርያ' : 'Sunday School Course Learning'}
           </span>
 
           <h1 id="landing-title" className="text-[2rem] font-black leading-[1.12] tracking-tight sm:text-5xl lg:text-[3.4rem]">

@@ -429,7 +429,7 @@ export default function TeacherPortalPage() {
           <div className="space-y-2 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs uppercase tracking-widest font-black text-amber-400 bg-amber-950/80 px-2.5 py-1 rounded-full border border-amber-500/30">
-                ✟ {lang === 'am' ? 'የኦርቶዶክስ ተዋሕዶ ሰንበት ትምህርት ቤት' : 'EOTC Sunday School Platform'}
+                ✟ {lang === 'am' ? 'ሰንበት ትምህርት ቤት ኮርስ መማርያ' : 'Sunday School Course Learning'}
               </span>
               <span className="text-xs font-bold text-amber-300 bg-amber-900/60 px-2 py-0.5 rounded border border-amber-700/50">
                 {currentUser?.role}

@@ -14,7 +14,7 @@ export interface LanguageContextType {
 
 const translations: Record<string, { am: string; en: string }> = {
   // Navigation & Brand
-  'brand.title': { am: 'የሰንበት ት/ቤት አንድነት', en: 'EOTC Sunday School Platform' },
+  'brand.title': { am: 'ሰንበት ትምህርት ቤት ኮርስ መማርያ', en: 'Sunday School Course Learning' },
   'brand.subtitle': { am: 'ኦርቶዶክሳዊ የመማሪያ መድረክ', en: 'Orthodox Learning Platform' },
   'nav.admin': { am: 'አስተዳዳሪ', en: 'Admin Portal' },
   'nav.downloads': { am: 'የወረዱ መጻሕፍት', en: 'Downloaded Books' },

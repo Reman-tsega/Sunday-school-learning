@@ -22,7 +22,7 @@ const T = {
   open: { en: 'Open reflection question — no single correct answer.', am: 'ክፍት የማሰላሰያ ጥያቄ — አንድ የተወሰነ መልስ የለውም።' },
   name: { en: 'Name', am: 'ስም' },
   date: { en: 'Date', am: 'ቀን' },
-  generated: { en: 'Generated from the EOTC Sunday School Platform', am: 'ከኢኦተቤ ሰንበት ትምህርት ቤት መድረክ የተዘጋጀ' },
+  generated: { en: 'Generated from Sunday School Course Learning', am: 'ከሰንበት ትምህርት ቤት ኮርስ መማርያ የተዘጋጀ' },
 };
 
 /** The printable practice sheet as a standalone HTML document. */
