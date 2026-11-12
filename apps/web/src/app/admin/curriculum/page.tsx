@@ -25,8 +25,10 @@ import {
   Upload,
   ExternalLink,
   Edit3,
+  Send,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { uiConfirm } from '@/lib/telegram';
 import { useLanguage } from '@/lib/language-context';
 
 function AdminCurriculumContent() {
@@ -74,6 +76,9 @@ function AdminCurriculumContent() {
   const [uploadingSubjectId, setUploadingSubjectId] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // "Publish all drafts" for one subject: which subject is running and how far it has got
+  const [bulkPublish, setBulkPublish] = useState<{ subjectId: string; done: number; total: number } | null>(null);
 
   const loadCurriculum = async () => {
     try {
@@ -281,6 +286,45 @@ function AdminCurriculumContent() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Publishes every draft chapter of a subject, one after another (each publish builds that chapter's
+  // offline package). Chapters without a textbook page range cannot be published and are skipped.
+  const handlePublishAllDrafts = async (subject: any) => {
+    const drafts = (subject.chapters || []).filter((ch: any) => !ch.isPublished);
+    const ready = drafts.filter((ch: any) => ch.textbook);
+    const skipped = drafts.length - ready.length;
+    if (ready.length === 0) return;
+
+    const name = pick(subject.amharicName, subject.name);
+    const ok = await uiConfirm(
+      lang === 'am'
+        ? `የ«${name}» ${ready.length} ረቂቅ ምዕራፎች ይታተማሉ፤ ተማሪዎችም ወዲያውኑ ያዩዋቸዋል።${skipped ? ` (${skipped} ምዕራፎች የመጽሐፍ ገጽ ስላልተመደበላቸው አይታተሙም።)` : ''} ይቀጥሉ?`
+        : `Publish ${ready.length} draft chapter${ready.length === 1 ? '' : 's'} of "${name}"? Students will see them right away.${skipped ? ` (${skipped} without a textbook page range will be skipped.)` : ''}`
+    );
+    if (!ok) return;
+
+    const failed: string[] = [];
+    setBulkPublish({ subjectId: subject.id, done: 0, total: ready.length });
+    for (const [i, ch] of ready.entries()) {
+      try {
+        await api.publishChapter(ch.id);
+      } catch (err: any) {
+        failed.push(`#${ch.chapterNumber} ${pick(ch.amharicTitle, ch.title)}: ${err.message || 'error'}`);
+      }
+      setBulkPublish({ subjectId: subject.id, done: i + 1, total: ready.length });
+    }
+    setBulkPublish(null);
+
+    const published = ready.length - failed.length;
+    setActionMessage({
+      type: failed.length ? 'error' : 'success',
+      text:
+        (lang === 'am'
+          ? `${published} ምዕራፎች ታትመዋል።${skipped ? ` ${skipped} የመጽሐፍ ገጽ ያልተመደበላቸው ምዕራፎች አልታተሙም።` : ''}${failed.length ? ` ያልታተሙ፦ ${failed.join('፤ ')}` : ''}`
+          : `Published ${published} chapter${published === 1 ? '' : 's'}.${skipped ? ` Skipped ${skipped} without a textbook page range.` : ''}${failed.length ? ` Failed: ${failed.join('; ')}` : ''}`),
+    });
+    await loadCurriculum();
   };
 
   // Master Textbook Upload for Subject
@@ -649,6 +693,39 @@ function AdminCurriculumContent() {
                                   <PlusCircle className="w-3.5 h-3.5" />
                                   <span>{lang === 'am' ? 'ምዕራፍ ጨምር' : 'Add Chapter'}</span>
                                 </button>
+
+                                {(() => {
+                                  const draftCount = (subject.chapters || []).filter((ch: any) => !ch.isPublished).length;
+                                  const progress = bulkPublish?.subjectId === subject.id ? bulkPublish : null;
+                                  const running = !!progress;
+                                  if (draftCount === 0 && !running) return null;
+                                  return (
+                                    <button
+                                      onClick={() => handlePublishAllDrafts(subject)}
+                                      disabled={!!bulkPublish}
+                                      className="text-xs bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-semibold px-2.5 py-1 rounded border border-amber-500/40 flex items-center space-x-1 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                      title={lang === 'am' ? 'የዚህን የትምህርት ዓይነት ረቂቅ ምዕራፎች በሙሉ አትም' : 'Publish every draft chapter of this subject'}
+                                    >
+                                      {progress ? (
+                                        <>
+                                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                          <span>
+                                            {lang === 'am'
+                                              ? `በማተም ላይ ${progress.done}/${progress.total}`
+                                              : `Publishing ${progress.done}/${progress.total}`}
+                                          </span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Send className="w-3.5 h-3.5" />
+                                          <span>
+                                            {lang === 'am' ? `ረቂቆችን በሙሉ አትም (${draftCount})` : `Publish all drafts (${draftCount})`}
+                                          </span>
+                                        </>
+                                      )}
+                                    </button>
+                                  );
+                                })()}
                               </div>
                             </div>
 
